@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:name="@+id/deckListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="0dp"
+    android:paddingEnd="8dp">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:padding="14dp"
+        app:srcCompat="@drawable/ic_outline_description_24" />
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/imageView"
+        android:ellipsize="marquee"
+
+        android:marqueeRepeatLimit="marquee_forever"
+        android:paddingTop="8dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+
+        android:text="Deck Name"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/totalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameTextView"
+        android:layout_toEndOf="@id/imageView"
+        android:paddingStart="0dp"
+        android:paddingTop="1dp"
+        android:paddingEnd="4dp"
+        android:text="Total: 100" />
+
+    <TextView
+        android:id="@+id/newTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameTextView"
+        android:layout_toEndOf="@id/totalTextView"
+        android:paddingStart="0dp"
+        android:paddingTop="1dp"
+        android:paddingEnd="4dp"
+        android:text="New: 0" />
+
+    <TextView
+        android:id="@+id/revTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameTextView"
+        android:layout_toEndOf="@id/newTextView"
+        android:paddingTop="1dp"
+        android:text="Rev: 0" />
+
+</RelativeLayout>
