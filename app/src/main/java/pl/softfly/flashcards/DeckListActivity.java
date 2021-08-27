@@ -1,5 +1,6 @@
 package pl.softfly.flashcards;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,5 +40,6 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
 
     @Override
     public void onDeckItemClick(int position) {
+        startActivity(new Intent(this, CardActivity.class));
     }
 }
