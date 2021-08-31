@@ -10,18 +10,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlashCards"
         android:requestLegacyExternalStorage="true">
-        <activity android:name=".DeckListActivity">
+        <activity android:name=".ui.deck.DeckListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".CardActivity"
-            android:parentActivityName=".DeckListActivity">
+            android:name=".ui.card.CardActivity"
+            android:parentActivityName=".ui.deck.DeckListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".DeckListActivity" />
+                android:value=".ui.deck.DeckListActivity" />
         </activity>
     </application>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:minSdkVersion="30" />

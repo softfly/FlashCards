@@ -1,23 +1,30 @@
-package pl.softfly.flashcards;
+package pl.softfly.flashcards.ui.deck;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import pl.softfly.flashcards.R;
+
 public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRecyclerViewAdapter.ViewHolder> {
+
+    private final AppCompatActivity activity;
 
     private final DeckListOnClickListener deckListOnClickListener;
 
     private final ArrayList<String> deckNames;
 
-    public DeckListRecyclerViewAdapter(DeckListOnClickListener deckListOnClickListener, ArrayList<String> deckNames) {
+    public DeckListRecyclerViewAdapter(AppCompatActivity activity, DeckListOnClickListener deckListOnClickListener, ArrayList<String> deckNames) {
+        this.activity = activity;
         this.deckListOnClickListener = deckListOnClickListener;
         this.deckNames = deckNames;
     }
@@ -44,9 +51,10 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
         void onDeckItemClick(int position);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView nameTextView;
+        TextView moreTextView;
         RelativeLayout deckLayoutListItem;
         DeckListOnClickListener deckListOnClickListener;
 
@@ -56,6 +64,21 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
             nameTextView = itemView.findViewById(R.id.nameTextView);
             deckLayoutListItem = itemView.findViewById(R.id.deckListItem);
             itemView.setOnClickListener(this);
+            initMoreTextView();
+        }
+
+        protected void initMoreTextView() {
+            moreTextView = itemView.findViewById(R.id.moreTextView);
+            moreTextView.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
+                popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
+                popup.setOnMenuItemClickListener(item -> {
+                    RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(getAdapterPosition()));
+                    dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
+                    return true;
+                });
+                popup.show();
+            });
         }
 
         @Override

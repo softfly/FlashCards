@@ -23,15 +23,15 @@
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_toLeftOf="@+id/moreTextView"
         android:layout_toEndOf="@id/imageView"
-        android:ellipsize="marquee"
 
+        android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:paddingTop="8dp"
         android:scrollHorizontally="true"
-        android:singleLine="true"
 
+        android:singleLine="true"
         android:text="Deck Name"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="20sp"
@@ -67,5 +67,28 @@
         android:layout_toEndOf="@id/newTextView"
         android:paddingTop="1dp"
         android:text="Rev: 0" />
+
+    <TextView
+        android:id="@+id/moreTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+
+        android:text="MORE"
+        android:textAllCaps="true"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>

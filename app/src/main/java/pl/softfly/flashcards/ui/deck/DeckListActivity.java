@@ -1,13 +1,9 @@
-package pl.softfly.flashcards;
+package pl.softfly.flashcards.ui.deck;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.service.controls.actions.FloatAction;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -21,7 +17,9 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.util.ArrayList;
 
-import pl.softfly.flashcards.DeckListRecyclerViewAdapter.DeckListOnClickListener;
+import pl.softfly.flashcards.ui.card.CardActivity;
+import pl.softfly.flashcards.ui.deck.DeckListRecyclerViewAdapter.DeckListOnClickListener;
+import pl.softfly.flashcards.R;
 
 public class DeckListActivity extends AppCompatActivity implements DeckListOnClickListener {
 
@@ -41,7 +39,7 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
         initRecyclerView();
         FloatingActionButton fabCreateDeck = findViewById(R.id.fab_create_deck);
         fabCreateDeck.setOnClickListener(v -> {
-            DialogFragment dialog = new CreateDeckDialog(context);
+            DialogFragment dialog = new CreateDeckDialog();
             dialog.show(activity.getSupportFragmentManager(), "CreateDeck");
         });
     }
@@ -59,7 +57,7 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
     protected void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.deck_list_view);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(new DeckListRecyclerViewAdapter(this, deckNames));
+        recyclerView.setAdapter(new DeckListRecyclerViewAdapter(this,this, deckNames));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 

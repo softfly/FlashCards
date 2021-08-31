@@ -1,4 +1,4 @@
-package pl.softfly.flashcards;
+package pl.softfly.flashcards.ui.card;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
