@@ -46,7 +46,7 @@
         android:paddingStart="0dp"
         android:paddingTop="1dp"
         android:paddingEnd="4dp"
-        android:text="Total: 100" />
+        android:text="Total: 0" />
 
     <TextView
         android:id="@+id/newTextView"

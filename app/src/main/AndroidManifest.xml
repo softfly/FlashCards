@@ -23,6 +23,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.DeckListActivity" />
         </activity>
+        <activity
+            android:name=".ui.card.NewCardActivity"
+            android:parentActivityName=".ui.deck.DeckListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.deck.DeckListActivity" />
+        </activity>
     </application>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" android:minSdkVersion="30" />
 </manifest>

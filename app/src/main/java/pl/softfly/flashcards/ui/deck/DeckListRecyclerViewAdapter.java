@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.ui.deck;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.ui.card.NewCardActivity;
 
 public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRecyclerViewAdapter.ViewHolder> {
+
+    public static final String DECK_NAME = "deckName";
 
     private final AppCompatActivity activity;
 
@@ -38,8 +44,14 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.nameTextView.setText(deckNames.get(position));
+        String deckName = deckNames.get(position);
+        holder.nameTextView.setText(deckName);
         holder.nameTextView.setSelected(true);
+
+        DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(activity.getBaseContext(), deckName);
+        room.cardDao().count().observe(activity, count -> {
+            holder.totalTextView.setText("Total: " + count);
+        });
     }
 
     @Override
@@ -55,6 +67,7 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
 
         TextView nameTextView;
         TextView moreTextView;
+        TextView totalTextView;
         RelativeLayout deckLayoutListItem;
         DeckListOnClickListener deckListOnClickListener;
 
@@ -68,14 +81,24 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
         }
 
         protected void initMoreTextView() {
+            totalTextView = itemView.findViewById(R.id.totalTextView);
             moreTextView = itemView.findViewById(R.id.moreTextView);
             moreTextView.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
                 popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
                 popup.setOnMenuItemClickListener(item -> {
-                    RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(getAdapterPosition()));
-                    dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
-                    return true;
+                    switch (item.getItemId()) {
+                        case R.id.addCard:
+                            Intent intent = new Intent(activity, NewCardActivity.class);
+                            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
+                            activity.startActivity(intent);
+                            return true;
+                        case R.id.removeDeck:
+                            RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(getAdapterPosition()));
+                            dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
+                            return true;
+                    }
+                    return false;
                 });
                 popup.show();
             });
