@@ -20,7 +20,7 @@ public class CreateDeckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        DeckListActivity activity = (DeckListActivity) getActivity();
+        ListDecksActivity activity = (ListDecksActivity) getActivity();
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_create_deck, null);
 
         return new AlertDialog.Builder(getActivity())
@@ -35,12 +35,10 @@ public class CreateDeckDialog extends DialogFragment {
 
                         room.cardDao().deleteAll()
                                 .subscribeOn(Schedulers.io())
-                                .doOnComplete(() -> {
-                                    activity.runOnUiThread(() -> {
-                                        activity.loadDecks();
-                                        Toast.makeText(activity, deckName + " deck created.", Toast.LENGTH_SHORT).show();
-                                    });
-                                })
+                                .doOnComplete(() -> activity.runOnUiThread(() -> {
+                                    activity.loadDecks();
+                                    Toast.makeText(activity, deckName + " deck created.", Toast.LENGTH_SHORT).show();
+                                }))
                                 .subscribe();
                     }
                 })

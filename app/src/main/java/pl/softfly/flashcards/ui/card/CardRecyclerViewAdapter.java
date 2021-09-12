@@ -17,13 +17,13 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
-public class CardListRecyclerViewAdapter extends RecyclerView.Adapter<CardListRecyclerViewAdapter.ViewHolder> {
+public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerViewAdapter.ViewHolder> {
 
     private final AppCompatActivity activity;
 
     private final ArrayList<Card> cards = new ArrayList<>();
 
-    public CardListRecyclerViewAdapter(AppCompatActivity activity, String deckName) {
+    public CardRecyclerViewAdapter(AppCompatActivity activity, String deckName) {
         this.activity = activity;
         DeckDatabase deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(activity.getBaseContext(), deckName);
         deckDB.cardDao().getCards().observe(activity, cards -> {
@@ -35,7 +35,7 @@ public class CardListRecyclerViewAdapter extends RecyclerView.Adapter<CardListRe
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card, parent, false);
         return new ViewHolder(view);
     }
 

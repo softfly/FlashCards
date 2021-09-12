@@ -17,31 +17,28 @@ import java.util.ArrayList;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
-import pl.softfly.flashcards.ui.card.CardActivity;
+import pl.softfly.flashcards.ui.card.DraggableViewCardActivity;
 import pl.softfly.flashcards.ui.card.ListCardsActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 
-public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRecyclerViewAdapter.ViewHolder> {
+public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerViewAdapter.ViewHolder> {
 
     public static final String DECK_NAME = "deckName";
 
     private final AppCompatActivity activity;
 
-    private final DeckListOnClickListener deckListOnClickListener;
-
     private final ArrayList<String> deckNames;
 
-    public DeckListRecyclerViewAdapter(AppCompatActivity activity, DeckListOnClickListener deckListOnClickListener, ArrayList<String> deckNames) {
+    public DeckRecyclerViewAdapter(AppCompatActivity activity, ArrayList<String> deckNames) {
         this.activity = activity;
-        this.deckListOnClickListener = deckListOnClickListener;
         this.deckNames = deckNames;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.deck_list_item, parent, false);
-        return new ViewHolder(view, deckListOnClickListener);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -51,18 +48,12 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
         holder.nameTextView.setSelected(true);
 
         DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(activity.getBaseContext(), deckName);
-        room.cardDao().count().observe(activity, count -> {
-            holder.totalTextView.setText("Total: " + count);
-        });
+        room.cardDao().count().observe(activity, count -> holder.totalTextView.setText("Total: " + count));
     }
 
     @Override
     public int getItemCount() {
         return deckNames.size();
-    }
-
-    public interface DeckListOnClickListener {
-        void onDeckItemClick(int position);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -71,11 +62,9 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
         TextView moreTextView;
         TextView totalTextView;
         RelativeLayout deckLayoutListItem;
-        DeckListOnClickListener deckListOnClickListener;
 
-        public ViewHolder(View itemView, DeckListOnClickListener deckListOnClickListener) {
+        public ViewHolder(View itemView) {
             super(itemView);
-            this.deckListOnClickListener = deckListOnClickListener;
             nameTextView = itemView.findViewById(R.id.nameTextView);
             deckLayoutListItem = itemView.findViewById(R.id.deckListItem);
             itemView.setOnClickListener(this);
@@ -114,7 +103,7 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(activity, CardActivity.class);
+            Intent intent = new Intent(activity, DraggableViewCardActivity.class);
             intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
             activity.startActivity(intent);
         }

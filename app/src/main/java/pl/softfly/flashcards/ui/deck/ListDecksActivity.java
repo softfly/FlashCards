@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,17 +18,16 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.card.CardActivity;
-import pl.softfly.flashcards.ui.deck.DeckListRecyclerViewAdapter.DeckListOnClickListener;
+import pl.softfly.flashcards.ui.card.DraggableViewCardActivity;
 
-public class DeckListActivity extends AppCompatActivity implements DeckListOnClickListener {
+public class ListDecksActivity extends AppCompatActivity {
 
     private final ArrayList<String> deckNames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.deck_list);
+        setContentView(R.layout.activity_list_decks);
         loadDecks();
         initRecyclerView();
         FloatingActionButton fabCreateDeck = findViewById(R.id.fab_create_deck);
@@ -43,18 +41,13 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
     protected void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.deck_list_view);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(new DeckListRecyclerViewAdapter(this, this, deckNames));
+        recyclerView.setAdapter(new DeckRecyclerViewAdapter(this, deckNames));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     protected void loadDecks() {
         deckNames.clear();
         deckNames.addAll(DeckDatabase.listDatabases());
-    }
-
-    @Override
-    public void onDeckItemClick(int position) {
-        startActivity(new Intent(this, CardActivity.class));
     }
 
     protected void createSampleDeck() {
@@ -64,11 +57,11 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
 
         Card[] cards = new Card[100];
         for (int i = 0; i < 100; i++) {
-            StringBuilder questionBuilder = new StringBuilder("Sample question " + (i+1));
-            StringBuilder answerBuilder = new StringBuilder("Sample answer " + (i+1));
+            StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
+            StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
             for (int ii = 0; ii < 100; ii++) {
-                questionBuilder.append(" Sample question "+ (i+1));
-                answerBuilder.append(" Sample answer " + (i+1));
+                questionBuilder.append(" Sample question ").append(i + 1);
+                answerBuilder.append(" Sample answer ").append(i + 1);
             }
             Card card = new Card();
             card.setQuestion(questionBuilder.toString());
@@ -78,11 +71,7 @@ public class DeckListActivity extends AppCompatActivity implements DeckListOnCli
 
         deckDB.cardDao().insertAll(cards)
                 .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> {
-                    runOnUiThread(() -> {
-                        loadDecks();
-                    });
-                })
+                .doOnComplete(() -> runOnUiThread(this::loadDecks))
                 .subscribe();
     }
 }

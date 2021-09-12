@@ -14,27 +14,32 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FlashCards">
-        <activity android:name=".ui.card.ListCardsActivity"></activity>
-        <activity android:name=".ui.deck.DeckListActivity">
+        <activity android:name=".ui.deck.ListDecksActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.card.CardActivity"
-            android:parentActivityName=".ui.deck.DeckListActivity">
+            android:name=".ui.card.DraggableViewCardActivity"
+            android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.deck.DeckListActivity" />
+                android:value=".ui.deck.ListDecksActivity" />
         </activity>
         <activity
             android:name=".ui.card.NewCardActivity"
-            android:parentActivityName=".ui.deck.DeckListActivity">
+            android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.deck.DeckListActivity" />
+                android:value=".ui.deck.ListDecksActivity" />
+        </activity>
+        <activity
+            android:name=".ui.card.ListCardsActivity"
+            android:parentActivityName=".ui.deck.ListDecksActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.deck.ListDecksActivity" />
         </activity>
     </application>
 

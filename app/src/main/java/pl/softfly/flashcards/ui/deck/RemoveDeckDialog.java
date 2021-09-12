@@ -22,7 +22,7 @@ public class RemoveDeckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        DeckListActivity activity = (DeckListActivity) getActivity();
+        ListDecksActivity activity = (ListDecksActivity) getActivity();
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Remove a deck of cards")

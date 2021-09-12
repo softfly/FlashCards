@@ -14,7 +14,7 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.deck.DeckListRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public class NewCardActivity extends AppCompatActivity {
 
@@ -27,10 +27,10 @@ public class NewCardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_card);
+        setContentView(R.layout.activity_new_card);
 
         Intent intent = getIntent();
-        deckName = intent.getStringExtra(DeckListRecyclerViewAdapter.DECK_NAME);
+        deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
 
         questionEditText = findViewById(R.id.questionEditText);
         answerEditText = findViewById(R.id.answerEditText);
@@ -61,11 +61,7 @@ public class NewCardActivity extends AppCompatActivity {
         DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
         room.cardDao().insertAll(card)
                 .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> {
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show();
-                    });
-                })
+                .doOnComplete(() -> runOnUiThread(() -> Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show()))
                 .subscribe();
 
         super.finish();
