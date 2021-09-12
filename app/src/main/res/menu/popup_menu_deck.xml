@@ -1,8 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/listCards"
+        android:title="List cards" />
+    <item
         android:id="@+id/addCard"
         android:title="Add a new card" />
     <item
         android:id="@+id/removeDeck"
-        android:title="Remove Deck" />
+        android:title="Remove the deck" />
 </menu>

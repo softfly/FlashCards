@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- These are the standard attributes that make up a complete theme. -->
+    <declare-styleable name="Theme">
+        <attr name="colorListDivider" format="color" />
+        <attr name="opacityListDivider" format="color" />
+    </declare-styleable>
+</resources>

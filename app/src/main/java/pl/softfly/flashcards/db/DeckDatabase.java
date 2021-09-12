@@ -7,23 +7,47 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+
 import pl.softfly.flashcards.dao.CardDao;
 import pl.softfly.flashcards.entity.Card;
 
 @Database(entities = {Card.class}, version = 1)
 public abstract class DeckDatabase extends RoomDatabase {
 
-    public static DeckDatabase getDatabase(Context context, String dbName) {
-        if (!dbName.endsWith(".db")) {
-            dbName += ".db";
-        } else if (dbName.toLowerCase().endsWith(".db")) {
-            dbName = dbName.substring(0, dbName.length() - 3) + ".db";
+    private static final String PATH_DB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/";
+
+    public static DeckDatabase getDatabase(Context context, String deckName) {
+        if (!deckName.endsWith(".db")) {
+            deckName += ".db";
+        } else if (deckName.toLowerCase().endsWith(".db")) {
+            deckName = deckName.substring(0, deckName.length() - 3) + ".db";
         }
         return Room.databaseBuilder(
                 context,
                 DeckDatabase.class,
-                Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/" + dbName)
+                PATH_DB + deckName)
                 .build();
+    }
+
+    public static List<String> listDatabases() {
+        List<String> deckNames = new LinkedList<>();
+        File currentPath = new File(PATH_DB);
+        for (File file : currentPath.listFiles()) {
+            if (file.getName().endsWith(".db")) {
+                deckNames.add(file.getName().substring(0, file.getName().length() - 3));
+            }
+        }
+        return deckNames;
+    }
+
+    public static void removeDatabase(String deckName) {
+        String mainPath = PATH_DB + deckName;
+        (new File(mainPath + ".db")).delete();
+        (new File(mainPath + ".db-shm")).delete();
+        (new File(mainPath + ".db-wal")).delete();
     }
 
     public abstract CardDao cardDao();

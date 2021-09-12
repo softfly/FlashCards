@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.ui.card.CardActivity;
+import pl.softfly.flashcards.ui.card.ListCardsActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 
 public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRecyclerViewAdapter.ViewHolder> {
@@ -88,6 +90,12 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
                 popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
                 popup.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
+                        case R.id.listCards: {
+                            Intent intent = new Intent(activity, ListCardsActivity.class);
+                            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
+                            activity.startActivity(intent);
+                            return true;
+                        }
                         case R.id.addCard:
                             Intent intent = new Intent(activity, NewCardActivity.class);
                             intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
@@ -106,7 +114,9 @@ public class DeckListRecyclerViewAdapter extends RecyclerView.Adapter<DeckListRe
 
         @Override
         public void onClick(View view) {
-            deckListOnClickListener.onDeckItemClick(getAdapterPosition());
+            Intent intent = new Intent(activity, CardActivity.class);
+            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
+            activity.startActivity(intent);
         }
     }
 }

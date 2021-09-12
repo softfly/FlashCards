@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- copied from SDK -->
+    <color name="list_divider_color_light">#ffdadce0</color>
+    <color name="list_divider_color_dark">#85ffffff</color>
+    <color name="list_divider_opacity_device_default_light">@android:color/white</color>
+    <color name="list_divider_opacity_device_default_dark">#1f000000</color>
 </resources>
