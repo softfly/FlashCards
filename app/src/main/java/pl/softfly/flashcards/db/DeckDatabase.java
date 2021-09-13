@@ -2,6 +2,7 @@ package pl.softfly.flashcards.db;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
 import androidx.room.Database;
 import androidx.room.Room;
@@ -19,7 +20,7 @@ public abstract class DeckDatabase extends RoomDatabase {
 
     private static final String PATH_DB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/";
 
-    public static DeckDatabase getDatabase(Context context, String deckName) {
+    public static DeckDatabase getDatabase(Context context, @NonNull String deckName) {
         if (!deckName.endsWith(".db")) {
             deckName += ".db";
         } else if (deckName.toLowerCase().endsWith(".db")) {
@@ -41,6 +42,15 @@ public abstract class DeckDatabase extends RoomDatabase {
             }
         }
         return deckNames;
+    }
+
+    public static boolean exists(Context context, @NonNull String deckName) {
+        if (!deckName.endsWith(".db")) {
+            deckName += ".db";
+        } else if (deckName.toLowerCase().endsWith(".db")) {
+            deckName = deckName.substring(0, deckName.length() - 3) + ".db";
+        }
+        return (new File(PATH_DB + deckName)).exists();
     }
 
     public static void removeDatabase(String deckName) {

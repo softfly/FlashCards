@@ -1,6 +1,5 @@
 package pl.softfly.flashcards.ui.deck;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +17,6 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.card.DraggableViewCardActivity;
 
 public class ListDecksActivity extends AppCompatActivity {
 
@@ -52,14 +50,17 @@ public class ListDecksActivity extends AppCompatActivity {
 
     protected void createSampleDeck() {
         String deckName = "Sample Deck";
-        DeckDatabase.removeDatabase(deckName);
         DeckDatabase deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+        deckDB.close();//TODO refactoring
+        DeckDatabase.removeDatabase(deckName);
 
-        Card[] cards = new Card[100];
-        for (int i = 0; i < 100; i++) {
+        deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+        int NUM_CARDS = 20;
+        Card[] cards = new Card[NUM_CARDS];
+        for (int i = 0; i < NUM_CARDS; i++) {
             StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
             StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
-            for (int ii = 0; ii < 100; ii++) {
+            for (int ii = 0; ii < 10; ii++) {
                 questionBuilder.append(" Sample question ").append(i + 1);
                 answerBuilder.append(" Sample answer ").append(i + 1);
             }

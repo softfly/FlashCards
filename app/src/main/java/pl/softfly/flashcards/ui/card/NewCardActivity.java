@@ -9,31 +9,40 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Objects;
+
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public class NewCardActivity extends AppCompatActivity {
 
-    private String deckName;
+    public static final String DECK_NAME = "deckName";
 
-    private EditText questionEditText;
+    protected String deckName;
 
-    private EditText answerEditText;
+    protected DeckDatabase deckDb;
+
+    protected EditText questionEditText;
+
+    protected EditText answerEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_card);
 
-        Intent intent = getIntent();
-        deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
-
         questionEditText = findViewById(R.id.questionEditText);
         answerEditText = findViewById(R.id.answerEditText);
+
+        Intent intent = getIntent();
+        deckName = intent.getStringExtra(DECK_NAME);
+        deckDb = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     @Override
@@ -45,6 +54,9 @@ public class NewCardActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return  true;
             case R.id.saveCard:
                 onClickSaveCard();
                 return true;
@@ -58,12 +70,13 @@ public class NewCardActivity extends AppCompatActivity {
         card.setQuestion(questionEditText.getText().toString());
         card.setAnswer(answerEditText.getText().toString());
 
-        DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
-        room.cardDao().insertAll(card)
+        deckDb.cardDao().insertAll(card)
                 .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> runOnUiThread(() -> Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show()))
+                .doOnComplete(() -> runOnUiThread(() -> {
+                    Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show();
+                    super.finish();
+                }))
                 .subscribe();
-
         super.finish();
     }
 }

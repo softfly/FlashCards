@@ -27,12 +27,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />
         </activity>
+        <activity android:name=".ui.card.NewCardActivity">
+        </activity>
         <activity
-            android:name=".ui.card.NewCardActivity"
-            android:parentActivityName=".ui.deck.ListDecksActivity">
+            android:name=".ui.card.EditCardActivity"
+            android:parentActivityName=".ui.card.ListCardsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.deck.ListDecksActivity" />
+                android:value=".ui.card.ListCardsActivity" />
         </activity>
         <activity
             android:name=".ui.card.ListCardsActivity"

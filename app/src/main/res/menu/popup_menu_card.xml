@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit_card"
+        android:title="Edit card" />
+    <item
+        android:id="@+id/remove_card"
+        android:title="Remove card" />
+    <item
+        android:id="@+id/add_card"
+        android:title="Add a new card here" />
+</menu>

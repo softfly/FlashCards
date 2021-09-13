@@ -18,11 +18,14 @@ public class AppDatabaseUtil {
     }
 
     public synchronized DeckDatabase getDeckDatabase(Context context, String dbName) {
-        DeckDatabase appDatabase = DECKS.get(dbName);
-        if (appDatabase == null) {
-            appDatabase = DeckDatabase.getDatabase(context, dbName);
-            DECKS.put(dbName, appDatabase);
+        DeckDatabase db = DECKS.get(dbName);
+        if (db == null) {
+            db = DeckDatabase.getDatabase(context, dbName);
+            DECKS.put(dbName, db);
+        } else if (!db.isOpen()) {
+            db = DeckDatabase.getDatabase(context, dbName);
+            DECKS.put(dbName, db);
         }
-        return appDatabase;
+        return db;
     }
 }

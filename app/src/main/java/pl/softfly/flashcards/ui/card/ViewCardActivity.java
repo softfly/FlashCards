@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Objects;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
@@ -25,6 +28,9 @@ public abstract class ViewCardActivity extends AppCompatActivity {
     private Card card;
     private TextView questionView;
     private TextView answerView;
+    private Button againButton;
+    private Button easyButton;
+    private Button hardButton;
     private View gradeButtonsLayout;
 
     @Override
@@ -41,7 +47,10 @@ public abstract class ViewCardActivity extends AppCompatActivity {
 
         initQuestionView();
         initAnswerView();
-        loadCard();
+        initAgainButton();
+        initEasyButton();
+        initHardButton();
+        loadNextCard();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -60,9 +69,34 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         });
     }
 
-    protected void loadCard() {
-        deckDatabase.cardDao().getNextCard().observe(this, card -> {
+    protected void initAgainButton() {
+        againButton = findViewById(R.id.againButton);
+        againButton.setOnClickListener(v -> {
+            gradeButtonsLayout.setVisibility(INVISIBLE);
+            loadNextCard();
+        });
+    }
+
+    protected void initEasyButton() {
+        easyButton = findViewById(R.id.easyButton);
+        easyButton.setOnClickListener(v -> {
+            gradeButtonsLayout.setVisibility(INVISIBLE);
+            loadNextCard();
+        });
+    }
+
+    protected void initHardButton() {
+        hardButton = findViewById(R.id.hardButton);
+        hardButton.setOnClickListener(v -> {
+            gradeButtonsLayout.setVisibility(INVISIBLE);
+            loadNextCard();
+        });
+    }
+
+    protected void loadNextCard() {
+        deckDatabase.cardDao().getNextCard(Objects.nonNull(card) ? card.getId() : 0).observe(this, card -> {
             questionView.setText(card.getQuestion());
+            answerView.setText("?");
             this.card = card;
         });
     }
