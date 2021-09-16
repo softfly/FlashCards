@@ -10,12 +10,16 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
 import java.util.Objects;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.CardReplayScheduler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.CardLearningProgress;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 import static android.view.View.INVISIBLE;
@@ -23,15 +27,21 @@ import static android.view.View.VISIBLE;
 
 public abstract class ViewCardActivity extends AppCompatActivity {
 
+    java.util.ListIterator<Card> cardIterator;
+    CardLearningProgress againLearningProgress;
+    CardLearningProgress easyLearningProgress;
+    CardLearningProgress hardLearningProgress;
     private String deckName;
-    private DeckDatabase deckDatabase;
+    private DeckDatabase deckDb;
     private Card card;
+    private List<Card> cards;
     private TextView questionView;
     private TextView answerView;
     private Button againButton;
     private Button easyButton;
     private Button hardButton;
     private View gradeButtonsLayout;
+    private final CardReplayScheduler cardReplayScheduler = new CardReplayScheduler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +51,16 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         Intent intent = getIntent();
         deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
 
-        deckDatabase = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+        deckDb = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+        loadNextCard();
+
         gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
         gradeButtonsLayout.setVisibility(INVISIBLE);
-
         initQuestionView();
         initAnswerView();
         initAgainButton();
         initEasyButton();
         initHardButton();
-        loadNextCard();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -73,7 +83,12 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         againButton = findViewById(R.id.againButton);
         againButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            loadNextCard();
+            card.setLearningProgress(againLearningProgress);
+
+            deckDb.cardDao().updateAll(card)
+                    .subscribeOn(Schedulers.io())
+                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
+                    .subscribe();
         });
     }
 
@@ -81,7 +96,12 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         easyButton = findViewById(R.id.easyButton);
         easyButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            loadNextCard();
+            card.setLearningProgress(easyLearningProgress);
+
+            deckDb.cardDao().updateAll(card)
+                    .subscribeOn(Schedulers.io())
+                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
+                    .subscribe();
         });
     }
 
@@ -89,16 +109,51 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         hardButton = findViewById(R.id.hardButton);
         hardButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
+            card.setLearningProgress(hardLearningProgress);
+
+
+            deckDb.cardDao().updateAll(card)
+                    .subscribeOn(Schedulers.io())
+                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
+                    .subscribe();
             loadNextCard();
         });
     }
 
     protected void loadNextCard() {
-        deckDatabase.cardDao().getNextCard(Objects.nonNull(card) ? card.getId() : 0).observe(this, card -> {
-            questionView.setText(card.getQuestion());
-            answerView.setText("?");
-            this.card = card;
-        });
+        if (Objects.nonNull(cardIterator) && cardIterator.hasNext()) {
+            displayCard(cardIterator.next());
+        } else {
+            deckDb.cardDao().getNextCards()
+                    .subscribeOn(Schedulers.io())
+                    .doOnError(Throwable::printStackTrace)
+                    .doOnSuccess(cards -> runOnUiThread(() -> {
+                        this.cards = cards;
+                        cardIterator = cards.listIterator();
+                        if (cardIterator.hasNext()) {
+                            displayCard(cardIterator.next());
+                        } else {
+                            NoStudyCardsDialog dialog = new NoStudyCardsDialog();
+                            dialog.show(this.getSupportFragmentManager(), "NoStudyCardsDialog");
+                        }
+                    }))
+                    .subscribe();
+        }
+    }
+
+    protected void displayCard(Card card) {
+        this.card = card;
+        questionView.setText(card.getQuestion());
+        answerView.setText("?\nShow answer");
+
+        againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
+        againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
+
+        easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(card.getLearningProgress());
+        easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
+
+        hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(card.getLearningProgress());
+        hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
     }
 
     @Override

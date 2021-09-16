@@ -50,11 +50,15 @@ public class ListDecksActivity extends AppCompatActivity {
 
     protected void createSampleDeck() {
         String deckName = "Sample Deck";
-        DeckDatabase deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
-        deckDB.close();//TODO refactoring
+        try {
+            DeckDatabase deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+            deckDB.close();//TODO refactoring
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         DeckDatabase.removeDatabase(deckName);
 
-        deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
+        DeckDatabase deckDB = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
         int NUM_CARDS = 20;
         Card[] cards = new Card[NUM_CARDS];
         for (int i = 0; i < NUM_CARDS; i++) {

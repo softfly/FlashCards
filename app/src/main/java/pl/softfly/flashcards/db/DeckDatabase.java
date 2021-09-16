@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import pl.softfly.flashcards.dao.CardDao;
 import pl.softfly.flashcards.entity.Card;
 
 @Database(entities = {Card.class}, version = 1)
+@TypeConverters({Converters.class})
 public abstract class DeckDatabase extends RoomDatabase {
 
     private static final String PATH_DB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/";

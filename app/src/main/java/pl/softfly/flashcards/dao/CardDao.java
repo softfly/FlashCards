@@ -10,22 +10,23 @@ import androidx.room.Update;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
 import pl.softfly.flashcards.entity.Card;
 
 @Dao
 public interface CardDao {
 
-    @Query("SELECT count(*) FROM card")
+    @Query("SELECT count(*) FROM Card")
     LiveData<Integer> count();
 
-    @Query("SELECT * FROM card WHERE card.id= :id")
+    @Query("SELECT * FROM Card WHERE Card.id= :id")
     LiveData<Card> getCard(Integer id);
 
-    @Query("SELECT * FROM card")
+    @Query("SELECT * FROM Card")
     LiveData<List<Card>> getCards();
 
-    @Query("SELECT * FROM card WHERE card.id > :id")
-    LiveData<Card> getNextCard(Integer id);
+    @Query("SELECT * FROM Card WHERE card.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR card.nextReplayAt IS NULL LIMIT 10")
+    Maybe<List<Card>> getNextCards();
 
     @Insert
     Completable insertAll(Card... cards);

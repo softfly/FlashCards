@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.entity;
 
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -12,6 +13,9 @@ public class Card {
     private String question;
 
     private String answer;
+
+    @Embedded
+    CardLearningProgress learningProgress;
 
     public Integer getId() {
         return id;
@@ -35,5 +39,13 @@ public class Card {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public CardLearningProgress getLearningProgress() {
+        return learningProgress;
+    }
+
+    public void setLearningProgress(CardLearningProgress learningProgress) {
+        this.learningProgress = learningProgress;
     }
 }
