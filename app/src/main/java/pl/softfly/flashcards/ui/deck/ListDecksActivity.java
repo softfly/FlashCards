@@ -2,6 +2,8 @@ package pl.softfly.flashcards.ui.deck;
 
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -13,6 +15,7 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.tasks.LongTasksExecutor;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabase;
@@ -22,30 +25,44 @@ public class ListDecksActivity extends AppCompatActivity {
 
     private final ArrayList<String> deckNames = new ArrayList<>();
 
+    private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
+
+    private final ActivityResultLauncher<String[]> importExcel = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> LongTasksExecutor.getInstance().doTask(new ImportExcelToDeckTask(this, uri))
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_decks);
-        loadDecks();
         initRecyclerView();
+        loadDecks();
         FloatingActionButton fabCreateDeck = findViewById(R.id.fab_create_deck);
         fabCreateDeck.setOnClickListener(v -> {
             DialogFragment dialog = new CreateDeckDialog();
             dialog.show(this.getSupportFragmentManager(), "CreateDeck");
         });
+        FloatingActionButton fabImportDeck = findViewById(R.id.import_deck);
+        fabImportDeck.setOnClickListener(v -> {
+            importExcel.launch(new String[] {ImportExcelToDeckTask.TYPE_XLS, ImportExcelToDeckTask.TYPE_XLSX});
+        });
+
         createSampleDeck();
     }
 
     protected void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.deck_list_view);
         recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(new DeckRecyclerViewAdapter(this, deckNames));
+        deckRecyclerViewAdapter = new DeckRecyclerViewAdapter(this, deckNames);
+        recyclerView.setAdapter(deckRecyclerViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     protected void loadDecks() {
         deckNames.clear();
         deckNames.addAll(DeckDatabase.listDatabases());
+        deckRecyclerViewAdapter.notifyDataSetChanged();
     }
 
     protected void createSampleDeck() {

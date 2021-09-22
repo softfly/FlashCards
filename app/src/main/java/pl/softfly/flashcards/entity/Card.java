@@ -10,9 +10,9 @@ public class Card {
     @PrimaryKey
     private Integer id;
 
-    private String question;
+    private String question = null;
 
-    private String answer;
+    private String answer = null;
 
     @Embedded
     CardLearningProgress learningProgress;

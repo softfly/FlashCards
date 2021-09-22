@@ -1,2 +1,3 @@
 rootProject.name = "FlashCards"
+include ':android-apache-poi-5'
 include ':app'

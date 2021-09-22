@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/moreTextView"
         android:layout_toEndOf="@id/imageView"
+        android:paddingEnd="80dp"
 
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"

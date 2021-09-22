@@ -1,0 +1,36 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://maven.repository.redhat.com/earlyaccess/all/"
+    }
+}
+
+dependencies {
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
+    implementation 'org.apache.xerces:xercesImpl:2.11.0'
+}
+
+shadowJar {
+    dependencies {
+        include(dependency('org.apache.poi:poi:5.0.0'))
+        include(dependency('org.apache.poi:poi-ooxml:5.0.0'))
+        include(dependency('org.apache.poi:poi-ooxml-lite:5.0.0'))
+        include(dependency('org.apache.xmlbeans:xmlbeans:4.0.0'))
+        include(dependency('xml-apis:xml-apis:1.4.01'))
+        include(dependency('org.apache.xerces:xercesImpl:2.11.0'))
+    }
+
+    archiveBaseName.set('poi-5.0.0')
+    exclude 'repackage/**'
+
+    relocate 'org.xml.sax', 'org.apache.poi.org.xml.sax'
+    relocate 'javax.xml.parsers', 'org.apache.poi.javax.xml.parsers'
+}
+
+jar.dependsOn shadowJar
+test.dependsOn shadowJar

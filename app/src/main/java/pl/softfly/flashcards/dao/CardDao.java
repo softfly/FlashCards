@@ -31,6 +31,9 @@ public interface CardDao {
     @Insert
     Completable insertAll(Card... cards);
 
+    @Insert
+    Completable insertAll(List<Card> cards);
+
     @Update
     Completable updateAll(Card... cards);
 

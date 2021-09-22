@@ -46,7 +46,7 @@ public abstract class DeckDatabase extends RoomDatabase {
         return deckNames;
     }
 
-    public static boolean exists(Context context, @NonNull String deckName) {
+    public static boolean exists(@NonNull String deckName) {
         if (!deckName.endsWith(".db")) {
             deckName += ".db";
         } else if (deckName.toLowerCase().endsWith(".db")) {
