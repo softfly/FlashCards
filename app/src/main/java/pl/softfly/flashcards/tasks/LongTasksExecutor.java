@@ -16,6 +16,8 @@ import java.util.concurrent.TimeoutException;
 
 public class LongTasksExecutor {
 
+    public static final long THREAD_TIMEOUT_SECONDS = 50;//5*60l;
+
     private static LongTasksExecutor INSTANCE;
 
     private final Queue<Task<Object>> tasksQ = new ConcurrentLinkedQueue<>();
@@ -31,13 +33,11 @@ public class LongTasksExecutor {
                     Task task = tasksQ.remove();
                     List<Task<Object>> tasks = List.of(task);
                     try {
-                        executorService.invokeAny(tasks, 2, TimeUnit.MINUTES);
+                        executorService.invokeAny(tasks, THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                     } catch (TimeoutException e) {
-                        task.timeout();
-                        e.printStackTrace();
+                        task.timeout(e);
                     } catch (ExecutionException | InterruptedException e) {
-                        task.error();
-                        e.printStackTrace();
+                        task.error(e);
                     }
                 }
                 executorService.shutdown();

@@ -13,7 +13,8 @@ import androidx.fragment.app.DialogFragment;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 
 public class CreateDeckDialog extends DialogFragment {
 
@@ -25,21 +26,25 @@ public class CreateDeckDialog extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Create a new deck of cards")
-                .setMessage("Pleaser enter the name.")
+                .setMessage("Please enter the name.")
                 .setView(view)
                 .setPositiveButton("OK", (dialog, which) -> {
                     EditText deckNameEditText = view.findViewById(R.id.deckName);
                     String deckName = deckNameEditText.getText().toString();
-                    if (!deckName.isEmpty()) {
-                        DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(getContext(), deckName);
-
-                        room.cardDao().deleteAll()
+                    try {
+                        DeckDatabase room = AppDatabaseUtil.getInstance(getContext()).getDeckDatabase(deckName);
+                        // This is used to force the creation of a DB.
+                        room.cardDaoAsync().deleteAll()
                                 .subscribeOn(Schedulers.io())
                                 .doOnComplete(() -> activity.runOnUiThread(() -> {
                                     activity.loadDecks();
                                     Toast.makeText(activity, deckName + " deck created.", Toast.LENGTH_SHORT).show();
                                 }))
                                 .subscribe();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ExceptionDialog eDialog = new ExceptionDialog(e);
+                        eDialog.show(getActivity().getSupportFragmentManager(), this.getTag());
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {

@@ -14,7 +14,7 @@ public class NoStudyCardsDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialog.Builder(getActivity())
                 .setTitle("No cards scheduled to be repeated.")
-                .setPositiveButton("Back", (dialog, which) -> getActivity().finish())
+                .setNeutralButton("Back", (dialog, which) -> getActivity().finish())
                 .create();
     }
 }

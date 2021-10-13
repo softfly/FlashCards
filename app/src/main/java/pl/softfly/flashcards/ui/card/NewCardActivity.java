@@ -9,15 +9,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Objects;
-
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 
 public class NewCardActivity extends AppCompatActivity {
+
+    private final static String TAG = "NewCardActivity";
 
     public static final String DECK_NAME = "deckName";
 
@@ -37,12 +38,20 @@ public class NewCardActivity extends AppCompatActivity {
         questionEditText = findViewById(R.id.questionEditText);
         answerEditText = findViewById(R.id.answerEditText);
 
-        Intent intent = getIntent();
-        deckName = intent.getStringExtra(DECK_NAME);
-        deckDb = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        try {
+            Intent intent = getIntent();
+            deckName = intent.getStringExtra(DECK_NAME);
+            deckDb = AppDatabaseUtil
+                    .getInstance(getApplicationContext())
+                    .getDeckDatabase(deckName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog dialog = new ExceptionDialog(e);
+            dialog.show(this.getSupportFragmentManager(), TAG);
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class NewCardActivity extends AppCompatActivity {
         card.setQuestion(questionEditText.getText().toString());
         card.setAnswer(answerEditText.getText().toString());
 
-        deckDb.cardDao().insertAll(card)
+        deckDb.cardDaoAsync().insertAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
                     Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show();

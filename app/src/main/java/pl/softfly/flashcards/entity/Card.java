@@ -4,15 +4,22 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+/**
+ * The card in the deck.
+ */
 @Entity
 public class Card {
 
     @PrimaryKey
     private Integer id;
 
-    private String question = null;
+    private Integer ordinal;
 
-    private String answer = null;
+    private String question;
+
+    private String answer;
+
+    private Long modifiedAt;
 
     @Embedded
     CardLearningProgress learningProgress;
@@ -23,6 +30,14 @@ public class Card {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getOrdinal() {
+        return ordinal;
+    }
+
+    public void setOrdinal(Integer ordinal) {
+        this.ordinal = ordinal;
     }
 
     public String getQuestion() {
@@ -39,6 +54,14 @@ public class Card {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public Long getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Long modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 
     public CardLearningProgress getLearningProgress() {

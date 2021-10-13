@@ -6,4 +6,10 @@
         app:showAsAction="ifRoom"
         android:title="Add a new card">
     </item>
+    <item
+        android:id="@+id/sync_excel"
+        android:icon="@drawable/ic_sharp_sync_24"
+        app:showAsAction="ifRoom"
+        android:title="Sync with the Excel file">
+    </item>
 </menu>

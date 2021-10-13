@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 
 public interface Task<T> extends Callable<T> {
 
-    void timeout();
+    void timeout(Exception e);
 
-    void error();
+    void error(Exception e);
 }

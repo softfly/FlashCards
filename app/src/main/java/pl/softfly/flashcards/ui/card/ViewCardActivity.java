@@ -1,6 +1,7 @@
 package pl.softfly.flashcards.ui.card;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -17,15 +18,18 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardReplayScheduler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.CardLearningProgress;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 public abstract class ViewCardActivity extends AppCompatActivity {
+
+    private final static String TAG = "ViewCardActivity";
 
     java.util.ListIterator<Card> cardIterator;
     CardLearningProgress againLearningProgress;
@@ -45,22 +49,33 @@ public abstract class ViewCardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_card);
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_view_card);
 
-        Intent intent = getIntent();
-        deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
+            Intent intent = getIntent();
+            deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
+            deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
+            loadNextCard();
 
-        deckDb = AppDatabaseUtil.getInstance().getDeckDatabase(getBaseContext(), deckName);
-        loadNextCard();
-
-        gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
-        gradeButtonsLayout.setVisibility(INVISIBLE);
-        initQuestionView();
-        initAnswerView();
-        initAgainButton();
-        initEasyButton();
-        initHardButton();
+            gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
+            gradeButtonsLayout.setVisibility(INVISIBLE);
+            initQuestionView();
+            initAnswerView();
+            initAgainButton();
+            initEasyButton();
+            initHardButton();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(getBaseContext())
+                    .setTitle("Exception")
+                    .setMessage(e.getMessage())
+                    .setNeutralButton(android.R.string.ok, (dialog, which) -> onSupportNavigateUp())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+            ExceptionDialog dialog = new ExceptionDialog(e);
+            dialog.show(this.getSupportFragmentManager(), TAG);
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -85,7 +100,7 @@ public abstract class ViewCardActivity extends AppCompatActivity {
             gradeButtonsLayout.setVisibility(INVISIBLE);
             card.setLearningProgress(againLearningProgress);
 
-            deckDb.cardDao().updateAll(card)
+            deckDb.cardDaoAsync().updateAll(card)
                     .subscribeOn(Schedulers.io())
                     .doOnComplete(() -> runOnUiThread(this::loadNextCard))
                     .subscribe();
@@ -98,7 +113,7 @@ public abstract class ViewCardActivity extends AppCompatActivity {
             gradeButtonsLayout.setVisibility(INVISIBLE);
             card.setLearningProgress(easyLearningProgress);
 
-            deckDb.cardDao().updateAll(card)
+            deckDb.cardDaoAsync().updateAll(card)
                     .subscribeOn(Schedulers.io())
                     .doOnComplete(() -> runOnUiThread(this::loadNextCard))
                     .subscribe();
@@ -112,7 +127,7 @@ public abstract class ViewCardActivity extends AppCompatActivity {
             card.setLearningProgress(hardLearningProgress);
 
 
-            deckDb.cardDao().updateAll(card)
+            deckDb.cardDaoAsync().updateAll(card)
                     .subscribeOn(Schedulers.io())
                     .doOnComplete(() -> runOnUiThread(this::loadNextCard))
                     .subscribe();
@@ -124,7 +139,7 @@ public abstract class ViewCardActivity extends AppCompatActivity {
         if (Objects.nonNull(cardIterator) && cardIterator.hasNext()) {
             displayCard(cardIterator.next());
         } else {
-            deckDb.cardDao().getNextCards()
+            deckDb.cardDaoAsync().getNextCards()
                     .subscribeOn(Schedulers.io())
                     .doOnError(Throwable::printStackTrace)
                     .doOnSuccess(cards -> runOnUiThread(() -> {

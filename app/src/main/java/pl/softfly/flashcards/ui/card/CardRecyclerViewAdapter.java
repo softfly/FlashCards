@@ -1,31 +1,25 @@
 package pl.softfly.flashcards.ui.card;
 
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.deck.RemoveDeckDialog;
 
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerViewAdapter.ViewHolder> {
 
@@ -37,19 +31,25 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
 
     private DeckDatabase deckDb;
 
-    public CardRecyclerViewAdapter(AppCompatActivity activity, String deckName) {
+    public CardRecyclerViewAdapter(AppCompatActivity activity, String deckName) throws Exception {
         this.activity = activity;
         this.deckName = deckName;
-        deckDb = AppDatabaseUtil.getInstance().getDeckDatabase(activity.getBaseContext(), deckName);
+        deckDb = AppDatabaseUtil
+                .getInstance(activity.getApplicationContext())
+                .getDeckDatabase(deckName);
         loadCards();
     }
 
     public void loadCards() {
-        deckDb.cardDao().getCards().observe(activity, cards -> {
-            this.cards.clear();
-            this.cards.addAll(cards);
-            this.notifyDataSetChanged();
-        });
+        deckDb.cardDaoAsync().getCards()
+                .subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .doOnSuccess(cards -> activity.runOnUiThread(() -> {
+                    this.cards.clear();
+                    this.cards.addAll(cards);
+                    this.notifyDataSetChanged();
+                }))
+                .subscribe();
     }
 
     @NonNull
@@ -98,7 +98,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
                     }
                     case R.id.remove_card: {
                         int pos = getAdapterPosition();
-                        deckDb.cardDao().delete(cards.get(pos))
+                        deckDb.cardDaoAsync().delete(cards.get(pos))
                                 .subscribeOn(Schedulers.io())
                                 .doOnComplete(() -> activity.runOnUiThread(() -> {
                                     cards.remove(pos);

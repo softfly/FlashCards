@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
  * SQLite use SECONDS timestamp.
  * Java use MILLISECONDS timestamp.
  * Convert for compatibility.
+ *
+ * @author Grzegorz Ziemski
  */
 public class Converters {
 

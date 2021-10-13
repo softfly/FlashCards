@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.DraggableViewCardActivity;
 import pl.softfly.flashcards.ui.card.ListCardsActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
@@ -47,8 +49,21 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
         holder.nameTextView.setText(deckName);
         holder.nameTextView.setSelected(true);
 
-        DeckDatabase room = AppDatabaseUtil.getInstance().getDeckDatabase(activity.getBaseContext(), deckName);
-        room.cardDao().count().observe(activity, count -> holder.totalTextView.setText("Total: " + count));
+        try {
+            DeckDatabase deckDb = AppDatabaseUtil
+                    .getInstance(activity.getApplicationContext())
+                    .getDeckDatabase(deckName);
+            deckDb.cardDaoAsync().count().subscribeOn(Schedulers.io())
+                    .doOnError(Throwable::printStackTrace)
+                    .doOnSuccess(count -> activity.runOnUiThread(() -> {
+                        holder.totalTextView.setText("Total: " + count);
+                    }))
+                    .subscribe();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog dialog = new ExceptionDialog(e);
+            dialog.show(activity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
+        }
     }
 
     @Override
