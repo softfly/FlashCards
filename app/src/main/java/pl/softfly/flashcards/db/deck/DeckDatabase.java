@@ -10,6 +10,8 @@ import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.entity.CardEdge;
 import pl.softfly.flashcards.filesync.entity.CardImported;
+import pl.softfly.flashcards.filesync.entity.CardImportedRemoved;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.filesync.view.CountToGraphOnlyNewCards;
 import pl.softfly.flashcards.filesync.view.GraphEdge;
 import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
@@ -21,7 +23,9 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
         entities = {
                 Card.class,
                 CardImported.class,
-                CardEdge.class
+                CardEdge.class,
+                FileSynced.class,
+                CardImportedRemoved.class
         },
         views = {
                 GraphEdge.class,

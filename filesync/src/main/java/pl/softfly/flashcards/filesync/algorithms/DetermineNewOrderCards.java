@@ -5,6 +5,7 @@ import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.MULTIPLE
 
 import android.support.annotation.NonNull;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,20 +26,23 @@ public class DetermineNewOrderCards {
 
     private SyncDeckDatabase deckDb;
 
-    private Long lastModifiedAtImportedFile;
+    private LocalDateTime fileLastSyncAt;
 
     public void determineNewOrderCards(
             @NonNull SyncDeckDatabase deckDb,
-            @NonNull Long lastModifiedAtImportedFile
+            @NonNull LocalDateTime fileLastSyncAt
     ) {
         this.deckDb = deckDb;
-        this.lastModifiedAtImportedFile = lastModifiedAtImportedFile;
+        this.fileLastSyncAt = fileLastSyncAt;
 
         refreshCardOrdinal();
+
         // 5.1. Create an edge between adjacent cards in the deck.
-        createCardEdgesForDeckCards();
+        boolean isEdgesCreated = createCardEdgesForDeckCards();
         // 5.2. Create an edge between adjacent cards from the imported file.
-        createCardEdgesForImportedFile();
+        isEdgesCreated = isEdgesCreated | createCardEdgesForImportedFile();
+        if (!isEdgesCreated) return; //No cards
+
         // 5.3. Merge cards that relations are very certain into graphs.
         mergeCardsIntoGraphsByEdges(new String[]{
                 // Weight: 1
@@ -90,15 +94,16 @@ public class DetermineNewOrderCards {
 
     /**
      * 5.1. Create an edge between adjacent cards in the deck.
+     * @return True if any edge has been created.
      */
-    protected void createCardEdgesForDeckCards() {
+    protected boolean createCardEdgesForDeckCards() {
         List<CardImported> cardImportedList = deckDb.cardImportedDao()
                 .findByStatusNotOrderByCardOrdinalAsc(new String[]{
                         CardImported.STATUS_INSERT_BY_FILE,
                         CardImported.STATUS_DELETE_BY_FILE,
                         CardImported.STATUS_DELETE_BY_DECK
                 }, 0);
-        if (cardImportedList.isEmpty()) return;
+        if (cardImportedList.isEmpty()) return false;
         List<CardEdge> cardEdgesListToInsert = new LinkedList<>();
 
         // Prepare for the first iteration
@@ -163,12 +168,14 @@ public class DetermineNewOrderCards {
         if (!cardEdgesListToInsert.isEmpty()) {
             deckDb.cardEdgeDao().insertAll(cardEdgesListToInsert);
         }
+        return true;
     }
 
     /**
      * 5.2. Create an edge between adjacent cards from the imported file.
+     * @return True if any edge has been created.
      */
-    protected void createCardEdgesForImportedFile() {
+    protected boolean createCardEdgesForImportedFile() {
         List<CardEdge> cardEdgeListToInsert = new LinkedList<>();
         List<CardEdge> cardEdgeListToUpdate = new LinkedList<>();
 
@@ -178,6 +185,7 @@ public class DetermineNewOrderCards {
                         CardImported.STATUS_DELETE_BY_DECK,
                         CardImported.STATUS_DELETE_BY_FILE
                 }, 0);
+        if (cardImportedList.isEmpty()) return false;
         CardImported currentCardImported = cardImportedList.remove(0);
 
         while (!cardImportedList.isEmpty()) {
@@ -251,6 +259,7 @@ public class DetermineNewOrderCards {
         if (!cardEdgeListToUpdate.isEmpty()) {
             deckDb.cardEdgeDao().updateAll(cardEdgeListToUpdate);
         }
+        return true;
     }
 
     protected void setCardEdgeStatusAndWeight(CardEdge cardEdge, String status) {
@@ -509,9 +518,9 @@ public class DetermineNewOrderCards {
         CardImported firstCard = findNewestFirstCard();
         Integer firstGraph = firstCard.getGraph();
 
-        List<Integer> Graphs = deckDb.cardImportedDao().getGraphs();
-        while (!Graphs.isEmpty()) {
-            Integer toGraph = Graphs.remove(0);
+        List<Integer> graphs = deckDb.cardImportedDao().getGraphs();
+        while (!graphs.isEmpty()) {
+            Integer toGraph = graphs.remove(0);
             if (!firstGraph.equals(toGraph))
                 mergeGraphs(firstGraph, toGraph);
         }
@@ -605,6 +614,6 @@ public class DetermineNewOrderCards {
     }
 
     protected boolean isImportedFileNewer(Card card) {
-        return lastModifiedAtImportedFile.compareTo(card.getModifiedAt()) > 0;
+        return fileLastSyncAt.isAfter(card.getModifiedAt());
     }
 }

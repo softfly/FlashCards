@@ -16,40 +16,53 @@ import pl.softfly.flashcards.entity.Card;
 @Dao
 public interface CardDao extends pl.softfly.flashcards.dao.CardDao {
 
-    @Query("SELECT count(c.id) FROM Card c " +
+    @Query("SELECT count(c.id) FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
             "WHERE t.id IS NULL")
     int countByCardImportedNull();
 
-    @Query("SELECT c.* FROM Card c " +
+    @Query("SELECT c.* FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
             "WHERE " +
             "c.Question LIKE :question " +
             "AND c.answer LIKE :answer " +
             "AND t.cardId IS NULL " +
-            "AND c.id NOT IN(:cardIds)")
-    Card findByQuestionLikeAndAnswerLikeAndCardNull(String question, String answer, List<Integer> cardIds);
-
-    @Query("SELECT c.* FROM Card c " +
-            "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
-            "WHERE t.id IS NULL AND c.id > :idGreaterThan " +
-            "ORDER BY c.id " +
-            "LIMIT 100")
-    List<Card> findByCardImportedNullOrderById(int idGreaterThan);
+            "AND c.id NOT IN(:cardIds)" +
+            "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)")
+    Card findByQuestionLikeAndAnswerLikeAndCardNull(String question, String answer, List<Integer> cardIds, int fileSyncedId);
 
     @Query("SELECT c.* " +
-            "FROM Card c " +
+            "FROM Core_Card c " +
+            "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
+            "WHERE " +
+            "t.id IS NULL " +
+            "AND c.id > :idGreaterThan " +
+            "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)" +
+            "ORDER BY c.id " +
+            "LIMIT 100")
+    List<Card> findByCardImportedNullOrderById(int idGreaterThan, int fileSyncedId);
+
+    @Query("SELECT c.* " +
+            "FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported i ON i.cardId=c.id " +
             "WHERE " +
             "c.ordinal > :ordinalGreaterThan " +
+            "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)" +
             "ORDER BY c.ordinal ASC " +
             "LIMIT 100")
-    List<Card> findByOrdinalGreaterThanOrderByOrdinal(int ordinalGreaterThan);
+    List<Card> findByOrdinalGreaterThanOrderByOrdinal(int ordinalGreaterThan, int fileSyncedId);
 
-    @Query("SELECT id FROM Card ORDER BY ordinal ASC")
+    @Query("SELECT id FROM Core_Card ORDER BY ordinal ASC")
     List<Integer> getCardIdsOrderByOrdinalAsc();
 
-    @Query("UPDATE Card SET ordinal=:ordinal WHERE id=:id")
+    @Query("SELECT c.id " +
+            "FROM FileSync_CardImported i " +
+            "JOIN Core_Card c ON c.id=i.cardId " +
+            "WHERE c.deletedAt IS NOT null"
+    )
+    List<Integer> findByDeletedAtNotNull();
+
+    @Query("UPDATE Core_Card SET ordinal=:ordinal WHERE id=:id")
     void updateOrdinal(int id, int ordinal);
 
 }

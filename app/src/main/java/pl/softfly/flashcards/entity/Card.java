@@ -4,10 +4,12 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.time.LocalDateTime;
+
 /**
  * The card in the deck.
  */
-@Entity
+@Entity(tableName = "Core_Card")
 public class Card {
 
     @PrimaryKey
@@ -19,7 +21,9 @@ public class Card {
 
     private String answer;
 
-    private Long modifiedAt;
+    private LocalDateTime modifiedAt;
+
+    private LocalDateTime deletedAt;
 
     @Embedded
     CardLearningProgress learningProgress;
@@ -56,12 +60,20 @@ public class Card {
         this.answer = answer;
     }
 
-    public Long getModifiedAt() {
+    public LocalDateTime getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Long modifiedAt) {
+    public void setModifiedAt(LocalDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     public CardLearningProgress getLearningProgress() {

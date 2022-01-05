@@ -17,19 +17,19 @@ import pl.softfly.flashcards.entity.Card;
 @Dao
 public interface CardDao {
 
-    @Query("SELECT count(*) FROM Card c")
+    @Query("SELECT count(*) FROM Core_Card c WHERE deletedAt IS NULL")
     int count();
 
-    @Query("SELECT * FROM Card")
+    @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL")
     List<Card> getCards();
 
-    @Query("SELECT * FROM Card ORDER BY ordinal ASC")
+    @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC")
     List<Card> getCardsOrderByOrdinalAsc();
 
-    @Query("SELECT * FROM Card ORDER BY ordinal ASC LIMIT 1")
+    @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC LIMIT 1")
     Card getFirst();
 
-    @Query("SELECT * FROM Card WHERE id=:id")
+    @Query("SELECT * FROM Core_Card WHERE id=:id")
     Card findById(int id);
 
     @Insert
@@ -52,5 +52,8 @@ public interface CardDao {
 
     @Delete
     void deleteAll(List<Card> card);
+
+    @Query("DELETE FROM Core_Card WHERE deletedAt IS NOT NULL")
+    void purgeDeleted();
 
 }

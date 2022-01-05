@@ -5,6 +5,7 @@ import android.util.Log;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
  * Compare all cards {@link Card} with all imported cards {@link CardImported}.
@@ -26,15 +28,16 @@ public class MatchSimilarCardsRunnable implements Runnable {
     public static final String TAG = "MatchSimilarCardsRunnable";
     private final JaroWinklerSimilarity jaroWinklerSimilarity = new JaroWinklerSimilarity();
     private final SyncDeckDatabase deckDb;
-    private final Long lastModifiedAtImportedFile;
+    private final FileSynced fileSynced;
     private final List<CardImported> cardImportedList;
 
     public MatchSimilarCardsRunnable(
             SyncDeckDatabase deckDb,
-            Long lastModifiedAtImportedFile,
-            List<CardImported> cardImportedList) {
+            FileSynced fileSynced,
+            List<CardImported> cardImportedList
+    ) {
         this.deckDb = deckDb;
-        this.lastModifiedAtImportedFile = lastModifiedAtImportedFile;
+        this.fileSynced = fileSynced;
         this.cardImportedList = cardImportedList;
     }
 
@@ -47,7 +50,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
             Card mostSimilarCard = null;
 
             //@todo optimization of using less memory, could be shared between threads
-            List<Card> cardList = deckDb.cardDao().findByCardImportedNullOrderById(0);
+            List<Card> cardList = deckDb.cardDao().findByCardImportedNullOrderById(0, fileSynced.getId());
             while (!cardList.isEmpty()) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
@@ -62,7 +65,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
                 }
 
                 if (cardList.isEmpty()) {
-                    cardList = deckDb.cardDao().findByCardImportedNullOrderById(card.getId());
+                    cardList = deckDb.cardDao().findByCardImportedNullOrderById(card.getId(), fileSynced.getId());
                 }
             }
             if (mostSimilarCard != null) linkCards(cardImported, mostSimilarCard);
@@ -123,6 +126,6 @@ public class MatchSimilarCardsRunnable implements Runnable {
     }
 
     protected boolean isImportedFileNewer(Card card) {
-        return lastModifiedAtImportedFile.compareTo(card.getModifiedAt()) > 0;
+        return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
     }
 }

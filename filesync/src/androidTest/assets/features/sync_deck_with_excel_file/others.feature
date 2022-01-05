@@ -1,6 +1,6 @@
 Feature: Sync the Excel file with the Deck.
 
-  @single
+
   Scenario: Check overwriting only changed rows in the file.
     Given Add the following cards into the deck:
       | Swap places 1       | Swap places 1   | 2 |

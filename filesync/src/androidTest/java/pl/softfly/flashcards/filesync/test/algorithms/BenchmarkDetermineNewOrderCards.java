@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 
@@ -19,9 +20,9 @@ public class BenchmarkDetermineNewOrderCards extends DetermineNewOrderCards {
     public static final String TAG = "BenchmarkDetermineNewOrderCards";
 
     @Override
-    public void determineNewOrderCards(@NonNull SyncDeckDatabase deckDb, @NonNull Long lastModifiedAtImportedFile) {
+    public void determineNewOrderCards(@NonNull SyncDeckDatabase deckDb, @NonNull LocalDateTime fileLastSyncAt) {
         long start = Instant.now().toEpochMilli();
-        super.determineNewOrderCards(deckDb, lastModifiedAtImportedFile);
+        super.determineNewOrderCards(deckDb, fileLastSyncAt);
 
         LocalTime time = Instant.ofEpochMilli(Instant.now().toEpochMilli() - start)
                 .atZone(ZoneOffset.UTC)
@@ -30,25 +31,27 @@ public class BenchmarkDetermineNewOrderCards extends DetermineNewOrderCards {
     }
 
     @Override
-    protected void createCardEdgesForDeckCards() {
+    protected boolean createCardEdgesForDeckCards() {
         long start = Instant.now().toEpochMilli();
-        super.createCardEdgesForDeckCards();
+        boolean r = super.createCardEdgesForDeckCards();
 
         LocalTime time = Instant.ofEpochMilli(Instant.now().toEpochMilli() - start)
                 .atZone(ZoneOffset.UTC)
                 .toLocalTime();
         Log.i(TAG, "createCardEdgesForDeckCards= " + time.toString());
+        return r;
     }
 
     @Override
-    protected void createCardEdgesForImportedFile() {
+    protected boolean createCardEdgesForImportedFile() {
         long start = Instant.now().toEpochMilli();
-        super.createCardEdgesForImportedFile();
+        boolean r = super.createCardEdgesForImportedFile();
 
         LocalTime time = Instant.ofEpochMilli(Instant.now().toEpochMilli() - start)
                 .atZone(ZoneOffset.UTC)
                 .toLocalTime();
         Log.i(TAG, "createCardEdgesForImportedFile= " + time.toString());
+        return r;
     }
 
     @Override

@@ -11,9 +11,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,10 +24,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.filesync.dao.FileSyncedDao;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
 import pl.softfly.flashcards.ui.card.ListCardsActivity;
 
@@ -46,7 +51,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     private DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
     private ListCardsActivity listCardsActivity;
 
-    private Long lastModifiedAtImportedFile;
+    private FileSynced fileSynced;
+    private LocalDateTime newLastSyncAt;
     private InputStream isImportedFile;
     private Workbook workbook;
     private Sheet sheet;
@@ -64,19 +70,29 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     public void syncExcelFile(
             String deckName,
+            String uri,
             InputStream inputStream,
             String typeFile,
-            Long lastModifiedAtImportedFile
+            Long lastModifiedAtFile
     ) throws Exception {
         this.isImportedFile = inputStream;
         this.deckDb = getDeckDB(deckName);
         this.workbook = typeFile.equals(TYPE_XLS) ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream);
         this.sheet = workbook.getSheetAt(0);
-        this.lastModifiedAtImportedFile = lastModifiedAtImportedFile;
+        this.newLastSyncAt = Converters.fromTimestampToLocalDateTime(lastModifiedAtFile);
 
         findColumnIndexes(sheet);
         if (getQuestionIndex() == -1 && getAnswerIndex() == -1)
             throw new Exception("No cards in the file.");
+
+        fileSynced = deckDb.fileSyncedDao().findByUri(uri);
+        if (fileSynced == null) {
+            fileSynced = new FileSynced();
+            fileSynced.setUri(uri);
+            fileSynced.setLastSyncAt(Converters.fromTimestampToLocalDateTime(lastModifiedAtFile));
+            // Save
+            fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
+        }
 
         // 1. Purge sync entities in the database before starting.
         deckDb.cardEdgeDao().forceDeleteAll();
@@ -90,15 +106,20 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         matchSimilarCards();
 
         // 4. Find added/removed cards between deck and imported file.
-        // 4.1. Find added/removed cards between deck and imported file.
+        // 4.1. Remove the cards in the file, removed by the deck.
+        removeCardsByDeck(fileSynced);
+        // 4.2. Find added/removed cards between deck and imported file.
         processDeckCard();
-        // 4.2. Find new cards in the imported file.
+        // 4.3. Find new cards in the imported file.
         findNewCardsInImportedFile();
-        // 4.3. Enrich {@link CardImported#nextCardId} and {@link CardImported#previousCardId}.
+        // 4.4. Enrich {@link CardImported#nextCardId} and {@link CardImported#previousCardId}.
         processCardFromFile();
 
         // 5. Determine the new order of the cards after merging.
-        determineNewOrderCards.determineNewOrderCards(deckDb, lastModifiedAtImportedFile);
+        determineNewOrderCards.determineNewOrderCards(deckDb, fileSynced.getLastSyncAt());
+
+        fileSynced.setLastSyncAt(newLastSyncAt);
+        deckDb.fileSyncedDao().updateAll(fileSynced);
     }
 
     /**
@@ -137,7 +158,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             if (nonEmpty(question) || nonEmpty(answer)) {
                 CardImported cardImported = new CardImported();
 
-                if (!findSameCardAndConnect(cardImported, question, answer, cardIdsConnected)) {
+                if (!findSameCardAndConnect(
+                        cardImported,
+                        question,
+                        answer,
+                        cardIdsConnected,
+                        fileSynced.getId())
+                ) {
                     if (!empty(question)) cardImported.setQuestion(question);
                     if (!empty(answer)) cardImported.setAnswer(answer);
                 }
@@ -181,9 +208,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             CardImported cardImported,
             String question,
             String answer,
-            List<Integer> cardsConnected
+            List<Integer> cardsConnected,
+            int fileSyncedId
     ) {
-        Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(question, answer, cardsConnected);
+        Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(question, answer, cardsConnected, fileSyncedId);
         if (card != null) {
             cardsConnected.add(card.getId());
             cardImported.setCardId(card.getId());
@@ -231,7 +259,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         List<CardImported> cardImportedList = deckDb.cardImportedDao().findByCardNull(0, perCore);
         int lastCardImportedId;
         while (!cardImportedList.isEmpty()) {
-            threadPoolExecutor.submit(new MatchSimilarCardsRunnable(deckDb, lastModifiedAtImportedFile, cardImportedList));
+            threadPoolExecutor.submit(new MatchSimilarCardsRunnable(deckDb, fileSynced, cardImportedList));
             lastCardImportedId = cardImportedList.get(cardImportedList.size() - 1).getId();
             cardImportedList = deckDb.cardImportedDao().findByCardNull(lastCardImportedId, perCore);
         }
@@ -273,27 +301,43 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         List<CardImported> cardImportedList = deckDb.cardImportedDao().findByCardNull(0, PAGE_LIMIT);
         while (!cardImportedList.isEmpty()) {
             lastCardImportedId = cardImportedList.get(cardImportedList.size() - 1).getId();
-            (new MatchSimilarCardsRunnable(deckDb, lastModifiedAtImportedFile, cardImportedList)).run();
+            (new MatchSimilarCardsRunnable(deckDb, fileSynced, cardImportedList)).run();
             cardImportedList = deckDb.cardImportedDao().findByCardNull(lastCardImportedId, PAGE_LIMIT);
         }
     }
 
     /**
-     * 4.1. Find added/removed cards between deck and imported file.
+     * 4.1. Remove the cards in the file, removed by the deck.
+     * {@link CardImported#STATUS_DELETE_BY_DECK}
+     */
+    protected void removeCardsByDeck(FileSynced fileSynced) {
+        //deckDb.cardImportedDao().updateStatusDeleteByDeck();
+        List<Integer> cardIds = deckDb.cardDao().findByDeletedAtNotNull();
+        for (Integer cardId : cardIds) {
+            if (deckDb.cardImportedRemovedDao().count(fileSynced.getId(), cardId) == 0) {
+                deckDb.cardImportedRemovedDao().insert(fileSynced.getId(), cardId);
+                deckDb.cardImportedDao().setStatusByCardId(CardImported.STATUS_DELETE_BY_DECK, cardId);
+            }
+        }
+    }
+
+    /**
+     * 4.2. Find added/removed cards between deck and imported file.
      * <p>
-     * 4.1.1. Create {@link CardImported} for missing cards in the imported file:
+     * 4.2.1. Create {@link CardImported} for missing cards in the imported file:
      * {@link CardImported#STATUS_DELETE_BY_FILE}
      * {@link CardImported#STATUS_INSERT_BY_DECK}
      * {@link #createImportedCard}
      * <p>
-     * 4.1.1. Enrich {@link CardImported#nextCardDeckId} and {@link CardImported#previousCardDeckId}.
+     * 4.2.1. Enrich {@link CardImported#nextCardDeckId} and {@link CardImported#previousCardDeckId}.
      * It will be required for {@link #checkIfPositionUnchanged}
      */
     protected void processDeckCard() {
         List<CardImported> cardImportedListToUpdate = new LinkedList<>();
         List<CardImported> cardImportedListToInsert = new LinkedList<>();
         List<Card> cardList = deckDb.cardDao()
-                .findByOrdinalGreaterThanOrderByOrdinal(0);
+                .findByOrdinalGreaterThanOrderByOrdinal(0, fileSynced.getId());
+        if (cardList.isEmpty()) return;
 
         // Prepare for the first iteration
         Card currentCard = cardList.remove(0);
@@ -335,7 +379,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             currentCardImported = nextCardImported;
             if (cardList.isEmpty()) {
                 cardList = deckDb.cardDao()
-                        .findByOrdinalGreaterThanOrderByOrdinal(currentCard.getOrdinal());
+                        .findByOrdinalGreaterThanOrderByOrdinal(
+                                currentCard.getOrdinal(),
+                                fileSynced.getId()
+                        );
             }
         }
 
@@ -374,7 +421,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     /**
-     * 4.2. Find new cards in the imported file.
+     * 4.3. Find new cards in the imported file.
      */
     protected void findNewCardsInImportedFile() {
         List<CardImported> cardImportedListToUpdate = new LinkedList<>();
@@ -409,9 +456,9 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     /**
-     * 4.3.1. Enrich {@link CardImported#nextCardId} and {@link CardImported#previousCardId}.
+     * 4.4.1. Enrich {@link CardImported#nextCardId} and {@link CardImported#previousCardId}.
      * It is required for {@link #checkIfPositionUnchanged}
-     * 4.3.2. Set {@link CardImported#POSITION_STATUS_UNCHANGED}
+     * 4.4.2. Set {@link CardImported#POSITION_STATUS_UNCHANGED}
      * if the card is in the same place in the deck and file.
      */
     protected void processCardFromFile() {
@@ -461,7 +508,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     /**
-     * 4.3.2. Set {@link CardImported#POSITION_STATUS_UNCHANGED}
+     * 4.4.2. Set {@link CardImported#POSITION_STATUS_UNCHANGED}
      * if the card is in the same place in the deck and file.
      */
     protected void checkIfPositionUnchanged(CardImported cardImported) {
@@ -494,7 +541,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
                     card.setQuestion(cardImported.getQuestion());
                     card.setAnswer(cardImported.getAnswer());
-                    card.setModifiedAt(lastModifiedAtImportedFile);
+                    card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());
 
@@ -506,7 +553,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                     Card card = deckDb.cardDao().findById(cardImported.getCardId());
                     card.setQuestion(cardImported.getQuestion());
                     card.setAnswer(cardImported.getAnswer());
-                    card.setModifiedAt(lastModifiedAtImportedFile);
+                    card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());
                     cardsListToUpdate.add(card);
@@ -552,10 +599,9 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         CardImported.STATUS_DELETE_BY_FILE
                 }, 0);
         try {
-            for (int rowNum = Math.max(skipHeaderRows, 0);
-                 !cardImportedList.isEmpty();
-                 rowNum++
-            ) {
+            int rowNum = Math.max(skipHeaderRows, 0);
+
+            for (; !cardImportedList.isEmpty(); rowNum++) {
                 CardImported cardImported = cardImportedList.remove(0);
                 Card card = deckDb.cardDao().findById(cardImported.getCardId());
 
@@ -574,9 +620,11 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                                     CardImported.STATUS_DELETE_BY_FILE
                             }, card.getOrdinal());
                 }
-
-                //@todo add remove last records
             }
+            for (int i=deckDb.cardImportedDao().countByDeleteByDeck(); i>0; i--) {
+                sheet.removeRow(sheet.getRow(rowNum++));
+            }
+
             this.isImportedFile.close();
             this.workbook.write(os);
             this.workbook.close();
@@ -594,7 +642,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected boolean isImportedFileNewer(Card card) {
-        return lastModifiedAtImportedFile.compareTo(card.getModifiedAt()) > 0;
+        return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
     }
 
     //@todo public visibility for testing

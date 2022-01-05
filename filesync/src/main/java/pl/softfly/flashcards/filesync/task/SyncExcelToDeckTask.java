@@ -43,7 +43,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
         InputStream isImportedFile = openExcelFile(uriSynchronizedFile);
 
         SyncExcelToDeck syncExcelToDeck = new SyncExcelToDeck(listCardsActivity);
-        syncExcelToDeck.syncExcelFile(deckName, isImportedFile, mimeType, lastModifiedAtImportedFile);
+        syncExcelToDeck.syncExcelFile(deckName, uriSynchronizedFile.toString(), isImportedFile, mimeType, lastModifiedAtImportedFile);
         syncExcelToDeck.commitChanges(
                 listCardsActivity
                         .getContentResolver()

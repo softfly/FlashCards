@@ -67,7 +67,6 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
     Then Check the Excel file.
     Examples:
       | repeat | expected |
-      | 100    | 700      |
       | 200    | 1400     |
 
 

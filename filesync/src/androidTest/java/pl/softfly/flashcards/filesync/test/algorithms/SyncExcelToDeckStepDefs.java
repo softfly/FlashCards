@@ -28,10 +28,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import io.cucumber.core.api.Scenario;
@@ -40,6 +40,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
@@ -87,7 +88,7 @@ public class SyncExcelToDeckStepDefs {
 
     private final long excelLastModifiedAt = 1;
 
-    private int currentRowNum = 0;
+    private int currentRowNum;
 
     /* -----------------------------------------------------------------------------------------
      * Others
@@ -123,14 +124,34 @@ public class SyncExcelToDeckStepDefs {
     }
 
     protected void initExcelFile() {
-        excelFilePath = testDirPath + "/" + deckName + ".xlsx";
+        excelFilePath = testDirPath + deckName + ".xlsx";
         excelWorkbook = new XSSFWorkbook();
         creationHelper = excelWorkbook.getCreationHelper();
         excelSheet = excelWorkbook.createSheet(WorkbookUtil.createSafeSheetName(deckName));
         ZipSecureFile.setMinInflateRatio(0.001);
     }
 
-    @Given(value = "Add the following cards into the deck:", timeout = 1000)
+    @Given("Create a new file.")
+    public void create_a_new_file() {
+        excelFilePath = testDirPath + deckName + ".xlsx";
+        boolean a = (new File(excelFilePath)).delete();
+        excelWorkbook = new XSSFWorkbook();
+        creationHelper = excelWorkbook.getCreationHelper();
+        excelSheet = excelWorkbook.createSheet(WorkbookUtil.createSafeSheetName(deckName));
+        currentRowNum = 0;
+    }
+
+    @Given("Create a new {word} file.")
+    public void create_a_new_file(String fileName) {
+        excelFilePath = testDirPath + fileName + ".xlsx";
+        (new File(excelFilePath)).delete();
+        excelWorkbook = new XSSFWorkbook();
+        creationHelper = excelWorkbook.getCreationHelper();
+        excelSheet = excelWorkbook.createSheet(WorkbookUtil.createSafeSheetName(deckName));
+        currentRowNum = 0;
+    }
+
+    @Given(value = "Add the following cards into the deck:")
     public void add_the_following_cards_into_the_deck(DataTable dataTable) {
         List<Card> cardsToInsert = new LinkedList<>();
         for (List<String> rowIn : dataTable.asLists()) {
@@ -139,7 +160,11 @@ public class SyncExcelToDeckStepDefs {
             card.setOrdinal(currentCardId);
             card.setQuestion(rowIn.get(COLUMN_TEST_INDEX_QUESTION));
             card.setAnswer(rowIn.get(COLUMN_TEST_INDEX_ANSWER));
-            card.setModifiedAt(Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT)));
+            long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
+            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt));
+            if (modifiedAt < 0) {
+                card.setDeletedAt(LocalDateTime.now());
+            }
             cardsToInsert.add(card);
             currentCardId++;
         }
@@ -162,7 +187,11 @@ public class SyncExcelToDeckStepDefs {
                         rowIn.get(COLUMN_TEST_INDEX_ANSWER)
                                 .replace("{i}", Integer.toString(i))
                 );
-                card.setModifiedAt(Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT)));
+                long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
+                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt));
+                if (modifiedAt < 0) {
+                    card.setDeletedAt(LocalDateTime.now());
+                }
                 cardsToInsert.add(card);
                 if (i % DB_ENTITIES_POOL == 0) {
                     deckDb.cardDao().insertAll(cardsToInsert);
@@ -191,7 +220,7 @@ public class SyncExcelToDeckStepDefs {
         }
     }
 
-    @Given(value = "Generate cards {int} times into the file:", timeout = 60 * 1000)
+    @Given(value = "Generate cards {int} times into the file:", timeout =  5 * 60 * 1000)
     public void generate_cards_times_into_the_file(
             Integer cardsNum, DataTable dataTable) {
         for (int i = 1; i <= cardsNum; i++) {
@@ -208,7 +237,7 @@ public class SyncExcelToDeckStepDefs {
         }
     }
 
-    @When(value = "Synchronize the Excel file with the deck.", timeout = 60 * 1000)
+    @When(value = "Synchronize the Excel file with the deck.", timeout = 5 * 60 * 1000)
     public void synchronize_the_Excel_file_with_the_deck() throws Exception {
         OutputStream fileOut = new FileOutputStream(excelFilePath);
         excelWorkbook.write(fileOut);
@@ -217,6 +246,7 @@ public class SyncExcelToDeckStepDefs {
         SyncExcelToDeck syncExcelToDeck = new BenchmarkSyncExcelToDeck(appContext, new BenchmarkDetermineNewOrderCards());
         syncExcelToDeck.syncExcelFile(
                 deckName,
+                excelFilePath,
                 new FileInputStream(excelFilePath),
                 TYPE_XLSX,
                 excelLastModifiedAt
@@ -248,19 +278,22 @@ public class SyncExcelToDeckStepDefs {
     }
 
     protected String printCards(List<Card> cards) {
-        int max = cards.stream().flatMapToInt(card ->
-                IntStream.of(Math.max(
-                        card.getQuestion().length(),
-                        card.getAnswer().length()
-                ))
-        ).max().getAsInt();
+        int maxLengthQuestion = cards.stream()
+                .flatMapToInt(card -> IntStream.of(card.getQuestion().length()))
+                .max()
+                .getAsInt();
+        int maxLengthAnswer = cards.stream()
+                .flatMapToInt(card -> IntStream.of(card.getAnswer().length()))
+                .max()
+                .getAsInt();
+
         StringBuilder sb = new StringBuilder("\nCards in the deck:");
         deckDb.cardDao().getCardsOrderByOrdinalAsc()
                 .forEach(card -> sb.append("\n")
                         .append("| ")
-                        .append(String.format("%-" + max + "." + max + "s", card.getQuestion()))
+                        .append(String.format("%-" + maxLengthQuestion + "." + maxLengthQuestion + "s", card.getQuestion()))
                         .append(" | ")
-                        .append(String.format("%-" + max + "." + max + "s", card.getAnswer()))
+                        .append(String.format("%-" + maxLengthAnswer + "." + maxLengthAnswer + "s", card.getAnswer()))
                         .append(" |")
                 );
         return sb.toString();
@@ -302,20 +335,35 @@ public class SyncExcelToDeckStepDefs {
     }
 
     protected String printCards(Sheet datatypeSheet) {
-        AtomicInteger max = new AtomicInteger(0);
-        datatypeSheet.iterator().forEachRemaining(currentRow -> max.set(Math.max(Math.max(
-                currentRow.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue().length(),
-                currentRow.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue().length()
-        ), max.get())));
+        int maxLengthQuestion = 0;
+        int maxLengthAnswer = 0;
+        for (Row row : datatypeSheet) {
+            maxLengthQuestion = Math.max(
+                    maxLengthQuestion,
+                    row.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue().length()
+            );
+            maxLengthAnswer = Math.max(
+                    maxLengthAnswer,
+                    row.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue().length()
+            );
+        }
+
         StringBuilder sb = new StringBuilder("\nCards in the file:");
-        datatypeSheet.iterator().forEachRemaining(currentRow -> sb
-                .append("\n")
-                .append("| ")
-                .append(String.format("%-" + max + "." + max + "s", currentRow.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue()))
-                .append(" | ")
-                .append(String.format("%-" + max + "." + max + "s", currentRow.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue()))
-                .append(" |")
-        );
+        for (Row row : datatypeSheet) {
+            sb.append("\n")
+                    .append("| ")
+                    .append(String.format(
+                            "%-" + maxLengthQuestion + "." + maxLengthQuestion + "s",
+                            row.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue()
+                    ))
+                    .append(" | ")
+                    .append(String.format(
+                            "%-" + maxLengthAnswer + "." + maxLengthAnswer + "s",
+                            row.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue()
+                    ))
+                    .append(" |");
+        }
+
         return sb.toString();
     }
 

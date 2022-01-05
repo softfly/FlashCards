@@ -1,6 +1,7 @@
 package pl.softfly.flashcards.filesync.entity;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import pl.softfly.flashcards.entity.Card;
@@ -10,7 +11,16 @@ import pl.softfly.flashcards.entity.Card;
  *
  * @author Grzegorz Ziemski
  */
-@Entity(tableName = "FileSync_CardImported")
+@Entity(
+        tableName = "FileSync_CardImported",
+        indices = {
+                @Index("graph"),
+                @Index("cardId"),
+                @Index("contentStatus"),
+                @Index("newPreviousCardImportedId"),
+                @Index("newNextCardImportedId")
+        }
+)
 public class CardImported {
 
     /** -----------------------------------------------------------------------------------------

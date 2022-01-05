@@ -19,16 +19,16 @@ import pl.softfly.flashcards.entity.Card;
 @Dao
 public interface CardDaoAsync {
 
-    @Query("SELECT count(*) FROM Card")
+    @Query("SELECT count(*) FROM Core_Card")
     Maybe<Integer> count();
 
-    @Query("SELECT * FROM Card WHERE id=:id")
+    @Query("SELECT * FROM Core_Card WHERE id=:id")
     Maybe<Card> getCard(Integer id);
 
-    @Query("SELECT * FROM Card")
+    @Query("SELECT * FROM Core_Card")
     Maybe<List<Card>> getCards();
 
-    @Query("SELECT * FROM Card WHERE card.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR card.nextReplayAt IS NULL LIMIT 10")
+    @Query("SELECT * FROM Core_Card WHERE Core_Card.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR Core_Card.nextReplayAt IS NULL LIMIT 10")
     Maybe<List<Card>> getNextCards();
 
     @Insert
@@ -40,6 +40,6 @@ public interface CardDaoAsync {
     @Delete
     Completable delete(Card card);
 
-    @Query("DELETE FROM Card")
+    @Query("DELETE FROM Core_Card")
     Completable deleteAll();
 }

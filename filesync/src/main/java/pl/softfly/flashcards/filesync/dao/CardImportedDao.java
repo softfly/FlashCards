@@ -35,10 +35,19 @@ public interface CardImportedDao {
     @Query("SELECT count(*) FROM FileSync_CardImported WHERE orderChanged=1")
     int countByOrderChangedTrue();
 
+    @Query("SELECT count(*) FROM FileSync_CardImported " +
+            "WHERE contentStatus='" + CardImported.STATUS_DELETE_BY_DECK + "'")
+    int countByDeleteByDeck();
+
     @Query("SELECT * FROM FileSync_CardImported")
     List<CardImported> getCards();
 
-    @Query("SELECT * FROM FileSync_CardImported ORDER BY id ASC LIMIT 1")
+    @Query("SELECT * FROM FileSync_CardImported " +
+            "WHERE contentStatus NOT IN (" +
+            "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
+            "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
+            "ORDER BY id ASC " +
+            "LIMIT 1")
     CardImported getFirst();
 
     @Query("SELECT * FROM FileSync_CardImported WHERE id > :idGreaterThan LIMIT 100")
@@ -73,7 +82,7 @@ public interface CardImportedDao {
     List<CardImported> findByStatusNotOrderByOrdinalAsc(String[] statuses, int ordinalGreaterThan);
 
     @Query("SELECT i.* FROM FileSync_CardImported i " +
-            "JOIN Card c ON i.cardId = c.id " +
+            "JOIN Core_Card c ON i.cardId = c.id " +
             "WHERE " +
             "c.ordinal > :ordinalGreaterThan " +
             "AND i.contentStatus NOT IN (:statuses) " +
@@ -158,6 +167,16 @@ public interface CardImportedDao {
     void updateNewNextCardImportedIdById(int id, int newNextCardImportedId);
 
     @Query("UPDATE FileSync_CardImported " +
+            "SET contentStatus='" + CardImported.STATUS_DELETE_BY_DECK +  "' " +
+            "WHERE id IN (" +
+                "SELECT i.id " +
+                "FROM FileSync_CardImported i " +
+                "JOIN Core_Card c ON c.id=i.cardId " +
+                "WHERE c.deletedAt IS NOT null" +
+            ")")
+    void updateStatusDeleteByDeck();
+
+    @Query("UPDATE FileSync_CardImported " +
             "SET cardId=null " +
             "WHERE " +
             "cardId IN (SELECT cardId FROM FileSync_CardImported s GROUP BY cardId HAVING count(*) > 1)")
@@ -165,4 +184,7 @@ public interface CardImportedDao {
 
     @Query("DELETE FROM FileSync_CardImported")
     void deleteAll();
+
+    @Query("UPDATE FileSync_CardImported SET contentStatus=:contentStatus WHERE cardId=:cardId")
+    void setStatusByCardId(String contentStatus, int cardId);
 }
