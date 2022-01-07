@@ -7,6 +7,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Maybe;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 
@@ -22,10 +23,16 @@ public interface FileSyncedDao {
     @Query("SELECT * FROM FileSync_FileSynced WHERE uri=:uri")
     FileSynced findByUri(String uri);
 
+    @Query("SELECT * FROM FileSync_FileSynced WHERE uri=:uri")
+    Maybe<FileSynced> findByUriAsync(String uri);
+
     @Insert
     long insert(FileSynced fileSynced);
 
     @Update
     void updateAll(FileSynced... fileSynced);
+
+    @Query("UPDATE FileSync_FileSynced SET autoSync=0 WHERE id!=:id")
+    void disableAutoSyncByIdNot(int id);
 
 }

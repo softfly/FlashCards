@@ -82,7 +82,7 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         e.printStackTrace();
         listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
                 MessageFormat.format("Timeout. The {0} file could not be imported.", fileName),
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_LONG
         ).show());
     }
 
@@ -90,7 +90,7 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         e.printStackTrace();
         listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
                 MessageFormat.format("Error. The {0} file could not be imported.", fileName),
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_LONG
         ).show());
     }
 }

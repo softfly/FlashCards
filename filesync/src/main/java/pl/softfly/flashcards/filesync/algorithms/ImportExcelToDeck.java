@@ -1,6 +1,6 @@
 package pl.softfly.flashcards.filesync.algorithms;
 
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLS;
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 
 import android.content.Context;
 

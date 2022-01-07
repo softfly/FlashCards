@@ -35,7 +35,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.filesync.FileSyncConstants;
 import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
 
 public class ImportExcelToDeckStepDefs {

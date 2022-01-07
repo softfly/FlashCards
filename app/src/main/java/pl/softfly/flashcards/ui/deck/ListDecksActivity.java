@@ -1,5 +1,8 @@
 package pl.softfly.flashcards.ui.deck;
 
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -24,31 +28,20 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.tasks.Task;
+import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
-
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLS;
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLSX;
 
 public class ListDecksActivity extends AppCompatActivity {
 
+    private ListDecksActivity listDecksActivity;
+
     private final ArrayList<String> deckNames = new ArrayList<>();
+
+    private FileSync fileSync = FileSync.getInstance();
 
     private final ActivityResultLauncher<String[]> importExcel = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
-            uri -> {
-                try {
-                    LongTasksExecutor.getInstance().doTask((Task<Object>)
-                            Class.forName("pl.softfly.flashcards.filesync.task.ImportExcelToDeckTask")
-                                    .getConstructor(ListCardsActivity.class,  Uri.class)
-                                    .newInstance( this, uri));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //@todo meesage
-                }
-            }
+            uri -> fileSync.importFile(uri, listDecksActivity)
     );
 
     private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
@@ -56,6 +49,7 @@ public class ListDecksActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.listDecksActivity = this;
         setContentView(R.layout.activity_list_decks);
         initRecyclerView();
         loadDecks();
@@ -124,8 +118,10 @@ public class ListDecksActivity extends AppCompatActivity {
                 answerBuilder.append(" Sample answer ").append(i + 1);
             }
             Card card = new Card();
+            card.setOrdinal(i);
             card.setQuestion(questionBuilder.toString());
             card.setAnswer(answerBuilder.toString());
+            card.setModifiedAt(LocalDateTime.now());
             cards[i] = card;
         }
 

@@ -425,7 +425,6 @@ public class DetermineNewOrderCards {
         CardImported firstCardImported = deckDb.cardImportedDao().getFirst();
 
         if (CardImported.STATUS_INSERT_BY_FILE.equals(firstCardImported.getContentStatus())) {
-
             CardImported firstVertex = new CardImported();
             firstVertex.setId(0);
             firstVertex.setQuestion("The first vertex of the graph.");

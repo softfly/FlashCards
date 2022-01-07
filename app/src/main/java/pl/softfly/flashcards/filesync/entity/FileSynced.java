@@ -26,6 +26,11 @@ public class FileSynced {
 
     private LocalDateTime lastSyncAt;
 
+    /**
+     * A deck can only automatically sync with one file.
+     */
+    private boolean autoSync;
+
     public Integer getId() {
         return id;
     }
@@ -48,5 +53,13 @@ public class FileSynced {
 
     public void setLastSyncAt(LocalDateTime lastSyncAt) {
         this.lastSyncAt = lastSyncAt;
+    }
+
+    public boolean isAutoSync() {
+        return autoSync;
+    }
+
+    public void setAutoSync(boolean autoSync) {
+        this.autoSync = autoSync;
     }
 }

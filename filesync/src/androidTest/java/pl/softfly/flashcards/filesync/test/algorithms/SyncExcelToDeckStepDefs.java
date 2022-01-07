@@ -46,6 +46,7 @@ import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
  * @author Grzegorz Ziemski
@@ -86,7 +87,7 @@ public class SyncExcelToDeckStepDefs {
 
     private CreationHelper creationHelper;
 
-    private final long excelLastModifiedAt = 1;
+    private final long excelLastModifiedAt = 1*60*60;
 
     private int currentRowNum;
 
@@ -161,7 +162,7 @@ public class SyncExcelToDeckStepDefs {
             card.setQuestion(rowIn.get(COLUMN_TEST_INDEX_QUESTION));
             card.setAnswer(rowIn.get(COLUMN_TEST_INDEX_ANSWER));
             long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt));
+            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt*60*60));
             if (modifiedAt < 0) {
                 card.setDeletedAt(LocalDateTime.now());
             }
@@ -188,7 +189,7 @@ public class SyncExcelToDeckStepDefs {
                                 .replace("{i}", Integer.toString(i))
                 );
                 long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt));
+                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt*60*60));
                 if (modifiedAt < 0) {
                     card.setDeletedAt(LocalDateTime.now());
                 }
@@ -243,15 +244,21 @@ public class SyncExcelToDeckStepDefs {
         excelWorkbook.write(fileOut);
         fileOut.close();
 
+        FileSynced fileSynced = deckDb.fileSyncedDao().findByUri(excelFilePath);
+        if (fileSynced == null) {
+            fileSynced = new FileSynced();
+            fileSynced.setUri(excelFilePath);
+        }
+
         SyncExcelToDeck syncExcelToDeck = new BenchmarkSyncExcelToDeck(appContext, new BenchmarkDetermineNewOrderCards());
         syncExcelToDeck.syncExcelFile(
                 deckName,
-                excelFilePath,
+                fileSynced,
                 new FileInputStream(excelFilePath),
                 TYPE_XLSX,
                 excelLastModifiedAt
         );
-        syncExcelToDeck.commitChanges(new FileOutputStream(excelFilePath));
+        syncExcelToDeck.commitChanges(fileSynced, new FileOutputStream(excelFilePath));
     }
 
     @Then(value = "The expected deck with cards:", timeout = 1000)

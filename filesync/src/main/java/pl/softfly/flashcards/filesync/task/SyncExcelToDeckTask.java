@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.concurrent.Callable;
 
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.Task;
 import pl.softfly.flashcards.ui.card.ListCardsActivity;
 
@@ -26,15 +27,18 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
     private final String deckName;
     private String mimeType;
     private Long lastModifiedAtImportedFile;
+    private FileSynced fileSynced;
 
     public SyncExcelToDeckTask(String deckName,
-                               ListCardsActivity listCardsActivity,
-                               Uri uriSynchronizedFile
+                               FileSynced fileSynced,
+                               Uri uriSynchronizedFile,
+                               ListCardsActivity listCardsActivity
     ) {
         this.deckName = deckName;
+        this.fileSynced = fileSynced;
+        this.uriSynchronizedFile = uriSynchronizedFile;
         this.listCardsActivity = listCardsActivity;
         this.appContext = listCardsActivity.getApplicationContext();
-        this.uriSynchronizedFile = uriSynchronizedFile;
     }
 
     @Override
@@ -43,16 +47,17 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
         InputStream isImportedFile = openExcelFile(uriSynchronizedFile);
 
         SyncExcelToDeck syncExcelToDeck = new SyncExcelToDeck(listCardsActivity);
-        syncExcelToDeck.syncExcelFile(deckName, uriSynchronizedFile.toString(), isImportedFile, mimeType, lastModifiedAtImportedFile);
+        syncExcelToDeck.syncExcelFile(deckName, fileSynced, isImportedFile, mimeType, lastModifiedAtImportedFile);
         syncExcelToDeck.commitChanges(
+                fileSynced,
                 listCardsActivity
                         .getContentResolver()
                         .openOutputStream(uriSynchronizedFile)
         );
 
-        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(listCardsActivity,
-                String.format("The new deck %s has been imported from an Excel file.", deckName),
-                Toast.LENGTH_SHORT)
+        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext,
+                String.format("The deck %s has been synced with the file.", deckName),
+                Toast.LENGTH_LONG)
                 .show());
         return true;
     }
@@ -83,12 +88,12 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
     @Override
     public void timeout(Exception e) {
         e.printStackTrace();
-        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_SHORT).show());
+        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_LONG).show());
     }
 
     @Override
     public void error(Exception e) {
         e.printStackTrace();
-        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_SHORT).show());
+        this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_LONG).show());
     }
 }

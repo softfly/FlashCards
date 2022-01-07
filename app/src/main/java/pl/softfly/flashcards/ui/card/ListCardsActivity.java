@@ -1,7 +1,9 @@
 package pl.softfly.flashcards.ui.card;
 
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
+
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,12 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.tasks.Task;
+import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
-
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLS;
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLSX;
 
 public class ListCardsActivity extends AppCompatActivity {
 
@@ -28,25 +26,20 @@ public class ListCardsActivity extends AppCompatActivity {
 
     private CardRecyclerViewAdapter cardRecycler;
 
+    private ListCardsActivity activity;
+
+    private FileSync fileSync = FileSync.getInstance();
+
     private final ActivityResultLauncher<String[]> syncExcel = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
-            uri -> {
-                try {
-                    LongTasksExecutor.getInstance().doTask((Task<Object>)
-                            Class.forName("pl.softfly.flashcards.filesync.task.SyncExcelToDeckTask")
-                            .getConstructor(ListCardsActivity.class,  Uri.class)
-                            .newInstance(this, uri));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    //@todo meesage
-                }
-            }
+            uri -> fileSync.syncFile(deckName, uri, activity)
     );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_cards);
+        this.activity = this;
         initFabMenu();
 
         Intent intent = getIntent();
@@ -57,7 +50,6 @@ public class ListCardsActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     protected void initRecyclerView() throws Exception {
