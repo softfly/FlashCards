@@ -2,7 +2,7 @@ package pl.softfly.flashcards.filesync.test.algorithms;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static pl.softfly.flashcards.filesync.FileSyncConstants.TYPE_XLSX;
+import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
 import android.Manifest;
 import android.content.Context;

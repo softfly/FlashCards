@@ -41,7 +41,7 @@ import pl.softfly.flashcards.ui.card.ListCardsActivity;
  */
 public class SyncExcelToDeck extends AbstractReadExcel {
 
-    public static final int MULTIPLE_ORDINAL = 100;
+    public static final int MULTIPLE_ORDINAL = 1;
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
     protected static final int PAGE_LIMIT = 100;
 

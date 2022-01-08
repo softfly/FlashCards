@@ -6,6 +6,14 @@
         android:id="@+id/remove_card"
         android:title="Remove card" />
     <item
+        android:id="@+id/cut_card"
+        android:title="Cut card" />
+    <item
+        android:id="@+id/paste_card"
+        android:visible="false"
+        android:title="Paste card" />
+    <item
         android:id="@+id/add_card"
         android:title="Add a new card here" />
+
 </menu>

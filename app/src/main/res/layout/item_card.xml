@@ -13,10 +13,24 @@
         android:background="?android:attr/selectableItemBackground">
 
         <TextView
+            android:id="@+id/id"
+            android:layout_width="50dp"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="6dp"
+            android:text="Id" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/list_divider_material" />
+
+        <TextView
             android:id="@+id/question"
             android:layout_weight="1"
             android:maxLines="4"
-            android:paddingStart="16dp"
+            android:paddingStart="6dp"
             android:paddingTop="6dp"
             android:paddingEnd="6dp"
             android:paddingBottom="6dp"

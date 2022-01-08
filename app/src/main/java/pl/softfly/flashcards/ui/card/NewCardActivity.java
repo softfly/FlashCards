@@ -22,7 +22,11 @@ public class NewCardActivity extends AppCompatActivity {
 
     public static final String DECK_NAME = "deckName";
 
+    public static final String AFTER_CARD_ID = "afterCardId";
+
     protected String deckName;
+
+    protected Integer afterCardId;
 
     protected DeckDatabase deckDb;
 
@@ -44,6 +48,7 @@ public class NewCardActivity extends AppCompatActivity {
         try {
             Intent intent = getIntent();
             deckName = intent.getStringExtra(DECK_NAME);
+            afterCardId = intent.getIntExtra(AFTER_CARD_ID, 0);
             deckDb = AppDatabaseUtil
                     .getInstance(getApplicationContext())
                     .getDeckDatabase(deckName);

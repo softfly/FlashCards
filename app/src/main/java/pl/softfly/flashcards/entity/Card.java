@@ -2,12 +2,15 @@ package pl.softfly.flashcards.entity;
 
 import androidx.room.Embedded;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.time.LocalDateTime;
 
 /**
  * The card in the deck.
+ *
+ * @author Grzegorz Ziemski
  */
 @Entity(tableName = "Core_Card")
 public class Card {
