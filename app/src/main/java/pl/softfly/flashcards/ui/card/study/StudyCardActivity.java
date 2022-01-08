@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card;
+package pl.softfly.flashcards.ui.card.study;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -27,7 +27,7 @@ import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-public abstract class ViewCardActivity extends AppCompatActivity {
+public abstract class StudyCardActivity extends AppCompatActivity {
 
     private final static String TAG = "ViewCardActivity";
 

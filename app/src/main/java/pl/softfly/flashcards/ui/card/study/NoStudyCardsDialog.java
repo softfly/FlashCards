@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card;
+package pl.softfly.flashcards.ui.card.study;
 
 import android.app.Dialog;
 import android.os.Bundle;

@@ -30,7 +30,7 @@ import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 
 /**
  * Sync changes between the current deck and the file.
@@ -522,7 +522,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     protected void updateDeckCards() {
         List<Card> cardsListToUpdate = new LinkedList<>();
-        List<Card> cardsListToRemove = new LinkedList<>();
         List<CardImported> cardsImportedListToUpdate = new LinkedList<>();
 
         List<CardImported> cardImportedList = deckDb.cardImportedDao().findAll(0);
@@ -562,17 +561,16 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 break;
                 case CardImported.STATUS_DELETE_BY_FILE: {
                     Card card = deckDb.cardDao().findById(cardImported.getCardId());
-                    cardsListToRemove.add(card);
+                    card.setDeletedAt(newLastSyncAt);
+                    cardsListToUpdate.add(card);
                 }
                 break;
             }
 
-            if ((cardsListToUpdate.size() + cardsListToRemove.size() + cardsImportedListToUpdate.size())
+            if ((cardsListToUpdate.size() + cardsImportedListToUpdate.size())
                     >= ENTITIES_TO_UPDATE_POOL_MAX) {
                 deckDb.cardDao().updateAll(cardsListToUpdate);
                 cardsListToUpdate.clear();
-                deckDb.cardDao().deleteAll(cardsListToRemove);
-                cardsListToRemove.clear();
                 deckDb.cardImportedDao().updateAll(cardsImportedListToUpdate);
                 cardsImportedListToUpdate.clear();
             }
@@ -583,9 +581,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
         if (!cardsListToUpdate.isEmpty()) {
             deckDb.cardDao().updateAll(cardsListToUpdate);
-        }
-        if (!cardsListToRemove.isEmpty()) {
-            deckDb.cardDao().deleteAll(cardsListToRemove);
         }
         if (!cardsImportedListToUpdate.isEmpty()) {
             deckDb.cardImportedDao().updateAll(cardsImportedListToUpdate);

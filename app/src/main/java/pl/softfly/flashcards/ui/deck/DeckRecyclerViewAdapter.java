@@ -19,8 +19,8 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
-import pl.softfly.flashcards.ui.card.DraggableViewCardActivity;
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
+import pl.softfly.flashcards.ui.card.study.DraggableStudyCardActivity;
+import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 
 public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerViewAdapter.ViewHolder> {
@@ -118,7 +118,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(activity, DraggableViewCardActivity.class);
+            Intent intent = new Intent(activity, DraggableStudyCardActivity.class);
             intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
             activity.startActivity(intent);
         }

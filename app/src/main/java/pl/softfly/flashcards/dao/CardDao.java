@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
@@ -21,6 +22,9 @@ public abstract class CardDao {
 
     @Query("SELECT count(*) FROM Core_Card c WHERE deletedAt IS NULL")
     public abstract int count();
+
+    @Query("SELECT max(ordinal) FROM Core_Card c WHERE deletedAt IS NULL")
+    public abstract int lastOrdinal();
 
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL")
     public abstract List<Card> getCards();
@@ -49,18 +53,17 @@ public abstract class CardDao {
     @Update
     public abstract void updateAll(List<Card> cards);
 
-    /**
-     * @todo what timezone is used by SQLlite?
-     */
-    @Query("UPDATE Core_Card " +
-            "SET ordinal=ordinal+1, modifiedAt=strftime('%s', CURRENT_TIMESTAMP) " +
+    @Query("UPDATE Core_Card SET ordinal=ordinal-1 " +
+            "WHERE ordinal>:oldOrdinal AND ordinal<=:newOrdinal")
+    protected abstract void decreaseOrdinalByBetweenEqual(int oldOrdinal, int newOrdinal);
+
+    @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
             "WHERE ordinal>:newOrdinal AND ordinal<:oldOrdinal")
     protected abstract void increaseOrdinalByBetween(int newOrdinal, int oldOrdinal);
 
-    @Query("UPDATE Core_Card " +
-            "SET ordinal=ordinal-1, modifiedAt=strftime('%s', CURRENT_TIMESTAMP) " +
-            "WHERE ordinal>:oldOrdinal AND ordinal<=:newOrdinal")
-    protected abstract void decreaseOrdinalByBetweenEqual(int oldOrdinal, int newOrdinal);
+    @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
+            "WHERE ordinal>=:newOrdinal")
+    protected abstract void increaseOrdinalByGreaterThanEqual(int newOrdinal);
 
     @Transaction
     public void changeCardOrdinal(Card card, int afterOrdinal) {
@@ -71,18 +74,25 @@ public abstract class CardDao {
             increaseOrdinalByBetween(afterOrdinal, card.getOrdinal());
             card.setOrdinal(afterOrdinal+1);
         }
+        card.setModifiedAt(LocalDateTime.now());
         updateAll(card);
     }
 
-    @Delete
-    public abstract void delete(Card card);
+    @Transaction
+    public void insertAfterOrdinal(Card card, int afterOrdinal) {
+        increaseOrdinalByGreaterThanEqual(afterOrdinal);
+        card.setOrdinal(afterOrdinal);
+        card.setModifiedAt(LocalDateTime.now());
+        insertAll(card);
+    }
 
-    @Delete
-    public abstract void deleteAll(List<Card> card);
+    @Transaction
+    public void insertAtEnd(Card card) {
+        card.setOrdinal(this.lastOrdinal()+1);
+        card.setModifiedAt(LocalDateTime.now());
+        insertAll(card);
+    }
 
     @Query("DELETE FROM Core_Card WHERE deletedAt IS NOT NULL")
     public abstract void purgeDeleted();
-
-
-
 }

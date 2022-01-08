@@ -9,24 +9,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.time.LocalDateTime;
+
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.ExceptionDialog;
 
 public class NewCardActivity extends AppCompatActivity {
 
-    private final static String TAG = "NewCardActivity";
-
     public static final String DECK_NAME = "deckName";
 
-    public static final String AFTER_CARD_ID = "afterCardId";
-
     protected String deckName;
-
-    protected Integer afterCardId;
 
     protected DeckDatabase deckDb;
 
@@ -45,18 +41,9 @@ public class NewCardActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        try {
-            Intent intent = getIntent();
-            deckName = intent.getStringExtra(DECK_NAME);
-            afterCardId = intent.getIntExtra(AFTER_CARD_ID, 0);
-            deckDb = AppDatabaseUtil
-                    .getInstance(getApplicationContext())
-                    .getDeckDatabase(deckName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            ExceptionDialog dialog = new ExceptionDialog(e);
-            dialog.show(this.getSupportFragmentManager(), TAG);
-        }
+        Intent intent = getIntent();
+        deckName = intent.getStringExtra(DECK_NAME);
+        deckDb = getDeckDatabase();
     }
 
     @Override
@@ -70,7 +57,7 @@ public class NewCardActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
-                return  true;
+                return true;
             case R.id.saveCard:
                 onClickSaveCard();
                 return true;
@@ -79,18 +66,32 @@ public class NewCardActivity extends AppCompatActivity {
         }
     }
 
-    protected void onClickSaveCard() {
+    protected Card createCard() {
         Card card = new Card();
         card.setQuestion(questionEditText.getText().toString());
         card.setAnswer(answerEditText.getText().toString());
+        card.setModifiedAt(LocalDateTime.now());
+        return card;
+    }
 
-        deckDb.cardDaoAsync().insertAll(card)
+    protected void onClickSaveCard() {
+        Completable.fromAction(() ->
+                deckDb.cardDao().insertAtEnd(createCard()))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
-                    Toast.makeText(this, "The new card has been added.", Toast.LENGTH_SHORT).show();
-                    super.finish();
-                }))
+                            Toast.makeText(this,
+                                    "The new card has been added.",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            super.finish();
+                        })
+                )
                 .subscribe();
-        super.finish();
+    }
+
+    protected DeckDatabase getDeckDatabase() {
+        return AppDatabaseUtil
+                .getInstance(getApplicationContext())
+                .getDeckDatabase(deckName);
     }
 }

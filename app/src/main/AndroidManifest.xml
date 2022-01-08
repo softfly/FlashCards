@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.card.DraggableViewCardActivity"
+            android:name=".ui.card.study.DraggableStudyCardActivity"
             android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -29,15 +29,17 @@
         </activity>
         <activity android:name=".ui.card.NewCardActivity">
         </activity>
-        <activity
-            android:name=".ui.card.EditCardActivity"
-            android:parentActivityName=".ui.card.ListCardsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.card.ListCardsActivity" />
+        <activity android:name=".ui.card.NewCardAfterOrdinalActivity">
         </activity>
         <activity
-            android:name=".ui.card.ListCardsActivity"
+            android:name=".ui.card.EditCardActivity"
+            android:parentActivityName=".ui.cards.ListCardsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.cards.ListCardsActivity" />
+        </activity>
+        <activity
+            android:name=".ui.cards.ListCardsActivity"
             android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -35,6 +35,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
 
 public class ImportExcelToDeckStepDefs {
@@ -99,7 +100,7 @@ public class ImportExcelToDeckStepDefs {
                         .append(".xlsx")
                         .toString()
         );
-        importExcelToDeck.importExcelFile(scenario.getName(), is, FileSyncConstants.TYPE_XLSX);
+        importExcelToDeck.importExcelFile(scenario.getName(), is, FileSync.TYPE_XLSX);
     }
 
     @Then("A new deck with the following cards imported.")

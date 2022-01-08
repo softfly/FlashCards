@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.Task;
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski

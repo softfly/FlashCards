@@ -12,7 +12,7 @@ import pl.softfly.flashcards.filesync.task.ImportExcelToDeckTask;
 import pl.softfly.flashcards.filesync.task.SyncExcelToDeckTask;
 import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public class FileSyncBean implements FileSync {

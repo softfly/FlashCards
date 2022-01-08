@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card;
+package pl.softfly.flashcards.ui.card.study;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -10,10 +10,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
 
 import static android.view.View.OnTouchListener;
 
-public class DraggableViewCardActivity extends ViewCardActivity {
+public class DraggableStudyCardActivity extends StudyCardActivity {
 
     private ConstraintLayout cardLayout;
     private ConstraintLayout cardView;

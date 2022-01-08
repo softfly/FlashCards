@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card;
+package pl.softfly.flashcards.ui.cards;
 
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
@@ -18,6 +18,7 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.filesync.FileSync;
+import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public class ListCardsActivity extends AppCompatActivity {

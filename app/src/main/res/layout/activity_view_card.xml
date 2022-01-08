@@ -17,7 +17,7 @@
         app:layout_constraintBottom_toTopOf="@+id/gradeButtonsLayout"
         app:layout_constraintTop_toTopOf="parent">
 
-        <pl.softfly.flashcards.ui.card.ZoomTextView
+        <pl.softfly.flashcards.ui.card.study.ZoomTextView
             android:id="@+id/questionView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -36,7 +36,7 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.5" />
 
-        <pl.softfly.flashcards.ui.card.ZoomTextView
+        <pl.softfly.flashcards.ui.card.study.ZoomTextView
             android:id="@+id/answerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

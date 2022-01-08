@@ -1,9 +1,8 @@
-package pl.softfly.flashcards.ui.card;
+package pl.softfly.flashcards.ui.cards;
 
 import android.content.Intent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
@@ -23,6 +22,11 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.ui.card.EditCardActivity;
+import pl.softfly.flashcards.ui.card.NewCardActivity;
+import pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity;
+
+import static pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity.AFTER_ORDINAL;
 
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerViewAdapter.ViewHolder> {
 
@@ -134,27 +138,35 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
                         return true;
                     }
                     case R.id.paste_card: {
-                        onClickPasteCard(popup);
+                        onClickPasteCard();
                         return true;
                     }
                     case R.id.add_card: {
-                        Intent intent = new Intent(activity, NewCardActivity.class);
+                        Intent intent = new Intent(activity, NewCardAfterOrdinalActivity.class);
                         intent.putExtra(NewCardActivity.DECK_NAME, deckName);
+                        intent.putExtra(
+                                AFTER_ORDINAL,
+                                cards.get(getAdapterPosition()).getOrdinal()
+                        );
                         activity.startActivity(intent);
                         return true;
                     }
                 }
                 return false;
             });
+            showPasteAfterClickCut(popup);
+            popup.show();
+        }
+
+        protected void showPasteAfterClickCut(PopupMenu popup) {
             if (cutCardPos != null) {
                 popup.getMenu().findItem(R.id.paste_card).setVisible(true);
             }
-            popup.show();
         }
 
         protected void onClickRemoveCard() {
             int pos = getAdapterPosition();
-            deckDb.cardDaoAsync().delete(cards.get(pos))
+            deckDb.cardDaoAsync().delete(cards.get(pos).getId())
                     .subscribeOn(Schedulers.io())
                     .doOnComplete(() -> activity.runOnUiThread(() -> {
                         cards.remove(pos);
@@ -168,18 +180,26 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
                     .subscribe();
         }
 
-        protected void onClickPasteCard(PopupMenu popup) {
+        protected void onClickPasteCard() {
             if (cutCardPos != null) {
                 Card cutCard = cards.get(cutCardPos);
                 int pasteAfterCardPos = getAdapterPosition();
                 Card pasteAfterCard = cards.get(pasteAfterCardPos);
-                Completable.fromAction(() -> deckDb.cardDao().changeCardOrdinal(cutCard, pasteAfterCard.getOrdinal()))
+                Completable.fromAction(() ->
+                        deckDb.cardDao().changeCardOrdinal(cutCard, pasteAfterCard.getOrdinal())
+                )
                         .subscribeOn(Schedulers.io())
                         .doOnComplete(() -> {
                             if (pasteAfterCardPos > cutCardPos) {
-                                cardRecycler.refreshCards(cutCardPos, pasteAfterCardPos - cutCardPos + 1);
+                                cardRecycler.refreshCards(
+                                        cutCardPos,
+                                        pasteAfterCardPos - cutCardPos + 1
+                                );
                             } else {
-                                cardRecycler.refreshCards(pasteAfterCardPos, cutCardPos - pasteAfterCardPos + 1);
+                                cardRecycler.refreshCards(
+                                        pasteAfterCardPos,
+                                        cutCardPos - pasteAfterCardPos + 1
+                                );
                             }
                             cutCardPos=null;
                         })

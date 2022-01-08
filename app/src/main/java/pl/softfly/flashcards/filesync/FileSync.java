@@ -2,7 +2,7 @@ package pl.softfly.flashcards.filesync;
 
 import android.net.Uri;
 
-import pl.softfly.flashcards.ui.card.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public interface FileSync {

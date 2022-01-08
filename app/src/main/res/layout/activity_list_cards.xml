@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:stretchColumns="1"
-    tools:context=".ui.card.ListCardsActivity">
+    tools:context=".ui.cards.ListCardsActivity">
 
     <TableLayout
         android:id="@+id/tableLayout"

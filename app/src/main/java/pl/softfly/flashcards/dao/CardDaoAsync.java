@@ -43,8 +43,10 @@ public abstract class CardDaoAsync {
     @Update
     public abstract Completable updateAll(Card... cards);
 
-    @Delete
-    public abstract Completable delete(Card card);
+    @Query("UPDATE Core_Card " +
+            "SET deletedAt=strftime('%s', CURRENT_TIMESTAMP) " +
+            "WHERE id=:cardId")
+    public abstract Completable delete(int cardId);
 
     @Query("DELETE FROM Core_Card")
     public abstract Completable deleteAll();
