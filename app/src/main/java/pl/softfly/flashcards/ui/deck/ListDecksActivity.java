@@ -8,16 +8,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,10 +42,11 @@ public class ListDecksActivity extends AppCompatActivity {
     @Nullable
     private FileSync fileSync = FileSync.getInstance();
 
-    private final ActivityResultLauncher<String[]> importExcel = registerForActivityResult(
-            new ActivityResultContracts.OpenDocument(),
-            uri -> fileSync.importFile(uri, listDecksActivity)
-    );
+    private final ActivityResultLauncher<String[]> importExcel =
+            registerForActivityResult(
+                    new ActivityResultContracts.OpenDocument(),
+                    uri -> { if (uri != null) fileSync.importFile(uri, listDecksActivity); }
+            );
 
     private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
 
@@ -79,6 +82,27 @@ public class ListDecksActivity extends AppCompatActivity {
                 .listDatabases()
         );
         deckRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_list_decks, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_deck:
+                DialogFragment dialog = new CreateDeckDialog();
+                dialog.show(this.getSupportFragmentManager(), "CreateDeck");
+                return true;
+            case R.id.import_excel:
+                importExcel.launch(new String[] {TYPE_XLS, TYPE_XLSX});
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     protected void createSampleDeck() throws Exception {

@@ -19,19 +19,19 @@ public class SyncDeckDatabaseUtil {
     @NonNull
     private final AppStorageDbUtil<SyncDeckDatabase> deckDbUtil;
 
-    private final Context context;
+    private final Context appContext;
 
-    public SyncDeckDatabaseUtil(Context context) {
-        this.context = context;
+    public SyncDeckDatabaseUtil(Context appContext) {
+        this.appContext = appContext;
         this.deckDbUtil = EXTERNAL_STORAGE ?
-                new ExternalStorageDbUtil<SyncDeckDatabase>(context) {
+                new ExternalStorageDbUtil<SyncDeckDatabase>(appContext) {
                     @NonNull
                     @Override
                     protected Class<SyncDeckDatabase> getTClass() {
                         return SyncDeckDatabase.class;
                     }
                 } :
-                new AppStorageDbUtil<SyncDeckDatabase>(context) {
+                new AppStorageDbUtil<SyncDeckDatabase>(appContext) {
                     @NonNull
                     @Override
                     protected Class<SyncDeckDatabase> getTClass() {
@@ -54,7 +54,7 @@ public class SyncDeckDatabaseUtil {
     }
 
     public void removeDatabase(@NonNull String deckName) {
-        SyncDatabaseUtil.getInstance(context).closeDeckDatabase(deckName);
+        SyncDatabaseUtil.getInstance(appContext).closeDeckDatabase(deckName);
         deckDbUtil.removeDatabase(deckName);
     }
 

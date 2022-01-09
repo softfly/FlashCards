@@ -9,8 +9,8 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public interface FileSync {
 
-    public static final String TYPE_XLS = "application/vnd.ms-excel";
-    public static final String TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    String TYPE_XLS = "application/vnd.ms-excel";
+    String TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     @Nullable
     static FileSync getInstance() {

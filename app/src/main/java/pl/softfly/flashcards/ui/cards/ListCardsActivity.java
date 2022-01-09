@@ -36,7 +36,7 @@ public class ListCardsActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<String[]> syncExcel = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
-            uri -> fileSync.syncFile(deckName, uri, activity)
+            uri -> { if (uri != null) fileSync.syncFile(deckName, uri, activity); }
     );
 
     @Override
@@ -55,7 +55,7 @@ public class ListCardsActivity extends AppCompatActivity {
         }
     }
 
-    protected void initRecyclerView() throws Exception {
+    protected void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.card_list_view);
         cardRecycler = new CardRecyclerViewAdapter(this, deckName);
         recyclerView.setAdapter(cardRecycler);

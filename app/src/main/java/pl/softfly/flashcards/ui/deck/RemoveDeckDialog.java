@@ -39,7 +39,11 @@ public class RemoveDeckDialog extends DialogFragment {
                     if (deckDatabaseUtil.exists(deckName)) {
                         deckDatabaseUtil.removeDatabase(deckName);
                         activity.loadDecks();
-                        Toast.makeText(getContext(), deckName + " deck removed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                getContext(),
+                                "The deck has been removed.",
+                                Toast.LENGTH_SHORT
+                        ).show();
                     }
                 })
                 .setNegativeButton("No", (dialog, which) -> {

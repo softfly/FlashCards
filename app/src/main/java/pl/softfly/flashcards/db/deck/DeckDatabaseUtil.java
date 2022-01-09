@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
+import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.AppStorageDbUtil;
 import pl.softfly.flashcards.db.ExternalStorageDbUtil;
 
@@ -19,16 +20,19 @@ public class DeckDatabaseUtil {
     @NonNull
     private final AppStorageDbUtil<DeckDatabase> deckDbUtil;
 
-    public DeckDatabaseUtil(Context context) {
+    private Context appContext;
+
+    public DeckDatabaseUtil(Context appContext) {
+        this.appContext = appContext;
         this.deckDbUtil = EXTERNAL_STORAGE ?
-                new ExternalStorageDbUtil<DeckDatabase>(context) {
+                new ExternalStorageDbUtil<DeckDatabase>(appContext) {
                     @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
                         return DeckDatabase.class;
                     }
                 } :
-                new AppStorageDbUtil<DeckDatabase>(context) {
+                new AppStorageDbUtil<DeckDatabase>(appContext) {
                     @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
@@ -50,6 +54,7 @@ public class DeckDatabaseUtil {
     }
 
     public void removeDatabase(@NonNull String deckName) {
+        AppDatabaseUtil.getInstance(appContext).closeDeckDatabase(deckName);
         deckDbUtil.removeDatabase(deckName);
     }
 }

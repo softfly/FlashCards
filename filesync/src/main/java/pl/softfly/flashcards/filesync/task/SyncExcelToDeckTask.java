@@ -60,7 +60,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
         );
 
         this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext,
-                String.format("The deck %s has been synced with the file.", deckName),
+                String.format("The deck \"%s\" has been synced with the file.", deckName),
                 Toast.LENGTH_LONG)
                 .show());
         return true;

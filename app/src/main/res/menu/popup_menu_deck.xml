@@ -7,5 +7,5 @@
         android:title="Add a new card" />
     <item
         android:id="@+id/removeDeck"
-        android:title="Remove the deck" />
+        android:title="Remove deck" />
 </menu>

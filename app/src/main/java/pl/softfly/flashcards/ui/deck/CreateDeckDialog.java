@@ -25,8 +25,8 @@ public class CreateDeckDialog extends DialogFragment {
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_create_deck, null);
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle("Create a new deck of cards")
-                .setMessage("Please enter the name.")
+                .setTitle("Create a new deck")
+                .setMessage("Please enter the name:")
                 .setView(view)
                 .setPositiveButton("OK", (dialog, which) -> {
                     EditText deckNameEditText = view.findViewById(R.id.deckName);
@@ -38,7 +38,11 @@ public class CreateDeckDialog extends DialogFragment {
                                 .subscribeOn(Schedulers.io())
                                 .doOnComplete(() -> activity.runOnUiThread(() -> {
                                     activity.loadDecks();
-                                    Toast.makeText(activity, deckName + " deck created.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(
+                                            activity,
+                                            "\"" + deckName + "\" deck created.",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
                                 }))
                                 .subscribe();
                     } catch (Exception e) {

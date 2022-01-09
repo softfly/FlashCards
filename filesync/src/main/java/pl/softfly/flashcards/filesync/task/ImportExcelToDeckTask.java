@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 
 import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
 import pl.softfly.flashcards.tasks.Task;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 /**
@@ -38,7 +39,12 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     private String mimeType;
 
-    public ImportExcelToDeckTask(@NonNull ListDecksActivity listDecksActivity, Uri uriSynchronizedFile) {
+    private Long lastModifiedAt;
+
+    public ImportExcelToDeckTask(
+            @NonNull ListDecksActivity listDecksActivity,
+            @NonNull Uri uriSynchronizedFile
+    ) {
         this.listDecksActivity = listDecksActivity;
         this.appContext = listDecksActivity.getApplicationContext();
         this.uriSynchronizedFile = uriSynchronizedFile;
@@ -50,13 +56,16 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         askPermissions(uriSynchronizedFile);
         InputStream isImportedFile = openExcelFile(uriSynchronizedFile);
         ImportExcelToDeck ImportExcelToDeck = new ImportExcelToDeck(appContext);
-        ImportExcelToDeck.importExcelFile(fileName, isImportedFile, mimeType);
+        ImportExcelToDeck.importExcelFile(fileName, isImportedFile, mimeType, lastModifiedAt);
 
-        this.listDecksActivity.runOnUiThread(() -> Toast.makeText(
-                appContext,
-                String.format("The new deck %s has been imported from an Excel file.", fileName),
-                Toast.LENGTH_SHORT
-                ).show()
+        this.listDecksActivity.runOnUiThread(() -> {
+                    Toast.makeText(
+                            appContext,
+                            String.format("The new deck \"%s\" has been imported from an Excel file.", fileName),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    this.listDecksActivity.loadDecks();
+                }
         );
         return true;
     }
@@ -66,8 +75,6 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         int takeFlags = intent.getFlags();
         takeFlags &= (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         listDecksActivity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-
-
     }
 
     protected InputStream openExcelFile(Uri uri) throws FileNotFoundException {
@@ -78,6 +85,9 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
                 mimeType = cursor.getString(
                         cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
                 ).toLowerCase();
+                lastModifiedAt = cursor.getLong(
+                        cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                );
             }
         }
         return listDecksActivity.getContentResolver().openInputStream(uri);
@@ -85,17 +95,20 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     public void timeout(@NonNull Exception e) {
         e.printStackTrace();
-        listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
+        listDecksActivity.runOnUiThread(() -> Toast.makeText(
+                appContext,
                 MessageFormat.format("Timeout. The {0} file could not be imported.", fileName),
                 Toast.LENGTH_LONG
-        ).show());
+                ).show()
+        );
     }
 
     public void error(@NonNull Exception e) {
         e.printStackTrace();
-        listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
-                MessageFormat.format("Error. The {0} file could not be imported.", fileName),
-                Toast.LENGTH_LONG
-        ).show());
+        ExceptionDialog dialog = new ExceptionDialog(
+                MessageFormat.format("\"{0}\" could not be imported.", fileName),
+                e
+        );
+        dialog.show(listDecksActivity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
     }
 }

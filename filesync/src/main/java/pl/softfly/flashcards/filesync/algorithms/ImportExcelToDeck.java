@@ -16,12 +16,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
@@ -46,32 +49,42 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         this.appContext = appContext;
     }
 
-    public void importExcelFile(String deckName,
-                                @NonNull InputStream inputStream,
-                                @NonNull String typeFile
+    public void importExcelFile(
+            String deckName,
+            @NonNull InputStream inputStream,
+            @NonNull String typeFile,
+            Long lastModifiedAtFile
     ) throws IOException {
         deckName = findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
         Workbook workbook = typeFile.equals(TYPE_XLS) ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream);
         Sheet datatypeSheet = workbook.getSheetAt(0);
         findColumnIndexes(datatypeSheet);
-        importCards(datatypeSheet, deckName, getQuestionIndex(), getAnswerIndex(), getSkipHeaderRows());
+        importCards(datatypeSheet, deckName, getQuestionIndex(), getAnswerIndex(), getSkipHeaderRows(), lastModifiedAtFile);
     }
 
-    protected void importCards(@NonNull Sheet datatypeSheet,
-                               @NonNull String deckName,
-                               int questionPosition,
-                               int answerPosition,
-                               int skipFirstRows) {
+    protected void importCards(
+            @NonNull Sheet datatypeSheet,
+            @NonNull String deckName,
+            int questionPosition,
+            int answerPosition,
+            int skipFirstRows,
+            Long lastModifiedAtFile
+    ) {
         if (questionPosition == -1 && answerPosition == -1) return;
 
         Iterator<Row> rowIt = datatypeSheet.iterator();
         List<Card> cardsList = new LinkedList<>();
+        int ordinal = SyncExcelToDeck.MULTIPLE_ORDINAL;
+        LocalDateTime createdAt = Converters.fromTimestampToLocalDateTime(TimeUnit.MILLISECONDS.toSeconds(lastModifiedAtFile));
         for (int rowNum = 0; rowIt.hasNext(); rowNum++) {
             Row currentRow = rowIt.next();
             if (rowNum <= skipFirstRows) {
                 continue;
             }
             Card card = new Card();
+            card.setOrdinal(ordinal);
+            ordinal+=SyncExcelToDeck.MULTIPLE_ORDINAL;
+            card.setModifiedAt(createdAt);
 
             if (questionPosition > -1) {
                 Cell currentCell = currentRow.getCell(questionPosition);
@@ -91,7 +104,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
                 if (empty(card.getAnswer())) {
                     card.setAnswer(null);
                 }
-                if (deckDb == null) deckDb = getDeckDB(deckName);
+                if (deckDb == null) deckDb = getDeckDatabase(deckName);
                 cardsList.add(card);
                 if (rowNum > 0 && (rowNum % ENTITIES_TO_UPDATE_POOL_MAX == 0)) {
                     insertAll(new ArrayList<>(cardsList));
@@ -128,7 +141,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     //@todo Public for mocking
     @Nullable
-    public DeckDatabase getDeckDB(@NonNull String deckName) {
+    public DeckDatabase getDeckDatabase(@NonNull String deckName) {
         return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
     }
 }

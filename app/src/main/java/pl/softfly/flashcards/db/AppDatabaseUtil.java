@@ -45,6 +45,16 @@ public class AppDatabaseUtil {
         return db;
     }
 
+    public synchronized void closeDeckDatabase(String dbName) {
+        DeckDatabase db = DECKS.get(dbName);
+        if (db != null) {
+            if (db.isOpen()) {
+                db.close();
+            }
+            DECKS.remove(dbName);
+        }
+    }
+
     @NonNull
     public DeckDatabaseUtil getDeckDatabaseUtil() {
         return deckDatabaseUtil;
