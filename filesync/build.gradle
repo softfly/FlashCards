@@ -5,12 +5,8 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "pl.softfly.flashcards.filesync"
         testApplicationId "pl.softfly.flashcards.filesync.test"
         minSdkVersion 30
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "pl.softfly.flashcards.filesync.test.RunFileSyncInstrumentedTest"
@@ -60,7 +56,7 @@ dependencies {
 }
 
 configurations {
-    cucumberRuntime {
+    cucumberRuntimeOnly {
         extendsFrom testImplementation
     }
 }
