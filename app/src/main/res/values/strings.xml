@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">FlashCards</string>
+    <string name="app_name_release">FlashCards</string>
+    <string name="app_name_debug">FlashCards (DEV)</string>
     <string name="title_filesync">File Sync</string>
 </resources>

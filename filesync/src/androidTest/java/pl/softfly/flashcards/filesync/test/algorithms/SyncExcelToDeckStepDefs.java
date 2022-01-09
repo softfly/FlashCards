@@ -40,6 +40,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pl.softfly.flashcards.BuildConfig;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
@@ -120,7 +121,11 @@ public class SyncExcelToDeckStepDefs {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void initTestDir() {
-        testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/tests/";
+        if (BuildConfig.DEBUG) {
+            testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards (DEV)/tests/";
+        } else {
+            testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards/tests/";
+        }
         new File(testDirPath).mkdirs();
     }
 

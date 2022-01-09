@@ -8,13 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import pl.softfly.flashcards.BuildConfig;
+
 /**
  * @author Grzegorz Ziemski
  */
 public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends AppStorageDbUtil<DB> {
-
-    private static final String PATH_DB_EXTERNAL = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + "/flashcards/";
 
     public ExternalStorageDbUtil(Context context) {
         super(context);
@@ -31,7 +30,11 @@ public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends App
 
     @Override
     protected String getDbFolder() {
-        return PATH_DB_EXTERNAL;
+        if (BuildConfig.DEBUG) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards (DEV)/";
+        } else {
+            return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards/";
+        }
     }
 
 }

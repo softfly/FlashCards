@@ -11,6 +11,10 @@ import androidx.fragment.app.DialogFragment;
 
 import java.io.File;
 
+import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
+
 public class RemoveDeckDialog extends DialogFragment {
 
     private final String deckName;
@@ -28,12 +32,15 @@ public class RemoveDeckDialog extends DialogFragment {
                 .setTitle("Remove a deck of cards")
                 .setMessage("Are you sure you want to delete the deck with all cards?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    String mainPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/flashcards/" + deckName;
-                    (new File(mainPath + ".db")).delete();
-                    (new File(mainPath + ".db-shm")).delete();
-                    (new File(mainPath + ".db-wal")).delete();
-                    activity.loadDecks();
-                    Toast.makeText(getContext(), deckName + " deck removed.", Toast.LENGTH_SHORT).show();
+                    DeckDatabaseUtil deckDatabaseUtil = AppDatabaseUtil
+                            .getInstance(activity.getApplicationContext())
+                            .getDeckDatabaseUtil();
+
+                    if (deckDatabaseUtil.exists(deckName)) {
+                        deckDatabaseUtil.removeDatabase(deckName);
+                        activity.loadDecks();
+                        Toast.makeText(getContext(), deckName + " deck removed.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .setNegativeButton("No", (dialog, which) -> {
                 })
