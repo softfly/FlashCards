@@ -2,6 +2,9 @@ package pl.softfly.flashcards.filesync.algorithms;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.time.Instant;
@@ -73,7 +76,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
         }
     }
 
-    protected void displayLog(CardImported cardImported, long start) {
+    protected void displayLog(@NonNull CardImported cardImported, long start) {
         LocalTime time = Instant.ofEpochMilli(Instant.now().toEpochMilli() - start)
                 .atZone(ZoneOffset.UTC)
                 .toLocalTime();
@@ -96,7 +99,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
         }
     }
 
-    protected double calcSimilarity(String str1, String str2) {
+    protected double calcSimilarity(@Nullable String str1, @Nullable String str2) {
         double similarity = 0;
         if (str1 == null && str2 == null) {
             similarity += 1;
@@ -110,7 +113,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
         return similarity;
     }
 
-    protected void linkCards(CardImported cardImported, Card card) {
+    protected void linkCards(@NonNull CardImported cardImported, @NonNull Card card) {
         cardImported.setCardId(card.getId());
         cardImported.setContentStatus(
                 isImportedFileNewer(card) ?
@@ -125,7 +128,7 @@ public class MatchSimilarCardsRunnable implements Runnable {
         deckDb.cardImportedDao().updateAll(cardImported);
     }
 
-    protected boolean isImportedFileNewer(Card card) {
+    protected boolean isImportedFileNewer(@NonNull Card card) {
         return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
     }
 }

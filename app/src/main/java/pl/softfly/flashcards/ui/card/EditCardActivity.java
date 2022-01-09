@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -34,7 +36,7 @@ public class EditCardActivity extends NewCardActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.saveCard:
                 if (Objects.nonNull(card)) {

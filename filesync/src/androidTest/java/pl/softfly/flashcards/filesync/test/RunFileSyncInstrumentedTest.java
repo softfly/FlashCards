@@ -2,6 +2,8 @@ package pl.softfly.flashcards.filesync.test;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import org.junit.runner.RunWith;
 
 import java.io.File;
@@ -25,7 +27,7 @@ import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
 public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
 
     @Override
-    public void onCreate(final Bundle bundle) {
+    public void onCreate(@NonNull final Bundle bundle) {
         bundle.putString("plugin", getPluginConfigurationString());
         new File(getAbsoluteReportsPath()).mkdirs();
 
@@ -38,6 +40,7 @@ public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
         super.onCreate(bundle);
     }
 
+    @NonNull
     private String getPluginConfigurationString() {
         String cucumber = "cucumber";
         String separator = "--";
@@ -45,14 +48,17 @@ public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
                 "html:" + getCucumberHtml(cucumber);
     }
 
+    @NonNull
     private String getCucumberHtml(String cucumber) {
         return getAbsoluteReportsPath() + "/" + cucumber + ".html";
     }
 
+    @NonNull
     private String getCucumberXml(String cucumber) {
         return getAbsoluteReportsPath() + "/" + cucumber + ".xml";
     }
 
+    @NonNull
     private String getAbsoluteReportsPath() {
         File directory = getTargetContext().getExternalFilesDir(null);
         return new File(directory, "reports").getAbsolutePath();

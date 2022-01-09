@@ -19,6 +19,7 @@ public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends App
         super(context);
     }
 
+    @NonNull
     @Override
     public DB getDatabase(@NonNull String databaseName) {
         return Room.databaseBuilder(
@@ -28,6 +29,7 @@ public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends App
         ).build();
     }
 
+    @NonNull
     @Override
     protected String getDbFolder() {
         if (BuildConfig.DEBUG) {

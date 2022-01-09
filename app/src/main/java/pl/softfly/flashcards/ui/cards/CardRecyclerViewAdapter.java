@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,8 +39,10 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
 
     private final ArrayList<Card> cards = new ArrayList<>();
 
+    @Nullable
     private DeckDatabase deckDb;
 
+    @Nullable
     private Integer cutCardPos;
 
     public CardRecyclerViewAdapter(AppCompatActivity activity, String deckName) {
@@ -76,7 +79,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.item_card, parent, false);
@@ -84,7 +87,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Card card = cards.get(position);
         holder.idTextView.setText(card.getOrdinal().toString());
         holder.questionTextView.setText(card.getQuestion());
@@ -102,7 +105,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
         TextView questionTextView;
         TextView answerTextView;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             idTextView = itemView.findViewById(R.id.id);
@@ -111,7 +114,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
         }
 
         @Override
-        public void onClick(View view) {
+        public void onClick(@NonNull View view) {
             PopupMenu popup = new PopupMenu(
                     view.getContext(),
                     view,
@@ -158,7 +161,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
             popup.show();
         }
 
-        protected void showPasteAfterClickCut(PopupMenu popup) {
+        protected void showPasteAfterClickCut(@NonNull PopupMenu popup) {
             if (cutCardPos != null) {
                 popup.getMenu().findItem(R.id.paste_card).setVisible(true);
             }
@@ -208,6 +211,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardRecyclerVi
         }
     }
 
+    @Nullable
     protected DeckDatabase getDeckDatabase() {
         return AppDatabaseUtil
                 .getInstance(activity.getApplicationContext())

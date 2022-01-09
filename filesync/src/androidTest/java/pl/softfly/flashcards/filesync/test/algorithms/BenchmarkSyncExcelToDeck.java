@@ -3,6 +3,8 @@ package pl.softfly.flashcards.filesync.test.algorithms;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
@@ -93,7 +95,7 @@ public class BenchmarkSyncExcelToDeck extends SyncExcelToDeck {
     }
 
     @Override
-    public void updateExcelFile(OutputStream os) throws IOException {
+    public void updateExcelFile(@NonNull OutputStream os) throws IOException {
         long start = Instant.now().toEpochMilli();
         super.updateExcelFile(os);
 

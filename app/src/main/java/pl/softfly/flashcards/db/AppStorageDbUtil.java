@@ -29,6 +29,7 @@ public abstract class AppStorageDbUtil<DB extends RoomDatabase> {
         ).build();
     }
 
+    @NonNull
     public List<String> listDatabases() {
         List<String> deckNames = new LinkedList<>();
         File currentPath = new File(getDbFolder());
@@ -57,7 +58,8 @@ public abstract class AppStorageDbUtil<DB extends RoomDatabase> {
         }
     }
 
-    protected String validateName(String databaseName) {
+    @NonNull
+    protected String validateName(@NonNull String databaseName) {
         if (!databaseName.endsWith(".db")) {
             return databaseName + ".db";
         } else if (databaseName.toLowerCase().endsWith(".db")) {

@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 
 import java.util.Date;
@@ -16,6 +17,7 @@ public class CardLearningProgress {
 
     private Date nextReplayAt;
 
+    @NonNull
     public Float getIntervalHour() {
         return interval / (float) DIVIDE_HOURS_TO_DAYS;
     }

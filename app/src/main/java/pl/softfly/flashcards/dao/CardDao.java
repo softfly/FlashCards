@@ -1,5 +1,7 @@
 package pl.softfly.flashcards.dao;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -26,12 +28,15 @@ public abstract class CardDao {
     @Query("SELECT max(ordinal) FROM Core_Card c WHERE deletedAt IS NULL")
     public abstract int lastOrdinal();
 
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL")
     public abstract List<Card> getCards();
 
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC")
     public abstract List<Card> getCardsOrderByOrdinalAsc();
 
+    @Nullable
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC LIMIT 1")
     public abstract Card getFirst();
 
@@ -66,7 +71,7 @@ public abstract class CardDao {
     protected abstract void increaseOrdinalByGreaterThanEqual(int newOrdinal);
 
     @Transaction
-    public void changeCardOrdinal(Card card, int afterOrdinal) {
+    public void changeCardOrdinal(@NonNull Card card, int afterOrdinal) {
         if (afterOrdinal > card.getOrdinal()) {
             decreaseOrdinalByBetweenEqual(card.getOrdinal(), afterOrdinal);
             card.setOrdinal(afterOrdinal);
@@ -79,7 +84,7 @@ public abstract class CardDao {
     }
 
     @Transaction
-    public void insertAfterOrdinal(Card card, int afterOrdinal) {
+    public void insertAfterOrdinal(@NonNull Card card, int afterOrdinal) {
         increaseOrdinalByGreaterThanEqual(afterOrdinal);
         card.setOrdinal(afterOrdinal);
         card.setModifiedAt(LocalDateTime.now());
@@ -87,7 +92,7 @@ public abstract class CardDao {
     }
 
     @Transaction
-    public void insertAtEnd(Card card) {
+    public void insertAtEnd(@NonNull Card card) {
         card.setOrdinal(this.lastOrdinal()+1);
         card.setModifiedAt(LocalDateTime.now());
         insertAll(card);

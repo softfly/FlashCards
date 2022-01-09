@@ -4,6 +4,9 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
@@ -17,12 +20,13 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public class FileSyncBean implements FileSync {
 
+    @Nullable
     private SyncDeckDatabase deckDb;
 
     @Override
-    public void syncFile(String deckName,
-                         Uri uri,
-                         ListCardsActivity listCardsActivity
+    public void syncFile(@NonNull String deckName,
+                         @NonNull Uri uri,
+                         @NonNull ListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
             deckDb = SyncDatabaseUtil
@@ -46,9 +50,9 @@ public class FileSyncBean implements FileSync {
 
     protected void syncFileSetUpAutoSync(
             String deckName,
-            FileSynced fileSynced,
+            @NonNull FileSynced fileSynced,
             Uri uri,
-            ListCardsActivity listCardsActivity
+            @NonNull ListCardsActivity listCardsActivity
     ) {
         //listCardsActivity.runOnUiThread(() -> { }))
 
@@ -80,7 +84,7 @@ public class FileSyncBean implements FileSync {
     }
 
     @Override
-    public void importFile(Uri uri, ListDecksActivity listDecksActivity) {
+    public void importFile(@NonNull Uri uri, @NonNull ListDecksActivity listDecksActivity) {
         FileSynced fileSynced = new FileSynced();
         fileSynced.setUri(uri.toString());
 

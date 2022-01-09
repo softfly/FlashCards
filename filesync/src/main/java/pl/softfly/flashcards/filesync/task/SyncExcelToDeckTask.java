@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -22,6 +24,7 @@ import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     private final Uri uriSynchronizedFile;
+    @NonNull
     private final ListCardsActivity listCardsActivity;
     private final Context appContext;
     private final String deckName;
@@ -32,7 +35,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
     public SyncExcelToDeckTask(String deckName,
                                FileSynced fileSynced,
                                Uri uriSynchronizedFile,
-                               ListCardsActivity listCardsActivity
+                               @NonNull ListCardsActivity listCardsActivity
     ) {
         this.deckName = deckName;
         this.fileSynced = fileSynced;
@@ -41,6 +44,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
         this.appContext = listCardsActivity.getApplicationContext();
     }
 
+    @NonNull
     @Override
     public Object call() throws Exception {
         askPermissions(uriSynchronizedFile);
@@ -85,13 +89,13 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
     }
 
     @Override
-    public void timeout(Exception e) {
+    public void timeout(@NonNull Exception e) {
         e.printStackTrace();
         this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_LONG).show());
     }
 
     @Override
-    public void error(Exception e) {
+    public void error(@NonNull Exception e) {
         e.printStackTrace();
         this.listCardsActivity.runOnUiThread(() -> Toast.makeText(appContext, e.toString(), Toast.LENGTH_LONG).show());
     }

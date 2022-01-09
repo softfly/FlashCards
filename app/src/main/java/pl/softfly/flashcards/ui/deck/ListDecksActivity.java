@@ -11,6 +11,7 @@ import android.provider.Settings;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -36,6 +37,7 @@ public class ListDecksActivity extends AppCompatActivity {
 
     private final ArrayList<String> deckNames = new ArrayList<>();
 
+    @Nullable
     private FileSync fileSync = FileSync.getInstance();
 
     private final ActivityResultLauncher<String[]> importExcel = registerForActivityResult(

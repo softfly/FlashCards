@@ -4,6 +4,9 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,6 +36,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     private Context appContext;
 
+    @Nullable
     private DeckDatabase deckDb;
 
     //For testing, mocking
@@ -43,8 +47,8 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     }
 
     public void importExcelFile(String deckName,
-                                InputStream inputStream,
-                                String typeFile
+                                @NonNull InputStream inputStream,
+                                @NonNull String typeFile
     ) throws IOException {
         deckName = findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
         Workbook workbook = typeFile.equals(TYPE_XLS) ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream);
@@ -53,8 +57,8 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         importCards(datatypeSheet, deckName, getQuestionIndex(), getAnswerIndex(), getSkipHeaderRows());
     }
 
-    protected void importCards(Sheet datatypeSheet,
-                               String deckName,
+    protected void importCards(@NonNull Sheet datatypeSheet,
+                               @NonNull String deckName,
                                int questionPosition,
                                int answerPosition,
                                int skipFirstRows) {
@@ -123,7 +127,8 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     }
 
     //@todo Public for mocking
-    public DeckDatabase getDeckDB(String deckName) {
+    @Nullable
+    public DeckDatabase getDeckDB(@NonNull String deckName) {
         return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
     }
 }

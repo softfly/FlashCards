@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.filesync.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -23,6 +24,7 @@ public interface FileSyncedDao {
     @Query("SELECT * FROM FileSync_FileSynced WHERE uri=:uri")
     FileSynced findByUri(String uri);
 
+    @NonNull
     @Query("SELECT * FROM FileSync_FileSynced WHERE uri=:uri")
     Maybe<FileSynced> findByUriAsync(String uri);
 

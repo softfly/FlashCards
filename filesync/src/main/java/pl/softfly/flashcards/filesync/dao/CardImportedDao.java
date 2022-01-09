@@ -1,5 +1,7 @@
 package pl.softfly.flashcards.filesync.dao;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -39,9 +41,11 @@ public interface CardImportedDao {
             "WHERE contentStatus='" + CardImported.STATUS_DELETE_BY_DECK + "'")
     int countByDeleteByDeck();
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported")
     List<CardImported> getCards();
 
+    @Nullable
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE contentStatus NOT IN (" +
             "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
@@ -50,6 +54,7 @@ public interface CardImportedDao {
             "LIMIT 1")
     CardImported getFirst();
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported WHERE id > :idGreaterThan LIMIT 100")
     List<CardImported> findAll(int idGreaterThan);
 
@@ -65,6 +70,7 @@ public interface CardImportedDao {
     @Query("SELECT id FROM FileSync_CardImported WHERE newNextCardImportedId IS NULL AND graph=:graph")
     Integer findLastVertex(int graph);
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE " +
             "cardId IS NULL " +
@@ -73,6 +79,7 @@ public interface CardImportedDao {
             "LIMIT :limit")
     List<CardImported> findByCardNull(int idGreaterThan, int limit);
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE " +
             "ordinal > :ordinalGreaterThan " +
@@ -81,6 +88,7 @@ public interface CardImportedDao {
             "LIMIT 100")
     List<CardImported> findByStatusNotOrderByOrdinalAsc(String[] statuses, int ordinalGreaterThan);
 
+    @NonNull
     @Query("SELECT i.* FROM FileSync_CardImported i " +
             "JOIN Core_Card c ON i.cardId = c.id " +
             "WHERE " +
@@ -90,6 +98,7 @@ public interface CardImportedDao {
             "LIMIT 100")
     List<CardImported> findByStatusNotOrderByCardOrdinalAsc(String[] statuses, int ordinalGreaterThan);
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE " +
             "newPreviousCardImportedId IS NULL " +
@@ -99,6 +108,7 @@ public interface CardImportedDao {
             "LIMIT 3")
     List<CardImported> findByStatusNotDeletedAndNewPreviousCardImportedIdIsNull();
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE " +
             "newPreviousCardImportedId IS NULL " +
@@ -108,12 +118,14 @@ public interface CardImportedDao {
             "LIMIT 3")
     List<CardImported> findByStatusNotDeletedAndNewNextCardImportedIdIsNull();
 
+    @NonNull
     @Query("SELECT * FROM FileSync_CardImported " +
             "WHERE " +
             "graph IS NULL " +
             "AND contentStatus NOT IN (:statuses)")
     List<CardImported> findByStatusNotAndGraphNull(String[] statuses);
 
+    @NonNull
     @Query("SELECT i.id " +
             "FROM FileSync_CardImported i " +
             "JOIN FileSync_CardEdge e ON e.fromCardImportedId = i.id OR e.toCardImportedId = i.id " +
@@ -131,9 +143,11 @@ public interface CardImportedDao {
             "ORDER BY i.id")
     List<Integer> findByCardEdgeStatusNew();
 
+    @Nullable
     @Query("SELECT max(graph) FROM FileSync_CardImported")
     Integer maxGraph();
 
+    @NonNull
     @Query("SELECT graph FROM FileSync_CardImported " +
             "WHERE " +
             "contentStatus NOT IN (" +

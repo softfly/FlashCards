@@ -2,6 +2,9 @@ package pl.softfly.flashcards.db;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -15,6 +18,7 @@ public class AppDatabaseUtil {
 
     private static AppDatabaseUtil INSTANCE;
     private final Map<String, DeckDatabase> DECKS = new WeakHashMap<>();
+    @NonNull
     private final DeckDatabaseUtil deckDatabaseUtil;
 
     protected AppDatabaseUtil(Context context) {
@@ -28,7 +32,8 @@ public class AppDatabaseUtil {
         return INSTANCE;
     }
 
-    public synchronized DeckDatabase getDeckDatabase(String dbName) {
+    @Nullable
+    public synchronized DeckDatabase getDeckDatabase(@NonNull String dbName) {
         DeckDatabase db = DECKS.get(dbName);
         if (db == null) {
             db = deckDatabaseUtil.getDatabase(dbName);
@@ -40,6 +45,7 @@ public class AppDatabaseUtil {
         return db;
     }
 
+    @NonNull
     public DeckDatabaseUtil getDeckDatabaseUtil() {
         return deckDatabaseUtil;
     }

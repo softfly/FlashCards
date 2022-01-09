@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -22,32 +23,40 @@ import pl.softfly.flashcards.entity.Card;
 @Dao
 public abstract class CardDaoAsync {
 
+    @NonNull
     @Query("SELECT count(*) FROM Core_Card")
     public abstract Maybe<Integer> count();
 
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE id=:id")
     public abstract  Maybe<Card> getCard(Integer id);
 
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC")
     public abstract  Maybe<List<Card>> getCardsByDeletedNotOrderByOrdinal();
 
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE " +
             "Core_Card.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) " +
             "OR Core_Card.nextReplayAt IS NULL " +
             "LIMIT 10")
     public abstract Maybe<List<Card>> getNextCards();
 
+    @NonNull
     @Insert
     public abstract Completable insertAll(Card... cards);
 
+    @NonNull
     @Update
     public abstract Completable updateAll(Card... cards);
 
+    @NonNull
     @Query("UPDATE Core_Card " +
             "SET deletedAt=strftime('%s', CURRENT_TIMESTAMP) " +
             "WHERE id=:cardId")
     public abstract Completable delete(int cardId);
 
+    @NonNull
     @Query("DELETE FROM Core_Card")
     public abstract Completable deleteAll();
 }

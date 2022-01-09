@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.db;
 
+import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 
 import java.time.Instant;
@@ -19,18 +20,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class Converters {
 
+    @Nullable
     @TypeConverter
-    public static Date fromTimestamp(Long value) {
+    public static Date fromTimestamp(@Nullable Long value) {
         return value == null ? null : new Date(TimeUnit.SECONDS.toMillis(value));
     }
 
+    @Nullable
     @TypeConverter
-    public static Long dateToTimestamp(Date date) {
+    public static Long dateToTimestamp(@Nullable Date date) {
         return date == null ? null : TimeUnit.MILLISECONDS.toSeconds(date.getTime());
     }
 
+    @Nullable
     @TypeConverter
-    public static LocalDateTime fromTimestampToLocalDateTime(Long value) {
+    public static LocalDateTime fromTimestampToLocalDateTime(@Nullable Long value) {
         return value == null ? null :
                 LocalDateTime.ofInstant(
                         Instant.ofEpochSecond(value),
@@ -38,8 +42,9 @@ public class Converters {
                 );
     }
 
+    @Nullable
     @TypeConverter
-    public static Long localDateTimeToTimestamp(LocalDateTime dateTime) {
+    public static Long localDateTimeToTimestamp(@Nullable LocalDateTime dateTime) {
         return dateTime == null ? null :
                 dateTime.atZone(ZoneId.systemDefault())
                         .toEpochSecond();

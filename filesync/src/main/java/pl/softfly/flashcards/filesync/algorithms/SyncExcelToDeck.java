@@ -4,6 +4,9 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -46,11 +49,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected static final int PAGE_LIMIT = 100;
 
     private final Context appContext;
+    @Nullable
     private SyncDeckDatabase deckDb;
     private DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
     private ListCardsActivity listCardsActivity;
 
     private FileSynced fileSynced;
+    @Nullable
     private LocalDateTime newLastSyncAt;
     private InputStream isImportedFile;
     private Workbook workbook;
@@ -62,16 +67,16 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         this.determineNewOrderCards = determineNewOrderCards;
     }
 
-    public SyncExcelToDeck(ListCardsActivity listCardsActivity) {
+    public SyncExcelToDeck(@NonNull ListCardsActivity listCardsActivity) {
         this.listCardsActivity = listCardsActivity;
         this.appContext = listCardsActivity.getApplicationContext();
     }
 
     public void syncExcelFile(
-            String deckName,
-            FileSynced fileSynced,
-            InputStream inputStream,
-            String typeFile,
+            @NonNull String deckName,
+            @NonNull FileSynced fileSynced,
+            @NonNull InputStream inputStream,
+            @NonNull String typeFile,
             Long lastModifiedAtFile
     ) throws Exception {
         this.isImportedFile = inputStream;
@@ -120,7 +125,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     /**
      * 6. Apply changes to the deck and file.
      */
-    public void commitChanges(FileSynced fileSynced, OutputStream os) throws IOException {
+    public void commitChanges(@NonNull FileSynced fileSynced, @NonNull OutputStream os) throws IOException {
         updateDeckCards();
         updateExcelFile(os);
 
@@ -195,7 +200,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         }
     }
 
-    protected String getStringCellValue(Row currentRow, int position) {
+    @Nullable
+    protected String getStringCellValue(@NonNull Row currentRow, int position) {
         if (position > -1) {
             Cell currentCell = currentRow.getCell(position);
             String value = currentCell.getStringCellValue();
@@ -207,10 +213,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected boolean findSameCardAndConnect(
-            CardImported cardImported,
+            @NonNull CardImported cardImported,
             String question,
             String answer,
-            List<Integer> cardsConnected,
+            @NonNull List<Integer> cardsConnected,
             int fileSyncedId
     ) {
         Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(question, answer, cardsConnected, fileSyncedId);
@@ -406,7 +412,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
      * {@link CardImported#STATUS_DELETE_BY_FILE}
      * {@link CardImported#STATUS_INSERT_BY_DECK}
      */
-    protected CardImported createImportedCard(Card card) {
+    @NonNull
+    protected CardImported createImportedCard(@NonNull Card card) {
         CardImported cardImported = new CardImported();
         cardImported.setCardId(card.getId());
         if (isImportedFileNewer(card)) {
@@ -512,7 +519,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
      * 4.4.2. Set {@link CardImported#POSITION_STATUS_UNCHANGED}
      * if the card is in the same place in the deck and file.
      */
-    protected void checkIfPositionUnchanged(CardImported cardImported) {
+    protected void checkIfPositionUnchanged(@NonNull CardImported cardImported) {
         boolean previousUnchanged = Objects.equals(cardImported.getPreviousCardDeckId(), cardImported.getPreviousCardId());
         boolean nextUnchanged = Objects.equals(cardImported.getNextCardDeckId(), cardImported.getNextCardId());
         if (previousUnchanged && nextUnchanged) {
@@ -587,7 +594,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         }
     }
 
-    public void updateExcelFile(OutputStream os) throws IOException {
+    public void updateExcelFile(@NonNull OutputStream os) throws IOException {
         int skipHeaderRows = getSkipHeaderRows();
         List<CardImported> cardImportedList = deckDb.cardImportedDao()
                 .findByStatusNotOrderByCardOrdinalAsc(new String[]{
@@ -630,19 +637,20 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         }
     }
 
-    private void updateExcelCell(Row row, Card card) {
+    private void updateExcelCell(@NonNull Row row, @NonNull Card card) {
         Cell cell = row.createCell(getQuestionIndex());
         cell.setCellValue(card.getQuestion());
         cell = row.createCell(getAnswerIndex());
         cell.setCellValue(card.getAnswer());
     }
 
-    protected boolean isImportedFileNewer(Card card) {
+    protected boolean isImportedFileNewer(@NonNull Card card) {
         return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
     }
 
     //@todo public visibility for testing
-    public SyncDeckDatabase getDeckDB(String deckName) {
+    @Nullable
+    public SyncDeckDatabase getDeckDB(@NonNull String deckName) {
         return SyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
     }
 }

@@ -16,6 +16,7 @@ public class SyncDeckDatabaseUtil {
 
     private final static boolean EXTERNAL_STORAGE = true;
 
+    @NonNull
     private final AppStorageDbUtil<SyncDeckDatabase> deckDbUtil;
 
     private final Context context;
@@ -24,12 +25,14 @@ public class SyncDeckDatabaseUtil {
         this.context = context;
         this.deckDbUtil = EXTERNAL_STORAGE ?
                 new ExternalStorageDbUtil<SyncDeckDatabase>(context) {
+                    @NonNull
                     @Override
                     protected Class<SyncDeckDatabase> getTClass() {
                         return SyncDeckDatabase.class;
                     }
                 } :
                 new AppStorageDbUtil<SyncDeckDatabase>(context) {
+                    @NonNull
                     @Override
                     protected Class<SyncDeckDatabase> getTClass() {
                         return SyncDeckDatabase.class;
@@ -41,6 +44,7 @@ public class SyncDeckDatabaseUtil {
         return deckDbUtil.getDatabase(deckName);
     }
 
+    @NonNull
     public List<String> listDatabases() {
         return deckDbUtil.listDatabases();
     }

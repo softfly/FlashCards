@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.filesync.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 
@@ -31,6 +32,7 @@ public abstract class CardDao extends pl.softfly.flashcards.dao.CardDao {
             "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)")
     public abstract Card findByQuestionLikeAndAnswerLikeAndCardNull(String question, String answer, List<Integer> cardIds, int fileSyncedId);
 
+    @NonNull
     @Query("SELECT c.* " +
             "FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
@@ -42,6 +44,7 @@ public abstract class CardDao extends pl.softfly.flashcards.dao.CardDao {
             "LIMIT 100")
     public abstract List<Card> findByCardImportedNullOrderById(int idGreaterThan, int fileSyncedId);
 
+    @NonNull
     @Query("SELECT c.* " +
             "FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported i ON i.cardId=c.id " +
@@ -52,9 +55,11 @@ public abstract class CardDao extends pl.softfly.flashcards.dao.CardDao {
             "LIMIT 100")
     public abstract List<Card> findByOrdinalGreaterThanOrderByOrdinal(int ordinalGreaterThan, int fileSyncedId);
 
+    @NonNull
     @Query("SELECT id FROM Core_Card ORDER BY ordinal ASC")
     public abstract List<Integer> getCardIdsOrderByOrdinalAsc();
 
+    @NonNull
     @Query("SELECT c.id " +
             "FROM FileSync_CardImported i " +
             "JOIN Core_Card c ON c.id=i.cardId " +

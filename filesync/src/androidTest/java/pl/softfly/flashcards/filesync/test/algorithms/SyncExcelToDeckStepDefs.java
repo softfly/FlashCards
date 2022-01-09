@@ -9,6 +9,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -71,6 +73,7 @@ public class SyncExcelToDeckStepDefs {
      * ----------------------------------------------------------------------------------------- */
     private String deckName;
 
+    @Nullable
     private SyncDeckDatabase deckDb;
 
     private int currentCardId = 1;
@@ -98,7 +101,7 @@ public class SyncExcelToDeckStepDefs {
     private DataTable expectedDeck;
 
     @Before
-    public void before(Scenario scenario) {
+    public void before(@NonNull Scenario scenario) {
         deckName = scenario.getName().replaceAll("(\\.)*$", "");
         initDB();
         initTestDir();
@@ -158,7 +161,7 @@ public class SyncExcelToDeckStepDefs {
     }
 
     @Given(value = "Add the following cards into the deck:")
-    public void add_the_following_cards_into_the_deck(DataTable dataTable) {
+    public void add_the_following_cards_into_the_deck(@NonNull DataTable dataTable) {
         List<Card> cardsToInsert = new LinkedList<>();
         for (List<String> rowIn : dataTable.asLists()) {
             Card card = new Card();
@@ -178,7 +181,7 @@ public class SyncExcelToDeckStepDefs {
     }
 
     @Given(value = "Generate cards {int} times into the deck:", timeout = 2 * 1000)
-    public void generate_cards_times_into_the_deck(Integer cardsNum, DataTable dataTable) {
+    public void generate_cards_times_into_the_deck(Integer cardsNum, @NonNull DataTable dataTable) {
         List<Card> cardsToInsert = new LinkedList<>();
         for (int i = 1; i <= cardsNum; i++) {
             for (List<String> rowIn : dataTable.asLists()) {
@@ -213,7 +216,7 @@ public class SyncExcelToDeckStepDefs {
     }
 
     @Given(value = "Add the following cards into the file:", timeout = 2 * 1000)
-    public void add_the_following_cards_into_the_file(DataTable dataTable) {
+    public void add_the_following_cards_into_the_file(@NonNull DataTable dataTable) {
         for (List<String> rowIn : dataTable.asLists()) {
             Row rowOut = excelSheet.createRow(currentRowNum);
             int colNum = 0;
@@ -228,7 +231,7 @@ public class SyncExcelToDeckStepDefs {
 
     @Given(value = "Generate cards {int} times into the file:", timeout =  5 * 60 * 1000)
     public void generate_cards_times_into_the_file(
-            Integer cardsNum, DataTable dataTable) {
+            Integer cardsNum, @NonNull DataTable dataTable) {
         for (int i = 1; i <= cardsNum; i++) {
             for (List<String> rowIn : dataTable.asLists()) {
                 Row rowOut = excelSheet.createRow(currentRowNum);
@@ -283,13 +286,14 @@ public class SyncExcelToDeckStepDefs {
                         is(new String[]{card.getQuestion(), card.getAnswer()})
                 );
             });
-        } catch (AssertionError | Exception e) {
+        } catch (@NonNull AssertionError | Exception e) {
             List<Card> cards = deckDb.cardDao().getCardsOrderByOrdinalAsc();
             throw new AssertionError(printCards(cards), e);
         }
     }
 
-    protected String printCards(List<Card> cards) {
+    @NonNull
+    protected String printCards(@NonNull List<Card> cards) {
         int maxLengthQuestion = cards.stream()
                 .flatMapToInt(card -> IntStream.of(card.getQuestion().length()))
                 .max()
@@ -334,19 +338,20 @@ public class SyncExcelToDeckStepDefs {
     }
 
     @Then("{int} cards in the deck.")
-    public void cards_in_the_deck(Integer cardsNum) {
+    public void cards_in_the_deck(@NonNull Integer cardsNum) {
         Assert.assertEquals(cardsNum.longValue(), deckDb.cardDao().count());
     }
 
     @Then("{int} cards in the imported file.")
-    public void cards_in_the_imported_file(Integer cardsNum) throws IOException {
+    public void cards_in_the_imported_file(@NonNull Integer cardsNum) throws IOException {
         InputStream is = new FileInputStream(excelFilePath);
         Workbook workbook = new XSSFWorkbook(is);
         Sheet datatypeSheet = workbook.getSheetAt(0);
         Assert.assertEquals(cardsNum.longValue(), Integer.valueOf(datatypeSheet.getLastRowNum() + 1).longValue());
     }
 
-    protected String printCards(Sheet datatypeSheet) {
+    @NonNull
+    protected String printCards(@NonNull Sheet datatypeSheet) {
         int maxLengthQuestion = 0;
         int maxLengthAnswer = 0;
         for (Row row : datatypeSheet) {
@@ -380,7 +385,7 @@ public class SyncExcelToDeckStepDefs {
     }
 
     @Then("Updated {long} rows in the file.")
-    public void updated_rows_in_the_file(Long expected) {
+    public void updated_rows_in_the_file(@NonNull Long expected) {
         Assert.assertEquals(
                 expected.longValue(),
                 Integer.valueOf(deckDb.cardImportedDao().countByOrderChangedTrue()).longValue()

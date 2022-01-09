@@ -1,5 +1,8 @@
 package pl.softfly.flashcards.filesync.algorithms;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -42,7 +45,7 @@ public abstract class AbstractReadExcel {
      * IE_06 Question
      * IE_07 Answer
      */
-    protected void findColumnIndexes(Sheet datatypeSheet) {
+    protected void findColumnIndexes(@NonNull Sheet datatypeSheet) {
         Iterator<Row> rowIt = datatypeSheet.iterator();
         int questionIndex = -1;
         // IE_03 IE_04 IE_05 Check the header only on the first no empty row.
@@ -139,11 +142,11 @@ public abstract class AbstractReadExcel {
         }
     }
 
-    protected boolean nonEmpty(String str) {
+    protected boolean nonEmpty(@Nullable String str) {
         return str != null && !str.isEmpty();
     }
 
-    protected boolean empty(String str) {
+    protected boolean empty(@Nullable String str) {
         return str == null || str.isEmpty();
     }
 

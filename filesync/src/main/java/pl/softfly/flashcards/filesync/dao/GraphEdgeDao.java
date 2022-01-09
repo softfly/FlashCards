@@ -1,5 +1,7 @@
 package pl.softfly.flashcards.filesync.dao;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Query;
 
@@ -16,9 +18,11 @@ import pl.softfly.flashcards.filesync.view.GraphEdge;
 @Dao
 public interface GraphEdgeDao {
 
+    @Nullable
     @Query("SELECT * FROM FileSync_View_GraphEdge ORDER BY weight DESC LIMIT 1")
     GraphEdge getFirstOrderByWeightDesc();
 
+    @NonNull
     @Query("SELECT * FROM FileSync_View_GraphEdge WHERE fromGraph=:fromGraph ORDER BY weight DESC")
     List<GraphEdge> findByFrom(int fromGraph);
 

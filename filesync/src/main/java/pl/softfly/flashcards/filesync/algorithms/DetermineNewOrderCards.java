@@ -5,6 +5,7 @@ import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.MULTIPLE
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -263,7 +264,7 @@ public class DetermineNewOrderCards {
         return true;
     }
 
-    protected void setCardEdgeStatusAndWeight(CardEdge cardEdge, String status) {
+    protected void setCardEdgeStatusAndWeight(@NonNull CardEdge cardEdge, @NonNull String status) {
         cardEdge.setStatus(status);
         switch (status) {
             case CardEdge.STATUS_UNCHANGED:
@@ -316,7 +317,7 @@ public class DetermineNewOrderCards {
     /**
      * Detect cycle in graph if cards would be merged.
      */
-    protected boolean detectCycleInGraphIfMerged(CardImported fromCardImported, CardImported toCardImported) {
+    protected boolean detectCycleInGraphIfMerged(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         Integer fromGraph = fromCardImported.getGraph();
         Integer toGraph = toCardImported.getGraph();
         if (toGraph != null &&
@@ -326,7 +327,7 @@ public class DetermineNewOrderCards {
                 deckDb.cardImportedDao().countByIdAndGraph(toCardImported.getId(), fromGraph) > 0;
     }
 
-    protected void mergeCardsIntoGraph(CardImported fromCardImported, CardImported toCardImported) {
+    protected void mergeCardsIntoGraph(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         if (fromCardImported.getNewNextCardImportedId() != null)
             throw new InvalidAlgorithmException("The card already has the next card.");
         if (toCardImported.getNewPreviousCardImportedId() != null)
@@ -354,7 +355,7 @@ public class DetermineNewOrderCards {
         deckDb.cardImportedDao().updateAll(fromCardImported, toCardImported);
     }
 
-    protected void createGraph(CardImported fromCardImported, CardImported toCardImported) {
+    protected void createGraph(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         if (fromCardImported.getGraph() != null)
             throw new InvalidAlgorithmException("The card already belongs to the graph.");// @todo remove
         if (toCardImported.getGraph() != null)
@@ -369,14 +370,14 @@ public class DetermineNewOrderCards {
         toCardImported.setGraph(newGraph);
     }
 
-    protected void mergeGraphs(CardImported fromCardImported, CardImported toCardImported) {
+    protected void mergeGraphs(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         deckDb.cardImportedDao().updateGraphByGraph(toCardImported.getGraph(), fromCardImported.getGraph());
         fromCardImported.setNewNextCardImportedId(toCardImported.getId());
         toCardImported.setNewPreviousCardImportedId(fromCardImported.getId());
         toCardImported.setGraph(fromCardImported.getGraph());
     }
 
-    protected void addCardIntoBeginningGraph(CardImported fromCardImported, CardImported toCardImported) {
+    protected void addCardIntoBeginningGraph(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         if (fromCardImported.getGraph() != null)
             throw new InvalidAlgorithmException("The card already belongs to the graph.");// @todo remove
 
@@ -385,7 +386,7 @@ public class DetermineNewOrderCards {
         toCardImported.setNewPreviousCardImportedId(fromCardImported.getId());
     }
 
-    protected void addCardIntoEndGraph(CardImported fromCardImported, CardImported toCardImported) {
+    protected void addCardIntoEndGraph(@NonNull CardImported fromCardImported, @NonNull CardImported toCardImported) {
         if (toCardImported.getGraph() != null)
             throw new InvalidAlgorithmException("The card already belongs to the graph.");// @todo remove
 
@@ -526,6 +527,7 @@ public class DetermineNewOrderCards {
         }
     }
 
+    @Nullable
     protected CardImported findNewestFirstCard() {
         Card firstCard = deckDb.cardDao().getFirst();
         if (isImportedFileNewer(firstCard)) {
@@ -613,7 +615,7 @@ public class DetermineNewOrderCards {
         }
     }
 
-    protected boolean isImportedFileNewer(Card card) {
+    protected boolean isImportedFileNewer(@NonNull Card card) {
         return fileLastSyncAt.isAfter(card.getModifiedAt());
     }
 }

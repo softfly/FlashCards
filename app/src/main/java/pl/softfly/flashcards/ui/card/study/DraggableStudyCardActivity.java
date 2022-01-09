@@ -6,6 +6,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 
@@ -34,7 +35,7 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
-        public boolean onTouch(View view, MotionEvent event) {
+        public boolean onTouch(View view, @NonNull MotionEvent event) {
             if (isDividerView(event)) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_UP:
@@ -63,7 +64,7 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
             return false;
         }
 
-        private boolean isDividerView(MotionEvent event) {
+        private boolean isDividerView(@NonNull MotionEvent event) {
             int[] guideLinePoint = new int[2];
             guideLineView.getLocationOnScreen(guideLinePoint);
 

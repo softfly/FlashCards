@@ -10,6 +10,8 @@ import android.view.MenuItem;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +31,7 @@ public class ListCardsActivity extends AppCompatActivity {
 
     private ListCardsActivity activity;
 
+    @Nullable
     private FileSync fileSync = FileSync.getInstance();
 
     private final ActivityResultLauncher<String[]> syncExcel = registerForActivityResult(
@@ -78,7 +81,7 @@ public class ListCardsActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.new_card:
                 startNewCardActivity();

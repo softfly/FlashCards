@@ -7,6 +7,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
@@ -66,7 +69,7 @@ public class ImportExcelToDeckStepDefs {
     }
 
     @Given("The following Excel file:")
-    public void the_following_excel_file(DataTable dataTable) throws IOException {
+    public void the_following_excel_file(@NonNull DataTable dataTable) throws IOException {
         Workbook wb = new XSSFWorkbook();//SXSSFWorkbook dont use
         CreationHelper createHelper = wb.getCreationHelper();
         Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(scenario.getName()));
@@ -103,7 +106,7 @@ public class ImportExcelToDeckStepDefs {
     }
 
     @Then("A new deck with the following cards imported.")
-    public void a_new_deck_with_the_following_cards_imported(DataTable dataTable) {
+    public void a_new_deck_with_the_following_cards_imported(@NonNull DataTable dataTable) {
         ListIterator<List<String>> expectedList = dataTable.asLists().listIterator();
         MockitoAnnotations.initMocks(this);
         //cardsCaptor = ArgumentCaptor.forClass(List.class);
@@ -126,7 +129,7 @@ public class ImportExcelToDeckStepDefs {
         );
     }
 
-    protected boolean empty(String str) {
+    protected boolean empty(@Nullable String str) {
         return str == null || str.isEmpty();
     }
 

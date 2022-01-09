@@ -1,5 +1,7 @@
 package pl.softfly.flashcards.filesync.dao;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Query;
 
@@ -16,9 +18,11 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
 @Dao
 public interface GraphEdgeOnlyNewCardsDao {
 
+    @Nullable
     @Query("SELECT fromGraph, toGraph, weight FROM FileSync_View_GraphEdgeOnlyNewCards WHERE countToGraph >= 2 LIMIT 1")
     GraphEdgeOnlyNewCards findForNewCards();
 
+    @NonNull
     @Query("SELECT fromGraph, toGraph, weight FROM FileSync_View_GraphEdgeOnlyNewCards WHERE fromGraph=:fromGraph")
     List<GraphEdgeOnlyNewCards> findForNewCardsByFrom(int fromGraph);
 

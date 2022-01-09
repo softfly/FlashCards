@@ -16,17 +16,20 @@ public class DeckDatabaseUtil {
 
     private final static boolean EXTERNAL_STORAGE = true;
 
+    @NonNull
     private final AppStorageDbUtil<DeckDatabase> deckDbUtil;
 
     public DeckDatabaseUtil(Context context) {
         this.deckDbUtil = EXTERNAL_STORAGE ?
                 new ExternalStorageDbUtil<DeckDatabase>(context) {
+                    @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
                         return DeckDatabase.class;
                     }
                 } :
                 new AppStorageDbUtil<DeckDatabase>(context) {
+                    @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
                         return DeckDatabase.class;

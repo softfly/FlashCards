@@ -1,5 +1,7 @@
 package pl.softfly.flashcards;
 
+import androidx.annotation.NonNull;
+
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Objects;
@@ -36,6 +38,7 @@ public class CardReplayScheduler {
      */
     private static final int DEFAULT_EASY_FACTOR = 100;
 
+    @NonNull
     public CardLearningProgress scheduleReplayAfterAgain() {
         CardLearningProgress newLearningProgress = new CardLearningProgress();
         newLearningProgress.setInterval(DEFAULT_AGAIN_FIRST_INTERVAL);
@@ -43,15 +46,18 @@ public class CardReplayScheduler {
         return newLearningProgress;
     }
 
-    public CardLearningProgress scheduleReplayAfterHard(CardLearningProgress learningProgress) {
+    @NonNull
+    public CardLearningProgress scheduleReplayAfterHard(@NonNull CardLearningProgress learningProgress) {
         return scheduleReplayRemembered(learningProgress, DEFAULT_HARD_FIRST_INTERVAL, DEFAULT_HARD_FACTOR);
     }
 
-    public CardLearningProgress scheduleReplayAfterEasy(CardLearningProgress learningProgress) {
+    @NonNull
+    public CardLearningProgress scheduleReplayAfterEasy(@NonNull CardLearningProgress learningProgress) {
         return scheduleReplayRemembered(learningProgress, DEFAULT_EASY_FIRST_INTERVAL, DEFAULT_EASY_FACTOR);
     }
 
-    protected CardLearningProgress scheduleReplayRemembered(CardLearningProgress learningProgress, int defaultIntervalStart, int factor) {
+    @NonNull
+    protected CardLearningProgress scheduleReplayRemembered(@NonNull CardLearningProgress learningProgress, int defaultIntervalStart, int factor) {
         if (Objects.nonNull(learningProgress) && !learningProgress.getRemembered()) {
             return this.scheduleReplayForgotten();
         } else {
@@ -68,6 +74,7 @@ public class CardReplayScheduler {
         }
     }
 
+    @NonNull
     protected CardLearningProgress scheduleReplayForgotten() {
         int newInterval = DEFAULT_AGAIN_FIRST_INTERVAL;
         Date nextReplayAt = Date.from(ZonedDateTime.now().plusHours(newInterval).toInstant());

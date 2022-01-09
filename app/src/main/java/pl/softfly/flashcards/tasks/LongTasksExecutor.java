@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.tasks;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class LongTasksExecutor {
                         executorService.invokeAny(tasks, THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                     } catch (TimeoutException e) {
                         task.timeout(e);
-                    } catch (ExecutionException | InterruptedException e) {
+                    } catch (@NonNull ExecutionException | InterruptedException e) {
                         task.error(e);
                     }
                 }

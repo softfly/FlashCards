@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -36,6 +38,7 @@ public abstract class StudyCardActivity extends AppCompatActivity {
     CardLearningProgress easyLearningProgress;
     CardLearningProgress hardLearningProgress;
     private String deckName;
+    @Nullable
     private DeckDatabase deckDb;
     private Card card;
     private List<Card> cards;
@@ -156,7 +159,7 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         }
     }
 
-    protected void displayCard(Card card) {
+    protected void displayCard(@NonNull Card card) {
         this.card = card;
         questionView.setText(card.getQuestion());
         answerView.setText("?\nShow answer");

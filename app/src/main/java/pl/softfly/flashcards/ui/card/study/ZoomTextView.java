@@ -9,19 +9,23 @@ import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 @SuppressLint("AppCompatCustomView")
 public class ZoomTextView extends TextView {
 
     private boolean modeZoom;
 
+    @NonNull
     private final ScaleGestureDetector scaleDetector;
 
+    @NonNull
     private final ZoomTextView view;
 
     private final SimpleOnScaleGestureListener onScaleGestureListener =
             new SimpleOnScaleGestureListener() {
                 @Override
-                public boolean onScale(ScaleGestureDetector detector) {
+                public boolean onScale(@NonNull ScaleGestureDetector detector) {
                     float newSize = view.getTextSize() * detector.getScaleFactor();
                     if (newSize > 30 && newSize < 80) {
                         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
@@ -50,7 +54,7 @@ public class ZoomTextView extends TextView {
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (MotionEvent.ACTION_UP == event.getActionMasked()) {
             if (modeZoom) {
                 modeZoom = false;

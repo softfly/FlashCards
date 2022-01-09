@@ -8,6 +8,8 @@ import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +27,7 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
  */
 public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
+    @NonNull
     private final ListDecksActivity listDecksActivity;
 
     private final Context appContext;
@@ -35,12 +38,13 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     private String mimeType;
 
-    public ImportExcelToDeckTask(ListDecksActivity listDecksActivity, Uri uriSynchronizedFile) {
+    public ImportExcelToDeckTask(@NonNull ListDecksActivity listDecksActivity, Uri uriSynchronizedFile) {
         this.listDecksActivity = listDecksActivity;
         this.appContext = listDecksActivity.getApplicationContext();
         this.uriSynchronizedFile = uriSynchronizedFile;
     }
 
+    @NonNull
     @Override
     public Object call() throws IOException {
         askPermissions(uriSynchronizedFile);
@@ -79,7 +83,7 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         return listDecksActivity.getContentResolver().openInputStream(uri);
     }
 
-    public void timeout(Exception e) {
+    public void timeout(@NonNull Exception e) {
         e.printStackTrace();
         listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
                 MessageFormat.format("Timeout. The {0} file could not be imported.", fileName),
@@ -87,7 +91,7 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
         ).show());
     }
 
-    public void error(Exception e) {
+    public void error(@NonNull Exception e) {
         e.printStackTrace();
         listDecksActivity.runOnUiThread(() -> Toast.makeText(appContext,
                 MessageFormat.format("Error. The {0} file could not be imported.", fileName),

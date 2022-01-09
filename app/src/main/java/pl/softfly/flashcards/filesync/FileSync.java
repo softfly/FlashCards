@@ -2,6 +2,8 @@ package pl.softfly.flashcards.filesync;
 
 import android.net.Uri;
 
+import androidx.annotation.Nullable;
+
 import pl.softfly.flashcards.ui.cards.ListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
@@ -10,6 +12,7 @@ public interface FileSync {
     public static final String TYPE_XLS = "application/vnd.ms-excel";
     public static final String TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    @Nullable
     static FileSync getInstance() {
         try {
             return (FileSync) Class.forName("pl.softfly.flashcards.filesync.FileSyncBean")

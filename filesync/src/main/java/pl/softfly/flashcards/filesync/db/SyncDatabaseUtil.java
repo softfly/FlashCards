@@ -2,6 +2,9 @@ package pl.softfly.flashcards.filesync.db;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -25,7 +28,8 @@ public class SyncDatabaseUtil {
         return INSTANCE;
     }
 
-    public synchronized SyncDeckDatabase getDeckDatabase(String dbName) {
+    @Nullable
+    public synchronized SyncDeckDatabase getDeckDatabase(@NonNull String dbName) {
         SyncDeckDatabase db = DECKS.get(dbName);
         if (db == null) {
             db = syncDeckDatabaseUtil.getDatabase(dbName);

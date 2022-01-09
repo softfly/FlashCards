@@ -7,6 +7,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ public class NewCardActivity extends AppCompatActivity {
 
     protected String deckName;
 
+    @Nullable
     protected DeckDatabase deckDb;
 
     protected EditText questionEditText;
@@ -53,7 +56,7 @@ public class NewCardActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -66,6 +69,7 @@ public class NewCardActivity extends AppCompatActivity {
         }
     }
 
+    @NonNull
     protected Card createCard() {
         Card card = new Card();
         card.setQuestion(questionEditText.getText().toString());
@@ -89,6 +93,7 @@ public class NewCardActivity extends AppCompatActivity {
                 .subscribe();
     }
 
+    @Nullable
     protected DeckDatabase getDeckDatabase() {
         return AppDatabaseUtil
                 .getInstance(getApplicationContext())
