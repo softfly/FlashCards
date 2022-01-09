@@ -2,8 +2,9 @@ package pl.softfly.flashcards.db;
 
 import android.content.Context;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 
+
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 

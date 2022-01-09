@@ -31,7 +31,7 @@ import pl.softfly.flashcards.filesync.entity.CardImported;
                 "'" + CardEdge.STATUS_DECK_SECOND_NEW + "'," +
                 "'" + CardEdge.STATUS_IMPORTED_FIRST_NEW + "'," +
                 "'" + CardEdge.STATUS_IMPORTED_SECOND_NEW + "')" +
-                "ORDER BY countToGraph DESC, weight DESC"
+                "ORDER BY c.countToGraph DESC, weight DESC"
 )
 public class GraphEdgeOnlyNewCards extends GraphEdge {
 }

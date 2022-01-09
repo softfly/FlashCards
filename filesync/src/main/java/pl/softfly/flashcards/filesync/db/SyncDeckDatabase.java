@@ -37,6 +37,7 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
                 GraphEdgeOnlyNewCards.class,
                 CountToGraphOnlyNewCards.class
         },
+        exportSchema = false,
         version = 1)
 @TypeConverters({Converters.class})
 public abstract class SyncDeckDatabase extends RoomDatabase {

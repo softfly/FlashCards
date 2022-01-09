@@ -12,34 +12,4 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical" />
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:fab_labelStyle="@style/fab_labelStyle">
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_create_deck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_title="Create deck"
-            app:fab_size="mini"
-            app:fab_icon="@drawable/ic_outline_description_24"
-            />
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/import_deck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_title="Import deck"
-            app:fab_size="mini"
-            app:fab_icon="@drawable/ic_baseline_import_export_24"
-            />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

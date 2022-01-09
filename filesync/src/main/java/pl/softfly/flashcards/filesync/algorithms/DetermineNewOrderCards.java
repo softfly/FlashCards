@@ -3,7 +3,8 @@ package pl.softfly.flashcards.filesync.algorithms;
 import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.ENTITIES_TO_UPDATE_POOL_MAX;
 import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.MULTIPLE_ORDINAL;
 
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;

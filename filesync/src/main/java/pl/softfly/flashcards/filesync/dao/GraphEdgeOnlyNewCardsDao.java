@@ -16,10 +16,10 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
 @Dao
 public interface GraphEdgeOnlyNewCardsDao {
 
-    @Query("SELECT * FROM FileSync_View_GraphEdgeOnlyNewCards WHERE countToGraph >= 2 LIMIT 1")
+    @Query("SELECT fromGraph, toGraph, weight FROM FileSync_View_GraphEdgeOnlyNewCards WHERE countToGraph >= 2 LIMIT 1")
     GraphEdgeOnlyNewCards findForNewCards();
 
-    @Query("SELECT * FROM FileSync_View_GraphEdgeOnlyNewCards WHERE fromGraph=:fromGraph")
+    @Query("SELECT fromGraph, toGraph, weight FROM FileSync_View_GraphEdgeOnlyNewCards WHERE fromGraph=:fromGraph")
     List<GraphEdgeOnlyNewCards> findForNewCardsByFrom(int fromGraph);
 
 }

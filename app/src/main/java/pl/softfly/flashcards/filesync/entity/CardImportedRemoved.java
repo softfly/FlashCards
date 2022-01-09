@@ -4,6 +4,7 @@ import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import pl.softfly.flashcards.entity.Card;
@@ -30,7 +31,12 @@ import pl.softfly.flashcards.entity.Card;
                         parentColumns = "id",
                         childColumns = "fileSyncedId"
                 )
+        },
+        indices = {
+                @Index(value = {"fileSyncedId", "cardId"}, unique = true),
+                @Index(value = {"cardId"}),
         }
+
 )
 public class CardImportedRemoved {
 

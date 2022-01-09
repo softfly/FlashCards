@@ -1,7 +1,8 @@
 package pl.softfly.flashcards.db.deck;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -18,18 +19,19 @@ public class DeckDatabaseUtil {
     private final AppStorageDbUtil<DeckDatabase> deckDbUtil;
 
     public DeckDatabaseUtil(Context context) {
-        this.deckDbUtil = EXTERNAL_STORAGE ? new ExternalStorageDbUtil(context) {
-            @Override
-            protected Class getTClass() {
-                return DeckDatabase.class;
-            }
-        }
-                : new AppStorageDbUtil(context) {
-            @Override
-            protected Class getTClass() {
-                return DeckDatabase.class;
-            }
-        };
+        this.deckDbUtil = EXTERNAL_STORAGE ?
+                new ExternalStorageDbUtil<DeckDatabase>(context) {
+                    @Override
+                    protected Class<DeckDatabase> getTClass() {
+                        return DeckDatabase.class;
+                    }
+                } :
+                new AppStorageDbUtil<DeckDatabase>(context) {
+                    @Override
+                    protected Class<DeckDatabase> getTClass() {
+                        return DeckDatabase.class;
+                    }
+                };
     }
 
     public synchronized DeckDatabase getDatabase(@NonNull String deckName) {

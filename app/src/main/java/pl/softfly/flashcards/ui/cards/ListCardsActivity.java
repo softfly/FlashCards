@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
+
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.filesync.FileSync;
@@ -41,7 +41,6 @@ public class ListCardsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_cards);
         this.activity = this;
-        initFabMenu();
 
         Intent intent = getIntent();
         deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
@@ -58,11 +57,6 @@ public class ListCardsActivity extends AppCompatActivity {
         cardRecycler = new CardRecyclerViewAdapter(this, deckName);
         recyclerView.setAdapter(cardRecycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-
-    protected void initFabMenu() {
-        FloatingActionButton fabCreateCard = findViewById(R.id.fab_create_card);
-        fabCreateCard.setOnClickListener(v -> startNewCardActivity());
     }
 
     @Override

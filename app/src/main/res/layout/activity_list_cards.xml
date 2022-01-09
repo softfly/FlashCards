@@ -57,23 +57,4 @@
 
     </TableLayout>
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:fab_labelStyle="@style/fab_labelStyle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_create_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_icon="@drawable/ic_outline_description_24"
-            app:fab_size="mini"
-            app:fab_title="Create a new card" />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,7 +15,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +51,9 @@ public class ImportExcelToDeckStepDefs {
     private Scenario scenario;
 
     private int repeat = 1;
+
+    @Captor
+    private ArgumentCaptor<List<Card>> cardsListCaptor;
 
     @Before
     public void before(Scenario scenario) {
@@ -93,35 +98,32 @@ public class ImportExcelToDeckStepDefs {
         doReturn(scenario.getName()).when(importExcelToDeck).findFreeDeckName(any());
         doNothing().when(importExcelToDeck).insertAll(any());
 
-        InputStream is = new FileInputStream(
-                new StringBuilder()
-                        .append(PATH).append("/")
-                        .append(scenario.getName())
-                        .append(".xlsx")
-                        .toString()
-        );
+        InputStream is = new FileInputStream(PATH + "/" + scenario.getName() + ".xlsx");
         importExcelToDeck.importExcelFile(scenario.getName(), is, FileSync.TYPE_XLSX);
     }
 
     @Then("A new deck with the following cards imported.")
     public void a_new_deck_with_the_following_cards_imported(DataTable dataTable) {
         ListIterator<List<String>> expectedList = dataTable.asLists().listIterator();
-
-        ArgumentCaptor<List> cardsCaptor = ArgumentCaptor.forClass(List.class);
+        MockitoAnnotations.initMocks(this);
+        //cardsCaptor = ArgumentCaptor.forClass(List.class);
         int times = dataTable.asLists().size() / ENTITIES_TO_UPDATE_POOL_MAX;
         if (dataTable.asLists().size() % ENTITIES_TO_UPDATE_POOL_MAX != 0) {
             times++;
         }
-        verify(importExcelToDeck, times(times)).insertAll(cardsCaptor.capture());
+        verify(importExcelToDeck, times(times)).insertAll(cardsListCaptor.capture());
 
-        List<List> capturedCards = cardsCaptor.getAllValues();
-        capturedCards.forEach(potCardList -> {
-            List<Card> cardList = potCardList;
-            cardList.forEach(card -> {
-                assertThat(expectedList.next().toArray())
-                        .hasSameElementsAs(Arrays.asList(card.getQuestion(), card.getAnswer()));
-            });
-        });
+        List<List<Card>> capturedCards = cardsListCaptor.getAllValues();
+        capturedCards.forEach(potCardList ->
+                potCardList.forEach(
+                        card ->
+                                assertThat(expectedList.next().toArray())
+                                        .hasSameElementsAs(Arrays.asList(
+                                                card.getQuestion(),
+                                                card.getAnswer())
+                                        )
+                )
+        );
     }
 
     protected boolean empty(String str) {

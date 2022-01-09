@@ -1,7 +1,8 @@
 package pl.softfly.flashcards.filesync.db;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -15,23 +16,25 @@ public class SyncDeckDatabaseUtil {
 
     private final static boolean EXTERNAL_STORAGE = true;
 
-    private AppStorageDbUtil<SyncDeckDatabase> deckDbUtil;
+    private final AppStorageDbUtil<SyncDeckDatabase> deckDbUtil;
 
-    private Context context;
+    private final Context context;
 
     public SyncDeckDatabaseUtil(Context context) {
         this.context = context;
-        this.deckDbUtil = EXTERNAL_STORAGE ? new ExternalStorageDbUtil(context) {
-            @Override
-            protected Class getTClass() {
-                return SyncDeckDatabase.class;
-            }
-        } : new AppStorageDbUtil(context) {
-            @Override
-            protected Class getTClass() {
-                return SyncDeckDatabase.class;
-            }
-        };
+        this.deckDbUtil = EXTERNAL_STORAGE ?
+                new ExternalStorageDbUtil<SyncDeckDatabase>(context) {
+                    @Override
+                    protected Class<SyncDeckDatabase> getTClass() {
+                        return SyncDeckDatabase.class;
+                    }
+                } :
+                new AppStorageDbUtil<SyncDeckDatabase>(context) {
+                    @Override
+                    protected Class<SyncDeckDatabase> getTClass() {
+                        return SyncDeckDatabase.class;
+                    }
+                };
     }
 
     public synchronized SyncDeckDatabase getDatabase(@NonNull String deckName) {

@@ -29,9 +29,6 @@ import pl.softfly.flashcards.filesync.entity.CardImported;
 )
 public class GraphEdge {
 
-    @PrimaryKey
-    protected Integer id;
-
     protected Integer fromGraph;
 
     protected Integer toGraph;
@@ -40,14 +37,6 @@ public class GraphEdge {
      * The sum of edge weights between graphs.
      */
     protected int weight;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Integer getFromGraph() {
         return fromGraph;

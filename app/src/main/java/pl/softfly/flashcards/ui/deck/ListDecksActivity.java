@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,14 +52,6 @@ public class ListDecksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_decks);
         initRecyclerView();
         loadDecks();
-        FloatingActionButton fabCreateDeck = findViewById(R.id.fab_create_deck);
-        fabCreateDeck.setOnClickListener(v -> {
-            DialogFragment dialog = new CreateDeckDialog();
-            dialog.show(this.getSupportFragmentManager(), "CreateDeck");
-        });
-        FloatingActionButton fabImportDeck = findViewById(R.id.import_deck);
-        fabImportDeck.setOnClickListener(
-                v -> importExcel.launch(new String[]{TYPE_XLS, TYPE_XLSX}));
         try {
             createSampleDeck();
         } catch (Exception e) {

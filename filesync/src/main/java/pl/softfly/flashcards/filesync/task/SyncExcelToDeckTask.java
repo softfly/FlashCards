@@ -64,9 +64,8 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     private void askPermissions(Uri uri) {
         Intent intent = listCardsActivity.getIntent();
-        final int takeFlags = intent.getFlags()
-                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        int takeFlags = intent.getFlags();
+        takeFlags &= (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         listCardsActivity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
     }
 

@@ -59,10 +59,11 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     protected void askPermissions(Uri uri) {
         Intent intent = listDecksActivity.getIntent();
-        final int takeFlags = intent.getFlags()
-                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        int takeFlags = intent.getFlags();
+        takeFlags &= (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         listDecksActivity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+
+
     }
 
     protected InputStream openExcelFile(Uri uri) throws FileNotFoundException {
