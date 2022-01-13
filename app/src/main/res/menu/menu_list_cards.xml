@@ -10,6 +10,12 @@
         android:id="@+id/sync_excel"
         android:icon="@drawable/ic_sharp_sync_24"
         app:showAsAction="ifRoom"
-        android:title="Sync with the Excel file">
+        android:title="Sync with Excel file">
+    </item>
+    <item
+        android:id="@+id/export_excel"
+        android:icon="@drawable/ic_sharp_sync_24"
+        app:showAsAction="never"
+        android:title="Export to new Excel">
     </item>
 </menu>

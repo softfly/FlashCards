@@ -11,6 +11,7 @@ import java.io.File;
 import io.cucumber.android.runner.CucumberAndroidJUnitRunner;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
+import pl.softfly.flashcards.BuildConfig;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
 
@@ -21,8 +22,8 @@ import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
 @CucumberOptions(
         features = "features",
         strict = true,
-        //tags="@single"
-        tags="not @disabled"
+        tags="@single"
+        //tags="not @disabled"
 )
 public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
 
@@ -35,8 +36,10 @@ public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
                 getInstance(getContext())
                 .getSyncDeckDatabaseUtil();
 
-        syncDeckDatabaseUtil.listDatabases()
-                .forEach(syncDeckDatabaseUtil::removeDatabase);
+        if (BuildConfig.DEBUG) {
+            syncDeckDatabaseUtil.listDatabases()
+                    .forEach(syncDeckDatabaseUtil::removeDatabase);
+        }
         super.onCreate(bundle);
     }
 

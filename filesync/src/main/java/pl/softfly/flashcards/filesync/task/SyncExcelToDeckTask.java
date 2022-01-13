@@ -23,14 +23,14 @@ import pl.softfly.flashcards.ui.cards.ListCardsActivity;
  */
 public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
 
-    private final Uri uriSynchronizedFile;
+    protected final Uri uriSynchronizedFile;
     @NonNull
-    private final ListCardsActivity listCardsActivity;
-    private final Context appContext;
-    private final String deckName;
-    private String mimeType;
-    private Long lastModifiedAtImportedFile;
-    private FileSynced fileSynced;
+    protected final ListCardsActivity listCardsActivity;
+    protected final Context appContext;
+    protected final String deckName;
+    protected String mimeType;
+    protected Long lastModifiedAtImportedFile;
+    protected FileSynced fileSynced;
 
     public SyncExcelToDeckTask(String deckName,
                                FileSynced fileSynced,
@@ -66,7 +66,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
         return true;
     }
 
-    private void askPermissions(Uri uri) {
+    protected void askPermissions(Uri uri) {
         Intent intent = listCardsActivity.getIntent();
         int takeFlags = intent.getFlags();
         takeFlags &= (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

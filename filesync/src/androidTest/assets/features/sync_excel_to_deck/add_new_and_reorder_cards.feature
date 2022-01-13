@@ -1,6 +1,5 @@
 Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
-  @single
   Scenario: SE_RO_AD_D_01 The order from the file. A new card was added from the deck at the beginning.
     Given Add the following cards into the deck:
       | New card 1        | New card 1      | 2 |

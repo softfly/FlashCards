@@ -12,6 +12,29 @@ public interface FileSync {
     String TYPE_XLS = "application/vnd.ms-excel";
     String TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    /**
+     * SE Synchronize deck with excel file.
+     */
+    void syncFile(
+            String deckName,
+            Uri uri,
+            ListCardsActivity listCardsActivity
+    );
+
+    /**
+     * IE Create a deck from an imported Excel file.
+     */
+    void importFile(Uri uri, ListDecksActivity listDecksActivity);
+
+    /**
+     * EE Create a new Excel file from the exported deck.
+     */
+    void exportFile(
+            String deckName,
+            Uri uri,
+            ListCardsActivity listCardsActivity
+    );
+
     @Nullable
     static FileSync getInstance() {
         try {
@@ -23,11 +46,4 @@ public interface FileSync {
             return null;
         }
     }
-
-    void syncFile(String deckName,
-                  Uri uriSynchronizedFile,
-                  ListCardsActivity listCardsActivity
-    );
-
-    void importFile(Uri uri, ListDecksActivity listDecksActivity);
 }

@@ -131,11 +131,11 @@ public class ListDecksActivity extends AppCompatActivity {
             StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
             StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
             for (int ii = 0; ii < 10; ii++) {
-                questionBuilder.append(" Sample question ").append(i + 1);
-                answerBuilder.append(" Sample answer ").append(i + 1);
+                questionBuilder.append("\n Sample question ").append(i + 1);
+                answerBuilder.append("\n Sample answer ").append(i + 1);
             }
             Card card = new Card();
-            card.setOrdinal(i);
+            card.setOrdinal(i + 1);
             card.setQuestion(questionBuilder.toString());
             card.setAnswer(answerBuilder.toString());
             card.setModifiedAt(LocalDateTime.now());

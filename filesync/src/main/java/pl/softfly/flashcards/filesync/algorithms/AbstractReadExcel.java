@@ -154,12 +154,23 @@ public abstract class AbstractReadExcel {
         return questionIndex;
     }
 
+    protected void setQuestionIndex(int questionIndex) {
+        this.questionIndex = questionIndex;
+    }
+
     protected int getAnswerIndex() {
         return answerIndex;
+    }
+
+    protected void setAnswerIndex(int answerIndex) {
+        this.answerIndex = answerIndex;
     }
 
     protected int getSkipHeaderRows() {
         return skipHeaderRows;
     }
 
+    protected void setSkipHeaderRows(int skipHeaderRows) {
+        this.skipHeaderRows = skipHeaderRows;
+    }
 }

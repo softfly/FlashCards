@@ -3,6 +3,7 @@ package pl.softfly.flashcards.ui.cards;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -37,6 +38,18 @@ public class ListCardsActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> syncExcel = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
             uri -> { if (uri != null) fileSync.syncFile(deckName, uri, activity); }
+    );
+
+
+    private final ActivityResultLauncher<String> exportExcel = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument() {
+                @Override
+                public Intent createIntent(@NonNull Context context, @NonNull String input) {
+                    return super.createIntent(context, input)
+                            .setType(TYPE_XLSX);
+                }
+            },
+            uri -> { if (uri != null) fileSync.exportFile(deckName, uri, activity); }
     );
 
     @Override
@@ -88,6 +101,9 @@ public class ListCardsActivity extends AppCompatActivity {
                 return true;
             case R.id.sync_excel:
                 syncExcel.launch(new String[] {TYPE_XLS, TYPE_XLSX});
+                return true;
+            case R.id.export_excel:
+                exportExcel.launch(deckName);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

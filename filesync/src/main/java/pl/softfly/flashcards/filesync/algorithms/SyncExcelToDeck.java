@@ -9,9 +9,13 @@ import androidx.annotation.Nullable;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
@@ -48,18 +52,17 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
     protected static final int PAGE_LIMIT = 100;
 
-    private final Context appContext;
+    protected final Context appContext;
     @Nullable
-    private SyncDeckDatabase deckDb;
-    private DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
-    private ListCardsActivity listCardsActivity;
-
-    private FileSynced fileSynced;
+    protected SyncDeckDatabase deckDb;
+    protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
+    protected ListCardsActivity listCardsActivity;
+    protected FileSynced fileSynced;
     @Nullable
-    private LocalDateTime newLastSyncAt;
-    private InputStream isImportedFile;
-    private Workbook workbook;
-    private Sheet sheet;
+    protected LocalDateTime newLastSyncAt;
+    protected InputStream isImportedFile;
+    protected Workbook workbook;
+    protected Sheet sheet;
 
     //Only for tests
     public SyncExcelToDeck(Context appContext, DetermineNewOrderCards determineNewOrderCards) {
@@ -77,18 +80,23 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
-            Long lastModifiedAtFile
+            @NonNull Long lastModifiedAtFile
     ) throws Exception {
         this.isImportedFile = inputStream;
         this.deckDb = getDeckDB(deckName);
-        this.workbook = typeFile.equals(TYPE_XLS) ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream);
+        this.workbook = typeFile.equals(TYPE_XLS)
+                ? new HSSFWorkbook(inputStream)
+                : new XSSFWorkbook(inputStream);
         this.sheet = workbook.getSheetAt(0);
-        this.newLastSyncAt = Converters.fromTimestampToLocalDateTime(TimeUnit.MILLISECONDS.toSeconds(lastModifiedAtFile));
+        this.newLastSyncAt = Converters.fromTimestampToLocalDateTime(
+                TimeUnit.MILLISECONDS.toSeconds(lastModifiedAtFile)
+        );
 
         findColumnIndexes(sheet);
         if (getQuestionIndex() == -1 && getAnswerIndex() == -1)
             throw new Exception("No cards in the file.");
 
+        // @todo desc lastSync
         if (fileSynced.getLastSyncAt() == null) {
             fileSynced.setLastSyncAt(this.newLastSyncAt);
         }
@@ -125,7 +133,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     /**
      * 6. Apply changes to the deck and file.
      */
-    public void commitChanges(@NonNull FileSynced fileSynced, @NonNull OutputStream os) throws IOException {
+    public void commitChanges(
+            @NonNull FileSynced fileSynced,
+            @NonNull OutputStream os
+    ) throws IOException {
         updateDeckCards();
         updateExcelFile(os);
 
@@ -476,9 +487,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         CardImported.STATUS_DELETE_BY_FILE,
                         CardImported.STATUS_INSERT_BY_DECK
                 }, 0);
-        CardImported currentCardImported = cardImportedList.remove(0);
 
         if (!cardImportedList.isEmpty()) {
+            CardImported currentCardImported = cardImportedList.remove(0);
+
             while (!cardImportedList.isEmpty()) {
                 // Prepare for the next iteration
                 CardImported nextCardImported = cardImportedList.remove(0);
@@ -637,7 +649,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         }
     }
 
-    private void updateExcelCell(@NonNull Row row, @NonNull Card card) {
+    protected void updateExcelCell(@NonNull Row row, @NonNull Card card) {
         Cell cell = row.createCell(getQuestionIndex());
         cell.setCellValue(card.getQuestion());
         cell = row.createCell(getAnswerIndex());

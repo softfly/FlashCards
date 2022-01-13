@@ -26,6 +26,7 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ import io.cucumber.java.en.When;
 import pl.softfly.flashcards.BuildConfig;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
@@ -258,7 +260,36 @@ public class SyncExcelToDeckStepDefs {
             fileSynced.setUri(excelFilePath);
         }
 
-        SyncExcelToDeck syncExcelToDeck = new BenchmarkSyncExcelToDeck(appContext, new BenchmarkDetermineNewOrderCards());
+        SyncExcelToDeck syncExcelToDeck = new BenchmarkSyncExcelToDeck(
+                appContext, new
+                BenchmarkDetermineNewOrderCards()
+        );
+        syncExcelToDeck.syncExcelFile(
+                deckName,
+                fileSynced,
+                new FileInputStream(excelFilePath),
+                TYPE_XLSX,
+                excelLastModifiedAt
+        );
+        syncExcelToDeck.commitChanges(fileSynced, new FileOutputStream(excelFilePath));
+    }
+
+    @When("Export an Excel file from the deck.")
+    public void export_the_Excel_file_from_the_deck() throws Exception {
+        OutputStream fileOut = new FileOutputStream(excelFilePath);
+        excelWorkbook.write(fileOut);
+        fileOut.close();
+
+        FileSynced fileSynced = deckDb.fileSyncedDao().findByUri(excelFilePath);
+        if (fileSynced == null) {
+            fileSynced = new FileSynced();
+            fileSynced.setUri(excelFilePath);
+        }
+
+        SyncExcelToDeck syncExcelToDeck = new ExportExcelToDeck(
+                appContext,
+                new BenchmarkDetermineNewOrderCards()
+        );
         syncExcelToDeck.syncExcelFile(
                 deckName,
                 fileSynced,
