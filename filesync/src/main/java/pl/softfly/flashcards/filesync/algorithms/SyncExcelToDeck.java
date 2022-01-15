@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
@@ -96,6 +97,9 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         if (getQuestionIndex() == -1 && getAnswerIndex() == -1)
             throw new Exception("No cards in the file.");
 
+        // Lock deck for editing while syncing.
+        lockDeckEditing();
+
         // @todo desc lastSync
         if (fileSynced.getLastSyncAt() == null) {
             fileSynced.setLastSyncAt(this.newLastSyncAt);
@@ -147,6 +151,37 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         }
 
         if (listCardsActivity != null) listCardsActivity.onRestart();
+        unlockDeckEditing();
+    }
+
+    protected void lockDeckEditing() {
+        DeckConfig deckConfig = deckDb.deckConfigDao()
+                .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
+
+        if (deckConfig == null) {
+            deckConfig = new DeckConfig();
+            deckConfig.setKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
+            deckConfig.setValue(
+                    Converters.localDateTimeToTimestamp(LocalDateTime.now())
+                            .toString()
+            );
+            deckDb.deckConfigDao().insert(deckConfig);
+        } else {
+            deckConfig.setValue(
+                    Converters.localDateTimeToTimestamp(LocalDateTime.now())
+                            .toString()
+            );
+            deckDb.deckConfigDao().update(deckConfig);
+        }
+    }
+
+    protected void unlockDeckEditing() {
+        DeckConfig deckConfig = deckDb.deckConfigDao()
+                .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
+        if (deckConfig != null) {
+            deckConfig.setValue(null);
+            deckDb.deckConfigDao().update(deckConfig);
+        }
     }
 
     /**

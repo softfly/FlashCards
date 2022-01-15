@@ -4,8 +4,11 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import pl.softfly.flashcards.dao.DeckConfigAsyncDao;
+import pl.softfly.flashcards.dao.DeckConfigDao;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.dao.CardDao;
 import pl.softfly.flashcards.filesync.dao.CardEdgeDao;
 import pl.softfly.flashcards.filesync.dao.CardImportedDao;
@@ -27,6 +30,7 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
 @Database(
         entities = {
                 Card.class,
+                DeckConfig.class,
                 CardImported.class,
                 CardEdge.class,
                 FileSynced.class,
@@ -55,4 +59,8 @@ public abstract class SyncDeckDatabase extends RoomDatabase {
     public abstract GraphEdgeDao graphEdgeDao();
 
     public abstract GraphEdgeOnlyNewCardsDao graphEdgeOnlyNewCardsDao();
+
+    public abstract DeckConfigDao deckConfigDao();
+
+    public abstract DeckConfigAsyncDao deckConfigAsyncDao();
 }

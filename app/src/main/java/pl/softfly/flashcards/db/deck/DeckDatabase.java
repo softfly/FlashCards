@@ -8,6 +8,7 @@ import pl.softfly.flashcards.dao.CardDao;
 import pl.softfly.flashcards.dao.CardDaoAsync;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.entity.CardEdge;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.CardImportedRemoved;
@@ -22,6 +23,7 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
 @Database(
         entities = {
                 Card.class,
+                DeckConfig.class,
                 CardImported.class,
                 CardEdge.class,
                 FileSynced.class,

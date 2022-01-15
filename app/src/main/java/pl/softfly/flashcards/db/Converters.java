@@ -22,6 +22,12 @@ public class Converters {
 
     @Nullable
     @TypeConverter
+    public static Long fromStringToLong(@Nullable String value) {
+        return value == null ? null : Long.parseLong(value);
+    }
+
+    @Nullable
+    @TypeConverter
     public static Date fromTimestamp(@Nullable Long value) {
         return value == null ? null : new Date(TimeUnit.SECONDS.toMillis(value));
     }
@@ -38,7 +44,7 @@ public class Converters {
         return value == null ? null :
                 LocalDateTime.ofInstant(
                         Instant.ofEpochSecond(value),
-                        TimeZone.getDefault().toZoneId()
+                        ZoneId.systemDefault()
                 );
     }
 

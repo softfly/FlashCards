@@ -29,11 +29,11 @@ public abstract class CardDaoAsync {
 
     @NonNull
     @Query("SELECT * FROM Core_Card WHERE id=:id")
-    public abstract  Maybe<Card> getCard(Integer id);
+    public abstract Maybe<Card> getCard(Integer id);
 
     @NonNull
     @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL ORDER BY ordinal ASC")
-    public abstract  Maybe<List<Card>> getCardsByDeletedNotOrderByOrdinal();
+    public abstract Maybe<List<Card>> getCardsByDeletedNotOrderByOrdinal();
 
     @NonNull
     @Query("SELECT * FROM Core_Card WHERE " +

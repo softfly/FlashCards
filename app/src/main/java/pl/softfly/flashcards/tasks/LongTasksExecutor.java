@@ -17,13 +17,16 @@ import java.util.concurrent.TimeoutException;
 
 public class LongTasksExecutor {
 
-    public static final long THREAD_TIMEOUT_SECONDS = 50;//5*60l;
+    public static final long THREAD_TIMEOUT_SECONDS = 5*50;//5*60l;
 
     private static LongTasksExecutor INSTANCE;
 
     private final Queue<Task<Object>> tasksQ = new ConcurrentLinkedQueue<>();
 
     private Thread executorThread;
+
+    protected LongTasksExecutor() {
+    }
 
     public synchronized void doTask(Task<Object> newTask) {
         tasksQ.add(newTask);
@@ -52,5 +55,9 @@ public class LongTasksExecutor {
             INSTANCE = new LongTasksExecutor();
         }
         return INSTANCE;
+    }
+
+    public boolean isEmpty() {
+        return tasksQ.isEmpty();
     }
 }
