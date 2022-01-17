@@ -1,6 +1,9 @@
 package pl.softfly.flashcards.ui.deck;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.FileUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,10 +11,14 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -19,10 +26,13 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
+import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.study.DraggableStudyCardActivity;
 import pl.softfly.flashcards.ui.cards.ListCardsActivity;
-import pl.softfly.flashcards.ui.card.NewCardActivity;
 
+/**
+ * @author Grzegorz Ziemski
+ */
 public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerViewAdapter.ViewHolder> {
 
     public static final String DECK_NAME = "deckName";
@@ -31,9 +41,49 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
     private final ArrayList<String> deckNames;
 
+    private String deckName;
+
+    private final ActivityResultLauncher<String> exportDbDeck;
+
     public DeckRecyclerViewAdapter(AppCompatActivity activity, ArrayList<String> deckNames) {
         this.activity = activity;
         this.deckNames = deckNames;
+        this.exportDbDeck = activity.registerForActivityResult(
+                new ActivityResultContracts.CreateDocument() {
+                    @Override
+                    public Intent createIntent(@NonNull Context context, @NonNull String input) {
+                        return super.createIntent(context, input)
+                                .setType("application/vnd.sqlite3");
+                    }
+                },
+                exportedDbUri -> {
+                    if (exportedDbUri != null)
+                        exportDbDeck(exportedDbUri, deckName);
+                }
+        );
+    }
+
+    protected void exportDbDeck(Uri exportedDbUri, String deckName) {
+        try {
+            OutputStream exportDbOut = activity
+                    .getContentResolver()
+                    .openOutputStream(exportedDbUri);
+
+            AppDatabaseUtil
+                    .getInstance(activity.getApplicationContext())
+                    .closeDeckDatabase(deckName);
+
+            String dbPath = AppDatabaseUtil
+                    .getInstance(activity.getApplicationContext())
+                    .getDeckDatabaseUtil()
+                    .getDbPath(deckName);
+
+            FileUtils.copy(new FileInputStream(dbPath), exportDbOut);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog eDialog = new ExceptionDialog(e);
+            eDialog.show(activity.getSupportFragmentManager(), "ExportDbDeck");
+        }
     }
 
     @NonNull
@@ -90,6 +140,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
             totalTextView = itemView.findViewById(R.id.totalTextView);
             moreTextView = itemView.findViewById(R.id.moreTextView);
             moreTextView.setOnClickListener(v -> {
+
                 PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
                 popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
                 popup.setOnMenuItemClickListener(item -> {
@@ -108,6 +159,10 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
                         case R.id.removeDeck:
                             RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(getAdapterPosition()));
                             dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
+                            return true;
+                        case R.id.exportDbDeck:
+                            deckName = deckNames.get(getAdapterPosition());
+                            exportDbDeck.launch(deckName);
                             return true;
                     }
                     return false;

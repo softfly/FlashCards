@@ -17,7 +17,9 @@ import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
 public class AppDatabaseUtil {
 
     private static AppDatabaseUtil INSTANCE;
+
     private final Map<String, DeckDatabase> DECKS = new WeakHashMap<>();
+
     @NonNull
     private final DeckDatabaseUtil deckDatabaseUtil;
 

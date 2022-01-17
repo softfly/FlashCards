@@ -6,15 +6,15 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import pl.softfly.flashcards.db.AppStorageDbUtil;
-import pl.softfly.flashcards.db.ExternalStorageDbUtil;
+import pl.softfly.flashcards.Config;
+import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
+import pl.softfly.flashcards.db.storage.AppStorageDbUtil;
+import pl.softfly.flashcards.db.storage.ExternalStorageDbUtil;
 
 /**
  * @author Grzegorz Ziemski
  */
 public class SyncDeckDatabaseUtil {
-
-    private final static boolean EXTERNAL_STORAGE = true;
 
     @NonNull
     private final AppStorageDbUtil<SyncDeckDatabase> deckDbUtil;
@@ -23,7 +23,7 @@ public class SyncDeckDatabaseUtil {
 
     public SyncDeckDatabaseUtil(Context appContext) {
         this.appContext = appContext;
-        this.deckDbUtil = EXTERNAL_STORAGE ?
+        this.deckDbUtil = Config.getInstance(appContext).isDatabaseExternalStorage() ?
                 new ExternalStorageDbUtil<SyncDeckDatabase>(appContext) {
                     @NonNull
                     @Override

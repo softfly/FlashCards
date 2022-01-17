@@ -2,7 +2,7 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
 
 
   @disabled
-  Scenario Outline: ST_01 No changes. <repeat> cards.
+  Scenario Outline: ST_01 No changes <repeat> cards.
     Given Generate cards <repeat> times into the deck:
       | Sample question {i} | Sample answer {i} | 0 |
     Given Generate cards <repeat> times into the file:

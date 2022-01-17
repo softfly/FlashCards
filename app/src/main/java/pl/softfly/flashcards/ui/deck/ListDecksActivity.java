@@ -4,9 +4,12 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,10 +24,13 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -33,22 +39,32 @@ import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 
+/**
+ * @author Grzegorz Ziemski
+ */
 public class ListDecksActivity extends AppCompatActivity {
-
-    private ListDecksActivity listDecksActivity;
 
     private final ArrayList<String> deckNames = new ArrayList<>();
 
-    @Nullable
-    private FileSync fileSync = FileSync.getInstance();
+    private ListDecksActivity listDecksActivity;
+
+    private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
 
     private final ActivityResultLauncher<String[]> importExcel =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
-                    uri -> { if (uri != null) fileSync.importFile(uri, listDecksActivity); }
+                    uri -> {
+                        if (uri != null) FileSync.getInstance().importFile(uri, listDecksActivity);
+                    }
             );
 
-    private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
+    private final ActivityResultLauncher<String[]> importDbDeck = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            importedDbUri -> {
+                if (importedDbUri != null)
+                    importDbDeck(importedDbUri);
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +73,7 @@ public class ListDecksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_decks);
         initRecyclerView();
         loadDecks();
+        askPermissionManageExternalStorage();
         try {
             createSampleDeck();
         } catch (Exception e) {
@@ -98,21 +115,55 @@ public class ListDecksActivity extends AppCompatActivity {
                 dialog.show(this.getSupportFragmentManager(), "CreateDeck");
                 return true;
             case R.id.import_excel:
-                importExcel.launch(new String[] {TYPE_XLS, TYPE_XLSX});
+                importExcel.launch(new String[]{TYPE_XLS, TYPE_XLSX});
+                return true;
+            case R.id.import_db:
+                importDbDeck.launch(new String[]{
+                        "application/vnd.sqlite3",
+                        "application/octet-stream"
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    protected void createSampleDeck() throws Exception {
-        if (!Environment.isExternalStorageManager()) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
+    protected void askPermissionManageExternalStorage() {
+        Config config = Config.getInstance(getApplicationContext());
+        if (config.isDatabaseExternalStorage() || config.isTestFilesExternalStorage()) {
+            if (!Environment.isExternalStorageManager()) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
         }
+    }
 
+    protected void importDbDeck(Uri importedDbUri) {
+        DeckDatabaseUtil deckDatabaseUtil = AppDatabaseUtil
+                .getInstance(getApplicationContext())
+                .getDeckDatabaseUtil();
+        try {
+            String deckName = null;
+            try (Cursor cursor = getContentResolver()
+                    .query(importedDbUri, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    deckName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    deckName = deckDatabaseUtil.findFreeDeckName(deckName);
+                }
+            }
+            InputStream importedDbIn = getContentResolver().openInputStream(importedDbUri);
+            FileUtils.copy(importedDbIn, new FileOutputStream(deckDatabaseUtil.getDbPath(deckName)));
+            loadDecks();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog eDialog = new ExceptionDialog(e);
+            eDialog.show(getSupportFragmentManager(), "ImportDbDeck");
+        }
+    }
+
+    protected void createSampleDeck() {
         String deckName = "Sample Deck";
         DeckDatabaseUtil deckDatabaseUtil = AppDatabaseUtil
                 .getInstance(getApplicationContext())

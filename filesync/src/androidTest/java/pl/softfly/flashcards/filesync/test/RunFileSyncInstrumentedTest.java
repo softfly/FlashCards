@@ -33,7 +33,7 @@ public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
         new File(getAbsoluteReportsPath()).mkdirs();
 
         SyncDeckDatabaseUtil syncDeckDatabaseUtil = SyncDatabaseUtil.
-                getInstance(getContext())
+                getInstance(getTargetContext())
                 .getSyncDeckDatabaseUtil();
 
         if (BuildConfig.DEBUG) {

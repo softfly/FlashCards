@@ -265,7 +265,9 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             @NonNull List<Integer> cardsConnected,
             int fileSyncedId
     ) {
-        Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(question, answer, cardsConnected, fileSyncedId);
+        Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(
+                question, answer, cardsConnected, fileSyncedId
+        );
         if (card != null) {
             cardsConnected.add(card.getId());
             cardImported.setCardId(card.getId());

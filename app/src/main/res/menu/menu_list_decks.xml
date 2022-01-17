@@ -11,4 +11,9 @@
         app:showAsAction="never"
         android:title="Import Excel">
     </item>
+    <item
+        android:id="@+id/import_db"
+        app:showAsAction="never"
+        android:title="Import DB">
+    </item>
 </menu>

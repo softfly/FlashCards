@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.db;
+package pl.softfly.flashcards.db.storage;
 
 import android.content.Context;
 import android.os.Environment;
@@ -9,9 +9,12 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import pl.softfly.flashcards.BuildConfig;
+import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.db.storage.AppStorageDbUtil;
 
 /**
  * @author Grzegorz Ziemski
+ * @deprecated API level 30 (Android 11) blocks access to shared storage.
  */
 public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends AppStorageDbUtil<DB> {
 
@@ -32,11 +35,8 @@ public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends App
     @NonNull
     @Override
     protected String getDbFolder() {
-        if (BuildConfig.DEBUG) {
-            return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards (DEV)/";
-        } else {
-            return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards/";
-        }
+        return Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/" + context.getResources().getString(R.string.app_name) + "/";
     }
 
 }

@@ -1,6 +1,5 @@
 Feature: Export the Excel file from the Deck.
 
-  @single
   Scenario: EX_01 No changes.
     Given Add the following cards into the deck:
       | Sample question 1 | Sample answer 1 | 2 |

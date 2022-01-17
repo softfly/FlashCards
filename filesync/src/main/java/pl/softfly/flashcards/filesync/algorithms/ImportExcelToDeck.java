@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -55,11 +56,23 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             @NonNull String typeFile,
             Long lastModifiedAtFile
     ) throws IOException {
-        deckName = findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
-        Workbook workbook = typeFile.equals(TYPE_XLS) ? new HSSFWorkbook(inputStream) : new XSSFWorkbook(inputStream);
+        deckName = AppDatabaseUtil
+                .getInstance(appContext)
+                .getDeckDatabaseUtil()
+                .findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
+        Workbook workbook = typeFile.equals(TYPE_XLS)
+                ? new HSSFWorkbook(inputStream)
+                : new XSSFWorkbook(inputStream);
         Sheet datatypeSheet = workbook.getSheetAt(0);
         findColumnIndexes(datatypeSheet);
-        importCards(datatypeSheet, deckName, getQuestionIndex(), getAnswerIndex(), getSkipHeaderRows(), lastModifiedAtFile);
+        importCards(
+                datatypeSheet,
+                deckName,
+                getQuestionIndex(),
+                getAnswerIndex(),
+                getSkipHeaderRows(),
+                lastModifiedAtFile
+        );
     }
 
     protected void importCards(
@@ -122,21 +135,6 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     //@todo Public for mocking
     public void insertAll(List<Card> cards) {
         deckDb.cardDao().insertAll(cards);
-    }
-
-    public String findFreeDeckName(String fileName) {
-        String deckName = fileName;
-        for (int i = 1; i <= 100; i++) {
-            if (!AppDatabaseUtil
-                    .getInstance(appContext)
-                    .getDeckDatabaseUtil()
-                    .exists(deckName)
-            ) {
-                return deckName;
-            }
-            deckName = fileName + "-" + i;
-        }
-        throw new RuntimeException("No free deck name found.");
     }
 
     //@todo Public for mocking

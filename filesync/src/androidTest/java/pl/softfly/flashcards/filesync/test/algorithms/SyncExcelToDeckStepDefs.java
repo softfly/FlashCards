@@ -26,7 +26,6 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,9 +42,9 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import pl.softfly.flashcards.BuildConfig;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
@@ -126,12 +125,19 @@ public class SyncExcelToDeckStepDefs {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void initTestDir() {
-        if (BuildConfig.DEBUG) {
-            testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards (DEV)/tests/";
+        if (Environment.isExternalStorageManager()) {
+            testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + "/" + appContext.getResources().getString(R.string.app_name) + "/tests/";
         } else {
-            testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlashCards/tests/";
+            // @todo use getContext
+            testDirPath = InstrumentationRegistry
+                    .getInstrumentation()
+                    .getTargetContext()
+                    .getFilesDir()
+                    .getPath() + "/tests/";
         }
         new File(testDirPath).mkdirs();
+        Log.i(TAG, "testDirPath="+testDirPath);
     }
 
     protected void initExcelFile() {
@@ -145,7 +151,7 @@ public class SyncExcelToDeckStepDefs {
     @Given("Create a new file.")
     public void create_a_new_file() {
         excelFilePath = testDirPath + deckName + ".xlsx";
-        boolean a = (new File(excelFilePath)).delete();
+        (new File(excelFilePath)).delete();
         excelWorkbook = new XSSFWorkbook();
         creationHelper = excelWorkbook.getCreationHelper();
         excelSheet = excelWorkbook.createSheet(WorkbookUtil.createSafeSheetName(deckName));
