@@ -8,8 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.entity.DeckConfig;
-import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.filesync.task.ExportExcelFromDeckTask;
 import pl.softfly.flashcards.filesync.task.ImportExcelToDeckTask;
@@ -28,11 +28,13 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
  * 3. Ask if the deck should auto-sync with this file.
  * If No, skip step 4.
  * 4. Set up the file to auto-sync in the future.
+ *
+ * @author Grzegorz Ziemski
  */
 public class FileSyncBean implements FileSync {
 
     @Nullable
-    private SyncDeckDatabase deckDb;
+    private FileSyncDeckDatabase deckDb;
 
     /**
      * SE Synchronize deck with excel file.
@@ -44,7 +46,7 @@ public class FileSyncBean implements FileSync {
             @NonNull ListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
-            deckDb = SyncDatabaseUtil
+            deckDb = FileSyncDatabaseUtil
                     .getInstance(listCardsActivity.getApplicationContext())
                     .getDeckDatabase(deckName);
         }
@@ -101,7 +103,7 @@ public class FileSyncBean implements FileSync {
             @NonNull ListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
-            deckDb = SyncDatabaseUtil
+            deckDb = FileSyncDatabaseUtil
                     .getInstance(listCardsActivity.getApplicationContext())
                     .getDeckDatabase(deckName);
         }
@@ -126,7 +128,7 @@ public class FileSyncBean implements FileSync {
     /**
      * 1. Check that the deck is not being edited by another task.
      */
-    protected void checkIfEditingIsLocked(AppCompatActivity activity, Runnable andThen) {
+    protected void checkIfEditingIsLocked(@NonNull AppCompatActivity activity, @NonNull Runnable andThen) {
         deckDb.deckConfigAsyncDao().getLongByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
@@ -148,9 +150,9 @@ public class FileSyncBean implements FileSync {
     }
 
     protected void setUpAutoSync(
-            FileSynced fileSynced,
-            AppCompatActivity activity,
-            Runnable andThen
+            @NonNull FileSynced fileSynced,
+            @NonNull AppCompatActivity activity,
+            @NonNull Runnable andThen
     ) {
         // 2. Check the deck is auto-sync with this file.
         if (fileSynced.isAutoSync()) {

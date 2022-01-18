@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
-import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -56,10 +55,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             @NonNull String typeFile,
             Long lastModifiedAtFile
     ) throws IOException {
-        deckName = AppDatabaseUtil
-                .getInstance(appContext)
-                .getDeckDatabaseUtil()
-                .findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
+        deckName = findFreeDeckName(deckName);
         Workbook workbook = typeFile.equals(TYPE_XLS)
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
@@ -130,6 +126,15 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             insertAll(cardsList);
             cardsList.clear();
         }
+    }
+
+    //@todo Public for mocking
+    //@todo try DI instead of ServiceLocator
+    public String findFreeDeckName(String deckName) {
+        return AppDatabaseUtil
+                .getInstance(appContext)
+                .getStorageDb()
+                .findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
     }
 
     //@todo Public for mocking

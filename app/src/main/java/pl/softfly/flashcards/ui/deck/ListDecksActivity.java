@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -34,7 +33,7 @@ import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
-import pl.softfly.flashcards.db.deck.DeckDatabaseUtil;
+import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
@@ -95,7 +94,7 @@ public class ListDecksActivity extends AppCompatActivity {
         deckNames.clear();
         deckNames.addAll(AppDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getDeckDatabaseUtil()
+                .getStorageDb()
                 .listDatabases()
         );
         deckRecyclerViewAdapter.notifyDataSetChanged();
@@ -141,20 +140,20 @@ public class ListDecksActivity extends AppCompatActivity {
     }
 
     protected void importDbDeck(Uri importedDbUri) {
-        DeckDatabaseUtil deckDatabaseUtil = AppDatabaseUtil
+        StorageDb storageDb = AppDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getDeckDatabaseUtil();
+                .getStorageDb();
         try {
             String deckName = null;
             try (Cursor cursor = getContentResolver()
                     .query(importedDbUri, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     deckName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    deckName = deckDatabaseUtil.findFreeDeckName(deckName);
+                    deckName = storageDb.findFreeDeckName(deckName);
                 }
             }
             InputStream importedDbIn = getContentResolver().openInputStream(importedDbUri);
-            FileUtils.copy(importedDbIn, new FileOutputStream(deckDatabaseUtil.getDbPath(deckName)));
+            FileUtils.copy(importedDbIn, new FileOutputStream(storageDb.getDbPath(deckName)));
             loadDecks();
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,12 +164,10 @@ public class ListDecksActivity extends AppCompatActivity {
 
     protected void createSampleDeck() {
         String deckName = "Sample Deck";
-        DeckDatabaseUtil deckDatabaseUtil = AppDatabaseUtil
+        AppDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getDeckDatabaseUtil();
-        if (deckDatabaseUtil.exists(deckName)) {
-            deckDatabaseUtil.removeDatabase(deckName);
-        }
+                .getStorageDb()
+                .removeDatabase(deckName);
 
         DeckDatabase deckDB = AppDatabaseUtil
                 .getInstance(getApplicationContext())

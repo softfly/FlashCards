@@ -3,6 +3,7 @@ package pl.softfly.flashcards.filesync.test;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.room.RoomDatabase;
 
 import org.junit.runner.RunWith;
 
@@ -12,8 +13,8 @@ import io.cucumber.android.runner.CucumberAndroidJUnitRunner;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
 import pl.softfly.flashcards.BuildConfig;
-import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
+import pl.softfly.flashcards.db.storage.StorageDb;
+import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 
 /**
  * @author Grzegorz Ziemski
@@ -22,23 +23,24 @@ import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
 @CucumberOptions(
         features = "features",
         strict = true,
-        tags="@single"
-        //tags="not @disabled"
+        //tags="@single"
+        tags = "not @disabled"
 )
 public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
 
     @Override
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void onCreate(@NonNull final Bundle bundle) {
         bundle.putString("plugin", getPluginConfigurationString());
         new File(getAbsoluteReportsPath()).mkdirs();
 
-        SyncDeckDatabaseUtil syncDeckDatabaseUtil = SyncDatabaseUtil.
-                getInstance(getTargetContext())
-                .getSyncDeckDatabaseUtil();
+        StorageDb<? extends RoomDatabase> storageDb = FileSyncDatabaseUtil
+                .getInstance(getTargetContext())
+                .getStorageDb();
 
         if (BuildConfig.DEBUG) {
-            syncDeckDatabaseUtil.listDatabases()
-                    .forEach(syncDeckDatabaseUtil::removeDatabase);
+            storageDb.listDatabases()
+                    .forEach(storageDb::removeDatabase);
         }
         super.onCreate(bundle);
     }

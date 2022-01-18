@@ -37,19 +37,22 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
     public static final String DECK_NAME = "deckName";
 
+    @NonNull
     private final AppCompatActivity activity;
 
     private final ArrayList<String> deckNames;
 
     private String deckName;
 
+    @NonNull
     private final ActivityResultLauncher<String> exportDbDeck;
 
-    public DeckRecyclerViewAdapter(AppCompatActivity activity, ArrayList<String> deckNames) {
+    public DeckRecyclerViewAdapter(@NonNull AppCompatActivity activity, ArrayList<String> deckNames) {
         this.activity = activity;
         this.deckNames = deckNames;
         this.exportDbDeck = activity.registerForActivityResult(
                 new ActivityResultContracts.CreateDocument() {
+                    @NonNull
                     @Override
                     public Intent createIntent(@NonNull Context context, @NonNull String input) {
                         return super.createIntent(context, input)
@@ -63,7 +66,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
         );
     }
 
-    protected void exportDbDeck(Uri exportedDbUri, String deckName) {
+    protected void exportDbDeck(Uri exportedDbUri, @NonNull String deckName) {
         try {
             OutputStream exportDbOut = activity
                     .getContentResolver()
@@ -75,7 +78,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
             String dbPath = AppDatabaseUtil
                     .getInstance(activity.getApplicationContext())
-                    .getDeckDatabaseUtil()
+                    .getStorageDb()
                     .getDbPath(deckName);
 
             FileUtils.copy(new FileInputStream(dbPath), exportDbOut);

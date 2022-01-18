@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.db;
+package pl.softfly.flashcards.filesync.db;
 
 import android.content.Context;
 
@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import pl.softfly.flashcards.Config;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.db.storage.AppStorageDb;
 import pl.softfly.flashcards.db.storage.ExternalStorageDb;
 import pl.softfly.flashcards.db.storage.StorageDb;
@@ -20,43 +19,43 @@ import pl.softfly.flashcards.db.storage.StorageDb;
  *
  * @author Grzegorz Ziemski
  */
-public class AppDatabaseUtil {
+public class FileSyncDatabaseUtil {
 
-    private static AppDatabaseUtil INSTANCE;
+    private static FileSyncDatabaseUtil INSTANCE;
 
-    private final Map<String, DeckDatabase> DECKS = new WeakHashMap<>();
+    private final Map<String, FileSyncDeckDatabase> DECKS = new WeakHashMap<>();
 
     @NonNull
-    private final StorageDb<DeckDatabase> storageDb;
+    private final StorageDb<FileSyncDeckDatabase> storageDb;
 
-    protected AppDatabaseUtil(@NonNull Context appContext) {
+    protected FileSyncDatabaseUtil(@NonNull Context appContext) {
         this.storageDb = Config.getInstance(appContext).isDatabaseExternalStorage() ?
-                new ExternalStorageDb<DeckDatabase>(appContext) {
+                new ExternalStorageDb<FileSyncDeckDatabase>(appContext) {
                     @NonNull
                     @Override
-                    protected Class<DeckDatabase> getTClass() {
-                        return DeckDatabase.class;
+                    protected Class<FileSyncDeckDatabase> getTClass() {
+                        return FileSyncDeckDatabase.class;
                     }
                 } :
-                new AppStorageDb<DeckDatabase>(appContext) {
+                new AppStorageDb<FileSyncDeckDatabase>(appContext) {
                     @NonNull
                     @Override
-                    protected Class<DeckDatabase> getTClass() {
-                        return DeckDatabase.class;
+                    protected Class<FileSyncDeckDatabase> getTClass() {
+                        return FileSyncDeckDatabase.class;
                     }
                 };
     }
 
-    public static synchronized AppDatabaseUtil getInstance(@NonNull Context context) {
+    public static synchronized FileSyncDatabaseUtil getInstance(@NonNull Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new AppDatabaseUtil(context);
+            INSTANCE = new FileSyncDatabaseUtil(context);
         }
         return INSTANCE;
     }
 
     @Nullable
-    public synchronized DeckDatabase getDeckDatabase(@NonNull String dbName) {
-        DeckDatabase db = DECKS.get(dbName);
+    public synchronized FileSyncDeckDatabase getDeckDatabase(@NonNull String dbName) {
+        FileSyncDeckDatabase db = DECKS.get(dbName);
         if (db == null) {
             db = storageDb.getDatabase(dbName);
             DECKS.put(dbName, db);
@@ -68,7 +67,7 @@ public class AppDatabaseUtil {
     }
 
     public synchronized void closeDeckDatabase(String dbName) {
-        DeckDatabase db = DECKS.get(dbName);
+        FileSyncDeckDatabase db = DECKS.get(dbName);
         if (db != null) {
             if (db.isOpen()) {
                 db.close();
@@ -78,7 +77,7 @@ public class AppDatabaseUtil {
     }
 
     @NonNull
-    public StorageDb<DeckDatabase> getStorageDb() {
+    public StorageDb<FileSyncDeckDatabase> getStorageDb() {
         return storageDb;
     }
 }

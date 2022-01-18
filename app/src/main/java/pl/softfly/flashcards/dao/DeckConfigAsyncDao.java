@@ -22,9 +22,11 @@ public interface DeckConfigAsyncDao {
     @Insert
     Completable insert(DeckConfig deckConfig);
 
+    @NonNull
     @Query("SELECT * FROM DeckConfig WHERE `key`=:key")
     Maybe<DeckConfig> getByKey(String key);
 
+    @NonNull
     @Query("SELECT value FROM DeckConfig WHERE `key`=:key")
     Maybe<Long> getLongByKey(String key);
 }

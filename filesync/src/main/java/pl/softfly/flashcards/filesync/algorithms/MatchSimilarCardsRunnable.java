@@ -14,7 +14,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 
@@ -30,12 +31,12 @@ public class MatchSimilarCardsRunnable implements Runnable {
 
     public static final String TAG = "MatchSimilarCardsRunnable";
     private final JaroWinklerSimilarity jaroWinklerSimilarity = new JaroWinklerSimilarity();
-    private final SyncDeckDatabase deckDb;
+    private final FileSyncDeckDatabase deckDb;
     private final FileSynced fileSynced;
     private final List<CardImported> cardImportedList;
 
     public MatchSimilarCardsRunnable(
-            SyncDeckDatabase deckDb,
+            FileSyncDeckDatabase deckDb,
             FileSynced fileSynced,
             List<CardImported> cardImportedList
     ) {

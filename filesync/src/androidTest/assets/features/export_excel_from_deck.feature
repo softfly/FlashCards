@@ -11,4 +11,9 @@ Feature: Export the Excel file from the Deck.
       | Sample question 2 | Sample answer 2 |
       | Sample question 3 | Sample answer 3 |
     Then Check the deck with cards.
+    Then The expected deck with cards:
+      | Question          | Answer          |
+      | Sample question 1 | Sample answer 1 |
+      | Sample question 2 | Sample answer 2 |
+      | Sample question 3 | Sample answer 3 |
     Then Check the Excel file.

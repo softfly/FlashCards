@@ -43,6 +43,7 @@ public class ListCardsActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<String> exportExcel = registerForActivityResult(
             new ActivityResultContracts.CreateDocument() {
+                @NonNull
                 @Override
                 public Intent createIntent(@NonNull Context context, @NonNull String input) {
                     return super.createIntent(context, input)

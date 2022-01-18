@@ -13,7 +13,7 @@ import java.util.List;
 
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.InvalidAlgorithmException;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardEdge;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.view.GraphEdge;
@@ -26,12 +26,12 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
  */
 public class DetermineNewOrderCards {
 
-    private SyncDeckDatabase deckDb;
+    private FileSyncDeckDatabase deckDb;
 
     private LocalDateTime fileLastSyncAt;
 
     public void determineNewOrderCards(
-            @NonNull SyncDeckDatabase deckDb,
+            @NonNull FileSyncDeckDatabase deckDb,
             @NonNull LocalDateTime fileLastSyncAt
     ) {
         this.deckDb = deckDb;

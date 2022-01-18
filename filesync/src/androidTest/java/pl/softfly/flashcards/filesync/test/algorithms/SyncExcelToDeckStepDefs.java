@@ -42,14 +42,13 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
-import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabaseUtil;
+import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
@@ -57,14 +56,12 @@ import pl.softfly.flashcards.filesync.entity.FileSynced;
  */
 public class SyncExcelToDeckStepDefs {
 
-    private static final String TAG = "SyncExcelToDeckStepDefs";
-
     public static final int DB_ENTITIES_POOL = 1000;
 
+    private static final String TAG = "SyncExcelToDeckStepDefs";
+
     private static final int COLUMN_TEST_INDEX_QUESTION = 0;
-
     private static final int COLUMN_TEST_INDEX_ANSWER = 1;
-
     private static final int COLUMN_TEST_INDEX_MODIFIED_AT = 2;
 
     private final Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -75,7 +72,7 @@ public class SyncExcelToDeckStepDefs {
     private String deckName;
 
     @Nullable
-    private SyncDeckDatabase deckDb;
+    private FileSyncDeckDatabase deckDb;
 
     private int currentCardId = 1;
 
@@ -83,17 +80,11 @@ public class SyncExcelToDeckStepDefs {
      * Excel Properties
      * ----------------------------------------------------------------------------------------- */
     private String testDirPath;
-
     private String excelFilePath;
-
     private Workbook excelWorkbook;
-
     private Sheet excelSheet;
-
     private CreationHelper creationHelper;
-
     private final long excelLastModifiedAt = 1*60*60;
-
     private int currentRowNum;
 
     /* -----------------------------------------------------------------------------------------
@@ -111,14 +102,12 @@ public class SyncExcelToDeckStepDefs {
 
     protected void initDB() {
         GrantPermissionRule.grant(Manifest.permission.MANAGE_EXTERNAL_STORAGE);
-        SyncDeckDatabaseUtil syncDeckDatabaseUtil = SyncDatabaseUtil
+        FileSyncDatabaseUtil
                 .getInstance(appContext)
-                .getSyncDeckDatabaseUtil();
+                .getStorageDb()
+                .removeDatabase(deckName);
 
-        if (syncDeckDatabaseUtil.exists(deckName)) {
-            syncDeckDatabaseUtil.removeDatabase(deckName);
-        }
-        deckDb = SyncDatabaseUtil
+        deckDb = FileSyncDatabaseUtil
                 .getInstance(appContext)
                 .getDeckDatabase(deckName);
     }
@@ -137,7 +126,7 @@ public class SyncExcelToDeckStepDefs {
                     .getPath() + "/tests/";
         }
         new File(testDirPath).mkdirs();
-        Log.i(TAG, "testDirPath="+testDirPath);
+        Log.i(TAG, "testDirPath=" + testDirPath);
     }
 
     protected void initExcelFile() {
@@ -178,7 +167,7 @@ public class SyncExcelToDeckStepDefs {
             card.setQuestion(rowIn.get(COLUMN_TEST_INDEX_QUESTION));
             card.setAnswer(rowIn.get(COLUMN_TEST_INDEX_ANSWER));
             long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt*60*60));
+            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt * 60 * 60));
             if (modifiedAt < 0) {
                 card.setDeletedAt(LocalDateTime.now());
             }
@@ -205,7 +194,7 @@ public class SyncExcelToDeckStepDefs {
                                 .replace("{i}", Integer.toString(i))
                 );
                 long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt*60*60));
+                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt * 60 * 60));
                 if (modifiedAt < 0) {
                     card.setDeletedAt(LocalDateTime.now());
                 }
@@ -237,7 +226,7 @@ public class SyncExcelToDeckStepDefs {
         }
     }
 
-    @Given(value = "Generate cards {int} times into the file:", timeout =  5 * 60 * 1000)
+    @Given(value = "Generate cards {int} times into the file:", timeout = 5 * 60 * 1000)
     public void generate_cards_times_into_the_file(
             Integer cardsNum, @NonNull DataTable dataTable) {
         for (int i = 1; i <= cardsNum; i++) {

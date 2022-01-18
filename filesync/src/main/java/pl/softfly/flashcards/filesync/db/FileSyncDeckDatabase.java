@@ -44,7 +44,7 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
         exportSchema = false,
         version = 1)
 @TypeConverters({Converters.class})
-public abstract class SyncDeckDatabase extends RoomDatabase {
+public abstract class FileSyncDeckDatabase extends RoomDatabase {
 
     public abstract CardDao cardDao();
 

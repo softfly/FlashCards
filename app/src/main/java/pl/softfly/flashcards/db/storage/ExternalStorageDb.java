@@ -3,32 +3,33 @@ package pl.softfly.flashcards.db.storage;
 import android.content.Context;
 import android.os.Environment;
 
-
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import pl.softfly.flashcards.BuildConfig;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.storage.AppStorageDbUtil;
 
 /**
+ * Database files are stored in shared storage.
+ *
  * @author Grzegorz Ziemski
  * @deprecated API level 30 (Android 11) blocks access to shared storage.
  */
-public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends AppStorageDbUtil<DB> {
+public abstract class ExternalStorageDb<DB extends RoomDatabase> extends StorageDb {
 
-    public ExternalStorageDbUtil(Context context) {
-        super(context);
+    protected Context appContext;
+
+    public ExternalStorageDb(Context appContext) {
+        this.appContext = appContext;
     }
 
     @NonNull
     @Override
-    public DB getDatabase(@NonNull String databaseName) {
+    public DB getDatabase(@NonNull String deckName) {
         return Room.databaseBuilder(
-                context,
+                appContext,
                 getTClass(),
-                getDbFolder() + "/" + validateName(databaseName)
+                getDbPath(deckName)
         ).build();
     }
 
@@ -36,7 +37,11 @@ public abstract class ExternalStorageDbUtil<DB extends RoomDatabase> extends App
     @Override
     protected String getDbFolder() {
         return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/" + context.getResources().getString(R.string.app_name) + "/";
+                + "/" + appContext.getResources().getString(R.string.app_name) + "/";
     }
+
+    @NonNull
+    @Override
+    protected abstract Class<DB> getTClass();
 
 }

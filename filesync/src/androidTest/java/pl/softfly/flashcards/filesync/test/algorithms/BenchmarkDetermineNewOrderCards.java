@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 
 import pl.softfly.flashcards.filesync.algorithms.DetermineNewOrderCards;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 
 /**
  * @author Grzegorz Ziemski
@@ -20,7 +20,7 @@ public class BenchmarkDetermineNewOrderCards extends DetermineNewOrderCards {
     public static final String TAG = "BenchmarkDetermineNewOrderCards";
 
     @Override
-    public void determineNewOrderCards(@NonNull SyncDeckDatabase deckDb, @NonNull LocalDateTime fileLastSyncAt) {
+    public void determineNewOrderCards(@NonNull FileSyncDeckDatabase deckDb, @NonNull LocalDateTime fileLastSyncAt) {
         long start = Instant.now().toEpochMilli();
         super.determineNewOrderCards(deckDb, fileLastSyncAt);
 

@@ -23,6 +23,7 @@ public class SetUpAutoSyncFileDialog extends DialogFragment {
     /**
      * 3. Set up the file to auto-sync in the future.
      */
+    @NonNull
     protected DialogInterface.OnClickListener positiveButton = (dialog, which) -> {
         fileSynced.setAutoSync(true);
         Toast.makeText(
@@ -33,6 +34,7 @@ public class SetUpAutoSyncFileDialog extends DialogFragment {
         andThen.run();
     };
 
+    @NonNull
     protected DialogInterface.OnClickListener negativeButton = (dialog, which) -> andThen.run();
 
     public SetUpAutoSyncFileDialog(

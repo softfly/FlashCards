@@ -33,6 +33,7 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     private final Context appContext;
 
+    @NonNull
     private final Uri uriSynchronizedFile;
 
     private String fileName;

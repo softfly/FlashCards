@@ -2,6 +2,8 @@ package pl.softfly.flashcards;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -16,7 +18,7 @@ public class Config {
 
     private boolean testFilesExternalStorage;
 
-    protected Config(Context appContext) {
+    protected Config(@NonNull Context appContext) {
         try {
             InputStream is = appContext.getAssets().open("config.properties");
             Properties props = new Properties();
@@ -35,7 +37,7 @@ public class Config {
         }
     }
 
-    public static synchronized Config getInstance(Context context) {
+    public static synchronized Config getInstance(@NonNull Context context) {
         if (INSTANCE == null) {
             INSTANCE = new Config(context);
         }

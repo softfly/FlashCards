@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.DeckConfig;
-import pl.softfly.flashcards.filesync.db.SyncDatabaseUtil;
-import pl.softfly.flashcards.filesync.db.SyncDeckDatabase;
+import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
@@ -55,7 +55,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     protected final Context appContext;
     @Nullable
-    protected SyncDeckDatabase deckDb;
+    protected FileSyncDeckDatabase deckDb;
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
     protected ListCardsActivity listCardsActivity;
     protected FileSynced fileSynced;
@@ -699,7 +699,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     //@todo public visibility for testing
     @Nullable
-    public SyncDeckDatabase getDeckDB(@NonNull String deckName) {
-        return SyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
+    public FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
+        return FileSyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
     }
 }
