@@ -17,7 +17,7 @@ import pl.softfly.flashcards.filesync.task.SyncExcelToDeckTask;
 import pl.softfly.flashcards.filesync.ui.EditingDeckLockedDialog;
 import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 /**
@@ -43,7 +43,7 @@ public class FileSyncBean implements FileSync {
     public void syncFile(
             @NonNull String deckName,
             @NonNull Uri uri,
-            @NonNull ListCardsActivity listCardsActivity
+            @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
             deckDb = FileSyncDatabaseUtil
@@ -100,7 +100,7 @@ public class FileSyncBean implements FileSync {
     public void exportFile(
             @NonNull String deckName,
             @NonNull Uri uri,
-            @NonNull ListCardsActivity listCardsActivity
+            @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
             deckDb = FileSyncDatabaseUtil
@@ -133,7 +133,7 @@ public class FileSyncBean implements FileSync {
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(blockedAt -> {
-                    if (LongTasksExecutor.getInstance().isEmpty()) {
+                    if (!LongTasksExecutor.getInstance().isAlive()) {
                         andThen.run();
                     } else {
                         // 1.1 If Yes, display a message that deck editing is blocked and end use case.

@@ -130,7 +130,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     //@todo Public for mocking
     //@todo try DI instead of ServiceLocator
-    public String findFreeDeckName(String deckName) {
+    public String findFreeDeckName(@NonNull String deckName) {
         return AppDatabaseUtil
                 .getInstance(appContext)
                 .getStorageDb()

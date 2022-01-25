@@ -23,9 +23,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.filesync.R;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -37,7 +36,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         super(appContext, determineNewOrderCards);
     }
 
-    public ExportExcelToDeck(@NonNull ListCardsActivity listCardsActivity) {
+    public ExportExcelToDeck(@NonNull FileSyncListCardsActivity listCardsActivity) {
         super(listCardsActivity);
     }
 
@@ -78,6 +77,8 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         // 1. Purge sync entities in the database before starting.
         deckDb.cardEdgeDao().forceDeleteAll();
         deckDb.cardImportedDao().deleteAll();
+
+        lockDeckEditing();
 
         // 4. Find added/removed cards between deck and imported file.
         // 4.2. Find added/removed cards between deck and imported file.

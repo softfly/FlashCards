@@ -3,14 +3,16 @@ package pl.softfly.flashcards.dao;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Completable;
 import pl.softfly.flashcards.entity.Card;
@@ -43,6 +45,10 @@ public abstract class CardDao {
     @Query("SELECT * FROM Core_Card WHERE id=:id")
     public abstract Card findById(int id);
 
+    @NonNull
+    @Query("SELECT * FROM Core_Card WHERE id IN (:ids) ORDER BY ordinal")
+    public abstract List<Card> findByIds(int[] ids);
+
     @Insert
     public abstract long insert(Card card);
 
@@ -58,26 +64,32 @@ public abstract class CardDao {
     @Update
     public abstract void updateAll(List<Card> cards);
 
-    @Query("UPDATE Core_Card SET ordinal=ordinal-1 " +
-            "WHERE ordinal>:oldOrdinal AND ordinal<=:newOrdinal")
-    protected abstract void decreaseOrdinalByBetweenEqual(int oldOrdinal, int newOrdinal);
+    @Query("UPDATE Core_Card SET ordinal=ordinal-:decrease " +
+            "WHERE deletedAt IS NULL AND ordinal>:greaterThan AND ordinal<=:lessThanEqual")
+    protected abstract void decreaseOrdinalByBetween(int decrease, int greaterThan, int lessThanEqual);
+
+    @Query("UPDATE Core_Card SET ordinal=ordinal-:decrease " +
+            "WHERE deletedAt IS NULL AND ordinal>:greaterThan")
+    protected abstract void decreaseOrdinalByGreaterThan(int decrease, int greaterThan);
 
     @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
-            "WHERE ordinal>:newOrdinal AND ordinal<:oldOrdinal")
-    protected abstract void increaseOrdinalByBetween(int newOrdinal, int oldOrdinal);
+            "WHERE deletedAt IS NULL AND ordinal>=:greaterThanEqual AND ordinal<:lessThan")
+    protected abstract void increaseOrdinalByBetween(int greaterThanEqual, int lessThan);
 
     @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
-            "WHERE ordinal>=:newOrdinal")
-    protected abstract void increaseOrdinalByGreaterThanEqual(int newOrdinal);
+            "WHERE deletedAt IS NULL AND ordinal>=:greaterThanEqual")
+    protected abstract void increaseOrdinalByGreaterThanEqual(int greaterThanEqual);
 
     @Transaction
-    public void changeCardOrdinal(@NonNull Card card, int afterOrdinal) {
-        if (afterOrdinal > card.getOrdinal()) {
-            decreaseOrdinalByBetweenEqual(card.getOrdinal(), afterOrdinal);
-            card.setOrdinal(afterOrdinal);
+    public void changeCardOrdinal(@NonNull Card card, int newOrdinal) {
+        if (card.getOrdinal() == newOrdinal) {
+            throw new RuntimeException("Move to the same place.");
+        } else if (newOrdinal > card.getOrdinal()) {
+            decreaseOrdinalByBetween(1, card.getOrdinal(), newOrdinal);
+            card.setOrdinal(newOrdinal);
         } else {
-            increaseOrdinalByBetween(afterOrdinal, card.getOrdinal());
-            card.setOrdinal(afterOrdinal+1);
+            increaseOrdinalByBetween(newOrdinal, card.getOrdinal());
+            card.setOrdinal(newOrdinal);
         }
         card.setModifiedAt(LocalDateTime.now());
         updateAll(card);
@@ -93,9 +105,51 @@ public abstract class CardDao {
 
     @Transaction
     public void insertAtEnd(@NonNull Card card) {
-        card.setOrdinal(this.lastOrdinal()+1);
+        card.setOrdinal(lastOrdinal() + 1);
         card.setModifiedAt(LocalDateTime.now());
         insertAll(card);
+    }
+
+    @NonNull
+    @Query("UPDATE Core_Card " +
+            "SET deletedAt=strftime('%s', CURRENT_TIMESTAMP) " +
+            "WHERE id=:cardId")
+    protected abstract void setDeletedAt(int cardId);
+
+    /**
+     * Delete and refresh ordinal numbers for all not removed cards.
+     */
+    @Transaction
+    protected void delete(@NonNull Card card) {
+        setDeletedAt(card.getId());
+        decreaseOrdinalByGreaterThan(1, card.getOrdinal());
+    }
+
+    /**
+     * Delete and refresh ordinal numbers for all not removed cards.
+     */
+    @NonNull
+    public Completable deleteAsync(@NonNull Card card) {
+        return Completable.fromAction(() -> delete(card));
+    }
+
+    /**
+     * Delete and refresh ordinal numbers for all not removed cards.
+     */
+    @Transaction
+    public void delete(@NonNull Collection<Card> cards) {
+        List<Card> sorted = cards.stream()
+                .sorted(Comparator.comparing(Card::getOrdinal))
+                .collect(Collectors.toList());
+        Card card1 = sorted.remove(0);
+        int deleted = 1;
+        for (Card card2 : sorted) {
+            setDeletedAt(card1.getId());
+            decreaseOrdinalByBetween(deleted++, card1.getOrdinal(), card2.getOrdinal());
+            card1 = card2;
+        }
+        setDeletedAt(card1.getId());
+        decreaseOrdinalByGreaterThan(deleted, card1.getOrdinal());
     }
 
     @Query("DELETE FROM Core_Card WHERE deletedAt IS NOT NULL")

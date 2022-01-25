@@ -14,8 +14,9 @@
     </item>
     <item
         android:id="@+id/export_excel"
-        android:icon="@drawable/ic_sharp_sync_24"
+        android:icon="@drawable/ic_round_file_upload_24"
         app:showAsAction="never"
+        android:visible="false"
         android:title="Export to new Excel">
     </item>
 </menu>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:stretchColumns="1"
-    tools:context=".ui.cards.ListCardsActivity">
+    tools:context=".ui.cards.file_sync.FileSyncListCardsActivity">
 
     <TableLayout
         android:id="@+id/tableLayout"
@@ -35,7 +35,7 @@
                 android:paddingTop="6dp"
                 android:paddingEnd="6dp"
                 android:paddingBottom="6dp"
-                android:text="Question"
+                android:text="Term"
                 android:textColor="?attr/colorOnPrimary" />
 
             <TextView
@@ -44,7 +44,7 @@
                 android:paddingTop="6dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="6dp"
-                android:text="Answer"
+                android:text="Definition"
                 android:textColor="?attr/colorOnPrimary" />
 
         </TableRow>
@@ -56,5 +56,19 @@
             android:scrollbars="vertical" />
 
     </TableLayout>
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/editingLocked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corner_top"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="8dp"
+        android:text="Deck editing is locked. Sync in progress..."
+        android:textColor="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

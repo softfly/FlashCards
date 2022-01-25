@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/deselect_all"
+        android:icon="@drawable/ic_baseline_deselect_24"
+        app:showAsAction="ifRoom"
+        android:title="Deselect all">
+    </item>
+    <item
+        android:id="@+id/delete_selected"
+        android:icon="@drawable/ic_baseline_delete_sweep_24"
+        app:showAsAction="ifRoom"
+        android:title="Delete cards">
+    </item>
+</menu>

@@ -52,18 +52,20 @@ public class ListDecksActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String[]> importExcel =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
-                    uri -> {
-                        if (uri != null) FileSync.getInstance().importFile(uri, listDecksActivity);
+                    importedExcelUri -> {
+                        if (importedExcelUri != null)
+                            FileSync.getInstance().importFile(importedExcelUri, listDecksActivity);
                     }
             );
 
-    private final ActivityResultLauncher<String[]> importDbDeck = registerForActivityResult(
-            new ActivityResultContracts.OpenDocument(),
-            importedDbUri -> {
-                if (importedDbUri != null)
-                    importDbDeck(importedDbUri);
-            }
-    );
+    private final ActivityResultLauncher<String[]> importDbDeck =
+            registerForActivityResult(
+                    new ActivityResultContracts.OpenDocument(),
+                    importedDbUri -> {
+                        if (importedDbUri != null)
+                            importDbDeck(importedDbUri);
+                    }
+            );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +86,11 @@ public class ListDecksActivity extends AppCompatActivity {
 
     protected void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.deck_list_view);
-        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(
+                new DividerItemDecoration(
+                        recyclerView.getContext(), DividerItemDecoration.VERTICAL
+                )
+        );
         deckRecyclerViewAdapter = new DeckRecyclerViewAdapter(this, deckNames);
         recyclerView.setAdapter(deckRecyclerViewAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -164,36 +170,41 @@ public class ListDecksActivity extends AppCompatActivity {
 
     protected void createSampleDeck() {
         String deckName = "Sample Deck";
-        AppDatabaseUtil
+        if (!AppDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getStorageDb()
-                .removeDatabase(deckName);
+                .exists(deckName)) {
+            AppDatabaseUtil
+                    .getInstance(getApplicationContext())
+                    .getStorageDb()
+                    .removeDatabase(deckName);
 
-        DeckDatabase deckDB = AppDatabaseUtil
-                .getInstance(getApplicationContext())
-                .getDeckDatabase(deckName);
+            DeckDatabase deckDB = AppDatabaseUtil
+                    .getInstance(getApplicationContext())
+                    .getDeckDatabase(deckName);
 
-        int NUM_CARDS = 20;
-        Card[] cards = new Card[NUM_CARDS];
-        for (int i = 0; i < NUM_CARDS; i++) {
-            StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
-            StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
-            for (int ii = 0; ii < 10; ii++) {
-                questionBuilder.append("\n Sample question ").append(i + 1);
-                answerBuilder.append("\n Sample answer ").append(i + 1);
+            int NUM_CARDS = 20;
+            Card[] cards = new Card[NUM_CARDS];
+            for (int i = 0; i < NUM_CARDS; i++) {
+                StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
+                StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
+                for (int ii = 0; ii < 10; ii++) {
+                    questionBuilder.append("\n Sample question ").append(i + 1);
+                    answerBuilder.append("\n Sample answer ").append(i + 1);
+                }
+                Card card = new Card();
+                card.setOrdinal(i + 1);
+                card.setQuestion(questionBuilder.toString());
+                card.setAnswer(answerBuilder.toString());
+                card.setModifiedAt(LocalDateTime.now());
+                cards[i] = card;
             }
-            Card card = new Card();
-            card.setOrdinal(i + 1);
-            card.setQuestion(questionBuilder.toString());
-            card.setAnswer(answerBuilder.toString());
-            card.setModifiedAt(LocalDateTime.now());
-            cards[i] = card;
-        }
 
-        deckDB.cardDaoAsync().insertAll(cards)
-                .subscribeOn(Schedulers.io())
-                .doOnError(Throwable::printStackTrace)
-                .doOnComplete(() -> runOnUiThread(this::loadDecks))
-                .subscribe();
+            deckDB.cardDaoAsync().insertAll(cards)
+                    .subscribeOn(Schedulers.io())
+                    .doOnError(Throwable::printStackTrace)
+                    .doOnComplete(() -> runOnUiThread(this::loadDecks))
+                    .subscribe();
+        }
     }
 }

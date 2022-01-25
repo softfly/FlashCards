@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.Task;
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -25,7 +25,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     protected final Uri uriSynchronizedFile;
     @NonNull
-    protected final ListCardsActivity listCardsActivity;
+    protected final FileSyncListCardsActivity listCardsActivity;
     protected final Context appContext;
     protected final String deckName;
     protected String mimeType;
@@ -35,7 +35,7 @@ public class SyncExcelToDeckTask implements Callable<Object>, Task<Object> {
     public SyncExcelToDeckTask(String deckName,
                                FileSynced fileSynced,
                                Uri uriSynchronizedFile,
-                               @NonNull ListCardsActivity listCardsActivity
+                               @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         this.deckName = deckName;
         this.fileSynced = fileSynced;

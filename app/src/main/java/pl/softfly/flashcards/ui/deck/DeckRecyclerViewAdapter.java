@@ -28,7 +28,7 @@ import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.study.DraggableStudyCardActivity;
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -149,7 +149,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
                 popup.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.listCards: {
-                            Intent intent = new Intent(activity, ListCardsActivity.class);
+                            Intent intent = new Intent(activity, FileSyncListCardsActivity.class);
                             intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
                             activity.startActivity(intent);
                             return true;

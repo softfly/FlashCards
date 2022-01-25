@@ -25,10 +25,14 @@ public class LongTasksExecutor {
 
     private Thread executorThread;
 
+    @NonNull
+    private Boolean alive = false;
+
     protected LongTasksExecutor() {
     }
 
     public synchronized void doTask(Task<Object> newTask) {
+        setAlive(true);
         tasksQ.add(newTask);
         if (executorThread == null || !executorThread.isAlive()) {
             executorThread = new Thread(() -> {
@@ -44,6 +48,7 @@ public class LongTasksExecutor {
                         task.error(e);
                     }
                 }
+                setAlive(false);
                 executorService.shutdown();
             });
             executorThread.start();
@@ -57,7 +62,15 @@ public class LongTasksExecutor {
         return INSTANCE;
     }
 
-    public boolean isEmpty() {
-        return tasksQ.isEmpty();
+    public boolean isAlive() {
+        synchronized (alive) {
+            return alive;
+        }
+    }
+
+    private void setAlive(@NonNull Boolean alive) {
+        synchronized (alive) {
+            this.alive = alive;
+        }
     }
 }

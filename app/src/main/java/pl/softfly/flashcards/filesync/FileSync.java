@@ -4,7 +4,7 @@ import android.net.Uri;
 
 import androidx.annotation.Nullable;
 
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public interface FileSync {
@@ -18,7 +18,7 @@ public interface FileSync {
     void syncFile(
             String deckName,
             Uri uri,
-            ListCardsActivity listCardsActivity
+            FileSyncListCardsActivity listCardsActivity
     );
 
     /**
@@ -32,7 +32,7 @@ public interface FileSync {
     void exportFile(
             String deckName,
             Uri uri,
-            ListCardsActivity listCardsActivity
+            FileSyncListCardsActivity listCardsActivity
     );
 
     @Nullable

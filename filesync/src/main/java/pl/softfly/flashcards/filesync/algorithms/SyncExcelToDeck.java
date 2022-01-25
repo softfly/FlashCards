@@ -9,13 +9,9 @@ import androidx.annotation.Nullable;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
@@ -38,7 +34,7 @@ import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.ui.cards.ListCardsActivity;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * Sync changes between the current deck and the file.
@@ -57,7 +53,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
-    protected ListCardsActivity listCardsActivity;
+    protected FileSyncListCardsActivity listCardsActivity;
     protected FileSynced fileSynced;
     @Nullable
     protected LocalDateTime newLastSyncAt;
@@ -71,7 +67,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         this.determineNewOrderCards = determineNewOrderCards;
     }
 
-    public SyncExcelToDeck(@NonNull ListCardsActivity listCardsActivity) {
+    public SyncExcelToDeck(@NonNull FileSyncListCardsActivity listCardsActivity) {
         this.listCardsActivity = listCardsActivity;
         this.appContext = listCardsActivity.getApplicationContext();
     }
@@ -97,9 +93,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         if (getQuestionIndex() == -1 && getAnswerIndex() == -1)
             throw new Exception("No cards in the file.");
 
-        // Lock deck for editing while syncing.
-        lockDeckEditing();
-
         // @todo desc lastSync
         if (fileSynced.getLastSyncAt() == null) {
             fileSynced.setLastSyncAt(this.newLastSyncAt);
@@ -112,6 +105,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         // 1. Purge sync entities in the database before starting.
         deckDb.cardEdgeDao().forceDeleteAll();
         deckDb.cardImportedDao().deleteAll();
+
+        lockDeckEditing();
 
         // 2. Import cards {@link CardImported} and merge to the same deck card {@link Card}.
         importAndMatchCardsFromImportedFile();
@@ -155,6 +150,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected void lockDeckEditing() {
+        listCardsActivity.lockEditing();
         DeckConfig deckConfig = deckDb.deckConfigDao()
                 .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
 
@@ -176,6 +172,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected void unlockDeckEditing() {
+        listCardsActivity.unlockEditing();
         DeckConfig deckConfig = deckDb.deckConfigDao()
                 .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
         if (deckConfig != null) {

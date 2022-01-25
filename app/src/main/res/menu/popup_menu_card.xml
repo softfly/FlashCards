@@ -1,19 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/edit_card"
-        android:title="Edit card" />
+        android:id="@+id/edit"
+        android:title="Edit" />
     <item
-        android:id="@+id/remove_card"
-        android:title="Remove card" />
+        android:id="@+id/delete"
+        android:title="Delete" />
     <item
-        android:id="@+id/cut_card"
-        android:title="Cut card" />
+        android:id="@+id/select"
+        android:title="Select / Cut"
+        android:visible="false"/>
     <item
-        android:id="@+id/paste_card"
-        android:visible="false"
-        android:title="Paste card" />
+        android:id="@+id/paste"
+        android:title="Paste"
+        android:visible="false"/>
     <item
-        android:id="@+id/add_card"
+        android:id="@+id/add"
         android:title="Add a new card here" />
 
 </menu>

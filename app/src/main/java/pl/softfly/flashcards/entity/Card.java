@@ -2,7 +2,6 @@ package pl.softfly.flashcards.entity;
 
 import androidx.room.Embedded;
 import androidx.room.Entity;
-import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.time.LocalDateTime;
@@ -85,5 +84,18 @@ public class Card {
 
     public void setLearningProgress(CardLearningProgress learningProgress) {
         this.learningProgress = learningProgress;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Card) {
+            return id.equals(((Card) obj).getId());
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }
