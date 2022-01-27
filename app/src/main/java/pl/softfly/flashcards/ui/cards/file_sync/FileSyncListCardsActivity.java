@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -41,6 +42,8 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     private ItemTouchHelper itemTouchHelper;
 
+    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+
     @Nullable
     private FileSync fileSync = FileSync.getInstance();
 
@@ -52,7 +55,6 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                             fileSync.syncFile(getDeckName(), syncedExcelUri, this);
                     }
             );
-
 
     private final ActivityResultLauncher<String> exportExcel =
             registerForActivityResult(
@@ -117,7 +119,11 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                                 }
                             }
                         })
-                        .subscribe();
+                        .subscribe(deckConfig -> {}, e -> exceptionHandler.handleException(
+                                e, getSupportFragmentManager(),
+                                FileSyncListCardsActivity.class.getSimpleName() + "_CheckIfEditingIsLocked",
+                                (dialog, which) -> onBackPressed()
+                        ));
 
             }
         });
@@ -145,6 +151,11 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        return isEditingUnlocked() && super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sync_excel:
@@ -155,11 +166,6 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        return isEditingUnlocked() && super.onCreateOptionsMenu(menu);
     }
 
     @Nullable

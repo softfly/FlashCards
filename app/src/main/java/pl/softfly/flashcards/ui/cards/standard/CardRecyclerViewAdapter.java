@@ -13,17 +13,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity;
@@ -36,6 +35,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     @Nullable
     protected DeckDatabase deckDb;
     private int idTextViewWidth = 0;
+    private ExceptionHandler exceptionHandler = new ExceptionHandler();
 
     public CardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         this.activity = activity;
@@ -85,7 +85,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                     else
                         this.notifyItemRangeChanged(positionStart, itemCount);
                 }))
-                .subscribe();
+                .subscribe(cards1 -> { },
+                        e -> exceptionHandler.handleException(
+                                e, activity.getSupportFragmentManager(),
+                                CardRecyclerViewAdapter.class.getSimpleName() + "_LoadCards",
+                                (dialog, which) -> activity.onBackPressed()
+                        ));
     }
 
     private int calcIdTextViewWidth() {
@@ -109,10 +114,11 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                     ).show();
                 }))
                 .subscribe(() -> {
-                }, e -> ExceptionDialog.showExceptionDialog(
-                        e, activity.getSupportFragmentManager(),
-                        "DeleteCard"
-                ));
+                        },
+                        e -> exceptionHandler.handleException(
+                                e, activity.getSupportFragmentManager(),
+                                CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard"
+                        ));
     }
 
     @Override

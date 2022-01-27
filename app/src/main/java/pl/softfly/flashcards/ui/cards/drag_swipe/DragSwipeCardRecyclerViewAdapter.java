@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
@@ -20,6 +20,8 @@ public class DragSwipeCardRecyclerViewAdapter
         extends CardRecyclerViewAdapter {
 
     private ItemTouchHelper touchHelper;
+
+    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
 
     public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         super(activity, deckName);
@@ -45,10 +47,9 @@ public class DragSwipeCardRecyclerViewAdapter
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(this::loadCards)
                 .subscribe(() -> {
-                }, e -> ExceptionDialog.showExceptionDialog(
-                        "Move Card", e,
-                        getActivity().getSupportFragmentManager(),
-                        "MoveCard"
+                }, e -> exceptionHandler.handleException(
+                        e, getActivity().getSupportFragmentManager(),
+                        DragSwipeCardRecyclerViewAdapter.class.getSimpleName() + "MoveCard"
                 ));
     }
 

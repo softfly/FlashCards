@@ -23,41 +23,24 @@ public class ExceptionDialog extends DialogFragment {
 
     private AlertDialog alertDialog;
 
+    private DialogInterface.OnClickListener positiveListener;
+
     public ExceptionDialog(Throwable e) {
-        this.e = e;
+        this(e, null, null);
     }
 
-    public ExceptionDialog(String message, Throwable e) {
+    public ExceptionDialog(Throwable e, DialogInterface.OnClickListener positiveListener) {
+        this(e, null, positiveListener);
+    }
+
+    public ExceptionDialog(Throwable e, String message) {
+        this(e, message, null);
+    }
+
+    public ExceptionDialog(Throwable e, String message, DialogInterface.OnClickListener positiveListener) {
+        this.e = e;
         this.message = message;
-        this.e = e;
-    }
-
-    public static void showExceptionDialog(@NonNull Throwable e, @NonNull FragmentManager manager, String tag) {
-        e.printStackTrace();
-        ExceptionDialog dialog = new ExceptionDialog(e);
-        dialog.show(manager, tag);
-    }
-
-    public static void showExceptionDialog(String message, @NonNull Throwable e, @NonNull FragmentManager manager, String tag) {
-        e.printStackTrace();
-        ExceptionDialog dialog = new ExceptionDialog(message, e);
-        dialog.show(manager, tag);
-    }
-
-    public static void showExceptionDialog(@NonNull Runnable r, String message, @NonNull FragmentManager manager, String tag) {
-        try {
-            r.run();
-        } catch (Exception e) {
-            showExceptionDialog(message, e, manager, tag);
-        }
-    }
-
-    public static void showExceptionDialog(@NonNull Runnable r, @NonNull FragmentManager manager, String tag) {
-        try {
-            r.run();
-        } catch (Exception e) {
-            showExceptionDialog(e, manager, tag);
-        }
+        this.positiveListener = positiveListener != null ? positiveListener : (dialog, which) -> {} ;
     }
 
     @NonNull
@@ -66,7 +49,7 @@ public class ExceptionDialog extends DialogFragment {
         alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Error")
                 .setMessage(nonEmpty(message) ? message : e.getMessage())
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {})
+                .setPositiveButton(android.R.string.ok, positiveListener)
                 .setNegativeButton("Show Exception", (dialog, which) -> {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -79,7 +62,7 @@ public class ExceptionDialog extends DialogFragment {
     }
 
     protected void showException(@NonNull View view) {
-        TextView messageTextView = (TextView) alertDialog.findViewById(android.R.id.message);
+        TextView messageTextView = alertDialog.findViewById(android.R.id.message);
         messageTextView.setText(ExceptionUtils.getStackTrace(e));
         Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setText("Hide Exception");
@@ -87,7 +70,7 @@ public class ExceptionDialog extends DialogFragment {
     }
 
     protected void hideException(View view) {
-        TextView messageTextView = (TextView) alertDialog.findViewById(android.R.id.message);
+        TextView messageTextView = alertDialog.findViewById(android.R.id.message);
         messageTextView.setText(nonEmpty(message) ? message : e.getMessage());
         Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setText("Show Exception");

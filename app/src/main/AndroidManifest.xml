@@ -33,13 +33,13 @@
         </activity>
         <activity
             android:name=".ui.card.EditCardActivity"
-            android:parentActivityName=".ui.cards.file_sync.FileSyncListCardsActivity">
+            android:parentActivityName=".ui.cards.exception.ExceptionListCardsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.cards.file_sync.FileSyncListCardsActivity" />
+                android:value=".ui.cards.exception.ExceptionListCardsActivity" />
         </activity>
         <activity
-            android:name=".ui.cards.file_sync.FileSyncListCardsActivity"
+            android:name=".ui.cards.exception.ExceptionListCardsActivity"
             android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

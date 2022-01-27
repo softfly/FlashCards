@@ -28,6 +28,7 @@ import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.study.DraggableStudyCardActivity;
+import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
@@ -111,7 +112,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
                     .doOnSuccess(count -> activity.runOnUiThread(() -> {
                         holder.totalTextView.setText("Total: " + count);
                     }))
-                    .subscribe();
+                    .subscribe(integer -> {}, throwable -> {});
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog dialog = new ExceptionDialog(e);
@@ -149,7 +150,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
                 popup.setOnMenuItemClickListener(item -> {
                     switch (item.getItemId()) {
                         case R.id.listCards: {
-                            Intent intent = new Intent(activity, FileSyncListCardsActivity.class);
+                            Intent intent = new Intent(activity, ExceptionListCardsActivity.class);
                             intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
                             activity.startActivity(intent);
                             return true;

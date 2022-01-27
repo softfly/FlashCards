@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 
@@ -120,9 +119,9 @@ public class SelectCardRecyclerViewAdapter
                             ).show());
                 })
                 .subscribe(() -> {
-                }, e -> ExceptionDialog.showExceptionDialog(
+                }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
-                        "OnClickDeleteSelected"
+                        SelectCardRecyclerViewAdapter.class.getSimpleName() + "OnClickDeleteSelected"
                 ));
     }
 
@@ -170,9 +169,9 @@ public class SelectCardRecyclerViewAdapter
                         minPosition, maxPosition - minPosition
                 ))
                 .subscribe(() -> {
-                }, e -> ExceptionDialog.showExceptionDialog(
+                }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
-                        "OnClickPasteCards"
+                        SelectCardRecyclerViewAdapter.class.getSimpleName() + "_OnClickPasteCards"
                 ));
     }
 

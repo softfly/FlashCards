@@ -106,10 +106,11 @@ public class ImportExcelToDeckTask implements Callable<Object>, Task<Object> {
 
     public void error(@NonNull Exception e) {
         e.printStackTrace();
+        /*
         ExceptionDialog dialog = new ExceptionDialog(
                 MessageFormat.format("\"{0}\" could not be imported.", fileName),
                 e
-        );
-        dialog.show(listDecksActivity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
+        );*/
+        //dialog.show(listDecksActivity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
     }
 }
