@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
@@ -29,12 +30,18 @@ public class ListCardsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_cards);
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_list_cards);
 
-        Intent intent = getIntent();
-        deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
-        initRecyclerView();
+            Intent intent = getIntent();
+            deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
+            initRecyclerView();
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog dialog = new ExceptionDialog(e);
+            dialog.show(getSupportFragmentManager(), "ListCardsActivity");
+        }
     }
 
     protected void initRecyclerView() {

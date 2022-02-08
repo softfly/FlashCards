@@ -1,22 +1,32 @@
 package pl.softfly.flashcards.filesync;
 
+import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
-import pl.softfly.flashcards.filesync.task.ExportExcelFromDeckTask;
-import pl.softfly.flashcards.filesync.task.ImportExcelToDeckTask;
-import pl.softfly.flashcards.filesync.task.SyncExcelToDeckTask;
+import pl.softfly.flashcards.filesync.worker.ExportExcelFromDeckWorker;
+import pl.softfly.flashcards.filesync.worker.ImportExcelToDeckWorker;
+import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
 import pl.softfly.flashcards.filesync.ui.EditingDeckLockedDialog;
 import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
-import pl.softfly.flashcards.tasks.LongTasksExecutor;
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
@@ -57,9 +67,8 @@ public class FileSyncBean implements FileSync {
                         .doOnSuccess(fileSynced -> setUpAutoSync(
                                 fileSynced,
                                 listCardsActivity,
-                                () -> LongTasksExecutor.getInstance().doTask(
-                                        new SyncExcelToDeckTask(deckName, fileSynced, uri, listCardsActivity)
-                                )
+                                () -> syncWorkRequest(deckName, fileSynced, listCardsActivity)
+
                         ))
                         .doOnEvent((value, error) -> {
                             if (value == null && error == null) {
@@ -68,13 +77,48 @@ public class FileSyncBean implements FileSync {
                                 setUpAutoSync(
                                         fileSynced,
                                         listCardsActivity,
-                                        () -> LongTasksExecutor.getInstance().doTask(
-                                                new SyncExcelToDeckTask(deckName, fileSynced, uri, listCardsActivity)
-                                        )
+                                        () -> syncWorkRequest(deckName, fileSynced, listCardsActivity)
                                 );
                             }
                         })
                         .subscribe());
+    }
+
+    protected void syncWorkRequest(
+            String deckName,
+            FileSynced fileSynced,
+            FileSyncListCardsActivity listCardsActivity
+    ) {
+        WorkRequest syncWorkRequest =
+                new OneTimeWorkRequest.Builder(SyncExcelToDeckWorker.class)
+                        .setInputData(createInputData(deckName, fileSynced))
+                        .addTag(TAG)
+                        .build();
+
+        WorkManager workManager = WorkManager.getInstance(listCardsActivity.getApplicationContext());
+        workManager.enqueue(syncWorkRequest);
+
+        workManager.getWorkInfoByIdLiveData(syncWorkRequest.getId())
+                .observe(listCardsActivity, workInfo -> {
+                    if (workInfo.getState() != null
+                            && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                        if (listCardsActivity
+                                .getLifecycle()
+                                .getCurrentState()
+                                .isAtLeast(Lifecycle.State.RESUMED)
+                        ) {
+                            listCardsActivity.onRestart();
+                        }
+                    }
+                });
+    }
+
+    protected Data createInputData(String deckName, FileSynced fileSynced) {
+        return new Data.Builder()
+                .putString(SyncExcelToDeckWorker.DECK_NAME, deckName)
+                .putString(SyncExcelToDeckWorker.FILE_URI, fileSynced.getUri())
+                .putBoolean(SyncExcelToDeckWorker.AUTO_SYNC, fileSynced.isAutoSync())
+                .build();
     }
 
     /**
@@ -87,10 +131,39 @@ public class FileSyncBean implements FileSync {
         setUpAutoSync(
                 fileSynced,
                 listDecksActivity,
-                () -> LongTasksExecutor.getInstance().doTask(
-                        new ImportExcelToDeckTask(listDecksActivity, uri)
-                )
+                () -> importWorkRequest(fileSynced, listDecksActivity)
         );
+    }
+
+    protected void importWorkRequest(
+            FileSynced fileSynced,
+            ListDecksActivity listDecksActivity
+    ) {
+        WorkRequest syncWorkRequest =
+                new OneTimeWorkRequest.Builder(ImportExcelToDeckWorker.class)
+                        .setInputData(
+                                new Data.Builder()
+                                        .putString(ImportExcelToDeckWorker.FILE_URI, fileSynced.getUri())
+                                        .putBoolean(ImportExcelToDeckWorker.AUTO_SYNC, fileSynced.isAutoSync())
+                                        .build())
+                        .addTag(TAG)
+                        .build();
+
+        WorkManager workManager = WorkManager.getInstance(listDecksActivity.getApplicationContext());
+        workManager.enqueue(syncWorkRequest);
+        workManager.getWorkInfoByIdLiveData(syncWorkRequest.getId())
+                .observe(listDecksActivity, workInfo -> {
+                    if (workInfo.getState() != null
+                            && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                        if (listDecksActivity
+                                .getLifecycle()
+                                .getCurrentState()
+                                .isAtLeast(Lifecycle.State.RESUMED)
+                        ) {
+                            listDecksActivity.loadDecks();
+                        }
+                    }
+                });
     }
 
     /**
@@ -113,16 +186,20 @@ public class FileSyncBean implements FileSync {
             setUpAutoSync(
                     fileSynced,
                     listCardsActivity,
-                    () -> LongTasksExecutor.getInstance().doTask(
-                            new ExportExcelFromDeckTask(
-                                    deckName,
-                                    fileSynced,
-                                    uri,
-                                    listCardsActivity
-                            )
-                    )
+                    () -> exportWorkRequest(deckName, fileSynced, listCardsActivity.getApplicationContext())
             );
         });
+    }
+
+    protected void exportWorkRequest(String deckName, FileSynced fileSynced, Context context) {
+        WorkRequest syncWorkRequest =
+                new OneTimeWorkRequest.Builder(ExportExcelFromDeckWorker.class)
+                        .setInputData(createInputData(deckName, fileSynced))
+                        .addTag(TAG)
+                        .build();
+        WorkManager
+                .getInstance(context)
+                .enqueue(syncWorkRequest);
     }
 
     /**
@@ -133,7 +210,9 @@ public class FileSyncBean implements FileSync {
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(blockedAt -> {
-                    if (!LongTasksExecutor.getInstance().isAlive()) {
+                    WorkManager workManager = WorkManager.getInstance(activity.getApplicationContext());
+                    ListenableFuture<List<WorkInfo>> statuses = workManager.getWorkInfosByTag(FileSync.TAG);
+                    if (statuses.get().isEmpty()) {
                         andThen.run();
                     } else {
                         // 1.1 If Yes, display a message that deck editing is blocked and end use case.

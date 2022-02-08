@@ -21,6 +21,11 @@ allprojects {
     }
 }
 
+ext {
+    room_version = "2.3.0"
+    work_version = "2.6.0"
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

@@ -36,8 +36,8 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         super(appContext, determineNewOrderCards);
     }
 
-    public ExportExcelToDeck(@NonNull FileSyncListCardsActivity listCardsActivity) {
-        super(listCardsActivity);
+    public ExportExcelToDeck(@NonNull Context appContext) {
+        super(appContext);
     }
 
     public void syncExcelFile(

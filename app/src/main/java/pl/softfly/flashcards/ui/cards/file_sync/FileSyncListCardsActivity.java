@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.ui.cards.file_sync;
 
+import static pl.softfly.flashcards.filesync.FileSync.TAG;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
@@ -17,6 +18,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
@@ -25,7 +33,6 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.FileSync;
-import pl.softfly.flashcards.tasks.LongTasksExecutor;
 import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
 
 /**
@@ -43,6 +50,8 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
     private ItemTouchHelper itemTouchHelper;
 
     protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+
+    private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
     @Nullable
     private FileSync fileSync = FileSync.getInstance();
@@ -92,6 +101,11 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
         return new FileSyncCardTouchHelper(adapter);
     }
 
+    /**
+     * Unlock deck editing if any worker is working.
+     * In a properly running application this code should never be executed.
+     * That's just in case a worker fails and doesn't unlock the edit deck.
+     */
     private void checkIfEditingIsLocked() {
         Handler handler = new Handler(Looper.myLooper());
         handler.post(new Runnable() {
@@ -101,15 +115,20 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                         .subscribeOn(Schedulers.io())
                         .doOnError(Throwable::printStackTrace)
                         .doOnSuccess(deckConfig -> {
-                            if (!LongTasksExecutor.getInstance().isAlive()) {
+                            WorkManager workManager = WorkManager.getInstance(getApplicationContext());
+                            ListenableFuture<List<WorkInfo>> statuses = workManager.getWorkInfosByTag(FileSync.TAG);
+                            if (statuses.get().isEmpty()) {
                                 deckConfig.setValue(null);
                                 deckDb.deckConfigDao().update(deckConfig);
-                                if (editingLocked) unlockEditing();
+                                if (editingLocked) {
+                                    unlockEditing();
+                                    crashlytics.setCustomKey("tag", TAG);
+                                    crashlytics.log("Emergency editing unlock, the worker has failed miserably.");
+                                }
                             } else if (!editingLocked) {
                                 lockEditing();
-                            } else {
-                                // Check back in a while
-                                handler.postDelayed(this, 1000);
+                            } else if (editingLocked) {
+                                handler.postDelayed(this, 5000);
                             }
                         })
                         .doOnEvent((value, error) -> {
@@ -124,12 +143,11 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                                 FileSyncListCardsActivity.class.getSimpleName() + "_CheckIfEditingIsLocked",
                                 (dialog, which) -> onBackPressed()
                         ));
-
             }
         });
     }
 
-    public void lockEditing() {
+    private void lockEditing() {
         editingLocked = true;
         itemTouchHelper = adapter.getTouchHelper();
         runOnUiThread(() -> {
@@ -140,7 +158,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
         adapter.setTouchHelper(null);
     }
 
-    public void unlockEditing() {
+    private void unlockEditing() {
         runOnUiThread(() -> {
             findViewById(R.id.editingLocked).setVisibility(View.INVISIBLE);
             itemTouchHelper.attachToRecyclerView(getRecyclerView());

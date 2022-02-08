@@ -1,6 +1,7 @@
 package pl.softfly.flashcards.dao;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -25,7 +26,7 @@ public interface DeckConfigAsyncDao {
     @NonNull
     @Query("SELECT * FROM DeckConfig WHERE `key`=:key")
     Maybe<DeckConfig> getByKey(String key);
-
+    
     @NonNull
     @Query("SELECT value FROM DeckConfig WHERE `key`=:key")
     Maybe<Long> getLongByKey(String key);

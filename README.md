@@ -12,5 +12,12 @@
         - C_D_07 Delete selected card(s)
         - C_U_08 Paste the card(s)
         - C_09 Deselect all cards
-- C_C_10 Add a new card at the end of the deck
+- C_C_10 Add a new card at the end of the deck.
 - C_C_11 Add a new card after the selected card.
+
+### File Sync
+
+- FS_I Import the Excel file as a new deck.
+- FS_S Synchronize the deck with an Excel file.
+- FS_E Export the deck to a new Excel file.
+- FS_A Automatically sync with Excel file when deck is opened or closed.

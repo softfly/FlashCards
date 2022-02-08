@@ -33,8 +33,6 @@ import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
-import pl.softfly.flashcards.tasks.LongTasksExecutor;
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * Sync changes between the current deck and the file.
@@ -45,6 +43,8 @@ import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
  */
 public class SyncExcelToDeck extends AbstractReadExcel {
 
+    private static final int THREAD_TIMEOUT_SECONDS = 60;
+
     public static final int MULTIPLE_ORDINAL = 1;
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
     protected static final int PAGE_LIMIT = 100;
@@ -53,7 +53,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
-    protected FileSyncListCardsActivity listCardsActivity;
     protected FileSynced fileSynced;
     @Nullable
     protected LocalDateTime newLastSyncAt;
@@ -67,9 +66,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         this.determineNewOrderCards = determineNewOrderCards;
     }
 
-    public SyncExcelToDeck(@NonNull FileSyncListCardsActivity listCardsActivity) {
-        this.listCardsActivity = listCardsActivity;
-        this.appContext = listCardsActivity.getApplicationContext();
+    public SyncExcelToDeck(@NonNull Context appContext) {
+        this.appContext = appContext;
     }
 
     public void syncExcelFile(
@@ -144,13 +142,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         if (fileSynced.isAutoSync()) {
             deckDb.fileSyncedDao().disableAutoSyncByIdNot(fileSynced.getId());
         }
-
-        if (listCardsActivity != null) listCardsActivity.onRestart();
         unlockDeckEditing();
     }
 
     protected void lockDeckEditing() {
-        listCardsActivity.lockEditing();
         DeckConfig deckConfig = deckDb.deckConfigDao()
                 .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
 
@@ -172,7 +167,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected void unlockDeckEditing() {
-        listCardsActivity.unlockEditing();
         DeckConfig deckConfig = deckDb.deckConfigDao()
                 .findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
         if (deckConfig != null) {
@@ -305,7 +299,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                 numCores,
                 numCores,
-                LongTasksExecutor.THREAD_TIMEOUT_SECONDS,
+                THREAD_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>()
         );
@@ -317,7 +311,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             cardImportedList = deckDb.cardImportedDao().findByCardNull(lastCardImportedId, perCore);
         }
         threadPoolExecutor.shutdown();
-        if (!threadPoolExecutor.awaitTermination(LongTasksExecutor.THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        if (!threadPoolExecutor.awaitTermination(THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
             threadPoolExecutor.shutdownNow();
         }
 

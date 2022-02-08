@@ -34,7 +34,6 @@ public class ExceptionCardRecyclerViewAdapter extends FileSyncCardRecyclerViewAd
         );
     }
 
-    @Override
     public ExceptionListCardsActivity getActivity() {
         return activity;
     }

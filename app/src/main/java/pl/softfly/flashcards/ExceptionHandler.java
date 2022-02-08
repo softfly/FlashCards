@@ -3,7 +3,9 @@ package pl.softfly.flashcards;
 import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -86,5 +88,33 @@ public class ExceptionHandler {
         crashlytics.recordException(e);
         ExceptionDialog dialog = new ExceptionDialog(e, message, positiveListener);
         dialog.show(manager, tag);
+    }
+
+    public void handleException(
+            @NonNull Throwable e,
+            @NonNull AppCompatActivity activity,
+            String tag
+    ) {
+        handleException(e, activity, tag, null, null);
+    }
+
+    public void handleException(
+            @NonNull Throwable e,
+            @NonNull AppCompatActivity activity,
+            String tag,
+            String message,
+            DialogInterface.OnClickListener positiveListener
+    ) {
+        e.printStackTrace();
+        crashlytics.setCustomKey("message", message);
+        crashlytics.setCustomKey("tag", tag);
+        crashlytics.recordException(e);
+
+        if (activity.getLifecycle()
+                .getCurrentState()
+                .isAtLeast(Lifecycle.State.RESUMED)) {
+            ExceptionDialog dialog = new ExceptionDialog(e, message, positiveListener);
+            dialog.show(activity.getSupportFragmentManager(), tag);
+        }
     }
 }
