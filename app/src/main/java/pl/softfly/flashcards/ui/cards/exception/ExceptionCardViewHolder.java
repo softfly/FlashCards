@@ -14,7 +14,7 @@ import pl.softfly.flashcards.ui.cards.file_sync.FileSyncCardViewHolder;
  */
 public class ExceptionCardViewHolder extends FileSyncCardViewHolder {
 
-    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
+    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public ExceptionCardViewHolder(
             @NonNull View itemView,

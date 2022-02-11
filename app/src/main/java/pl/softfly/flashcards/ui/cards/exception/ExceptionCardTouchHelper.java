@@ -12,7 +12,7 @@ import pl.softfly.flashcards.ui.cards.file_sync.FileSyncCardTouchHelper;
  */
 public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
 
-    private final ExceptionHandler exceptionHandler = new ExceptionHandler();
+    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     private final ExceptionCardRecyclerViewAdapter adapter;
 
     public ExceptionCardTouchHelper(ExceptionCardRecyclerViewAdapter adapter) {

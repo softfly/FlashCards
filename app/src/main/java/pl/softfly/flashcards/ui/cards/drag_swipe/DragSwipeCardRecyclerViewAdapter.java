@@ -21,7 +21,7 @@ public class DragSwipeCardRecyclerViewAdapter
 
     private ItemTouchHelper touchHelper;
 
-    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         super(activity, deckName);

@@ -41,7 +41,7 @@ public class SyncExcelToDeckWorker extends Worker {
     protected Long fileLastModifiedAt;
     protected FileSynced fileSynced;
     protected FileSyncDeckDatabase deckDb;
-    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public SyncExcelToDeckWorker(
             @NonNull Context context,

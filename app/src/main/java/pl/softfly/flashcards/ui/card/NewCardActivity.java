@@ -35,7 +35,7 @@ public class NewCardActivity extends AppCompatActivity {
 
     protected EditText answerEditText;
 
-    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -49,7 +49,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     private ItemTouchHelper itemTouchHelper;
 
-    protected ExceptionHandler exceptionHandler = new ExceptionHandler();
+    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 

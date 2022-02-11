@@ -35,7 +35,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     @Nullable
     protected DeckDatabase deckDb;
     private int idTextViewWidth = 0;
-    private ExceptionHandler exceptionHandler = new ExceptionHandler();
+    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public CardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         this.activity = activity;

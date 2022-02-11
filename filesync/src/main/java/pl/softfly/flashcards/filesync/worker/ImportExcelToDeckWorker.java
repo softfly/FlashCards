@@ -43,7 +43,7 @@ public class ImportExcelToDeckWorker extends Worker {
 
     private FileSynced fileSynced;
 
-    private ExceptionHandler exceptionHandler = new ExceptionHandler();
+    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public ImportExcelToDeckWorker(
             @NonNull Context context,
