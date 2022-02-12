@@ -96,9 +96,11 @@ public class ExceptionHandler {
             DialogInterface.OnClickListener positiveListener
     ) {
         e.printStackTrace();
-        crashlytics.setCustomKey("message", message);
-        crashlytics.setCustomKey("tag", tag);
-        crashlytics.recordException(e);
+        if (Config.getInstance().isCrashlyticsEnabled()) {
+            crashlytics.setCustomKey("message", message);
+            crashlytics.setCustomKey("tag", tag);
+            crashlytics.recordException(e);
+        }
         ExceptionDialog dialog = new ExceptionDialog(e, message, positiveListener);
         dialog.show(manager, tag);
     }
@@ -119,9 +121,11 @@ public class ExceptionHandler {
             DialogInterface.OnClickListener positiveListener
     ) {
         e.printStackTrace();
-        crashlytics.setCustomKey("message", message);
-        crashlytics.setCustomKey("tag", tag);
-        crashlytics.recordException(e);
+        if (Config.getInstance().isCrashlyticsEnabled()) {
+            crashlytics.setCustomKey("message", message);
+            crashlytics.setCustomKey("tag", tag);
+            crashlytics.recordException(e);
+        }
 
         if (activity.getLifecycle()
                 .getCurrentState()

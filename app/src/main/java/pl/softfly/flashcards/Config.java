@@ -14,24 +14,23 @@ public class Config {
 
     private static Config INSTANCE;
 
+    private Context appContext ;
+
     private boolean databaseExternalStorage;
 
     private boolean testFilesExternalStorage;
 
     protected Config(@NonNull Context appContext) {
-        try {
-            InputStream is = appContext.getAssets().open("config.properties");
+        this.appContext = appContext;
+        try (InputStream is = appContext.getAssets().open("config.properties")) {
             Properties props = new Properties();
             props.load(is);
-
             databaseExternalStorage = Boolean.parseBoolean(
                     props.getProperty("database.external_storage", "")
             );
             testFilesExternalStorage = Boolean.parseBoolean(
                     props.getProperty("test.files.external_storage", "")
             );
-
-            is.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -44,11 +43,28 @@ public class Config {
         return INSTANCE;
     }
 
+    public static Config getInstance() {
+        return INSTANCE;
+    }
+
     public boolean isDatabaseExternalStorage() {
         return databaseExternalStorage;
     }
 
     public boolean isTestFilesExternalStorage() {
         return testFilesExternalStorage;
+    }
+
+    public boolean isCrashlyticsEnabled() {
+        try (InputStream is = appContext.getAssets().open("config.properties")) {
+            Properties props = new Properties();
+            props.load(is);
+            return Boolean.parseBoolean(
+                    props.getProperty("crashlytics.enabled", "true")
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 }

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
@@ -129,8 +130,10 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                                 deckDb.deckConfigDao().update(deckConfig);
                                 if (editingLocked) {
                                     unlockEditing();
-                                    crashlytics.setCustomKey("tag", TAG);
-                                    crashlytics.log("Emergency editing unlock, the worker has failed miserably.");
+                                    if (Config.getInstance(getApplicationContext()).isCrashlyticsEnabled()) {
+                                        crashlytics.setCustomKey("tag", TAG);
+                                        crashlytics.log("Emergency editing unlock, the worker has failed miserably.");
+                                    }
                                 }
                             } else if (!editingLocked) {
                                 lockEditing();
