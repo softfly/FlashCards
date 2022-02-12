@@ -3,6 +3,7 @@ package pl.softfly.flashcards.ui.deck;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.FileUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -69,7 +72,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
     protected void exportDbDeck(Uri exportedDbUri, @NonNull String deckName) {
         try {
-            OutputStream exportDbOut = activity
+            OutputStream out = activity
                     .getContentResolver()
                     .openOutputStream(exportedDbUri);
 
@@ -82,7 +85,16 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
                     .getStorageDb()
                     .getDbPath(deckName);
 
-            FileUtils.copy(new FileInputStream(dbPath), exportDbOut);
+            FileInputStream in = new FileInputStream(dbPath);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(in, out);
+            } else {
+                FileChannel inChannel = in.getChannel();
+                FileChannel outChannel = ((FileOutputStream) out).getChannel();
+                inChannel.transferTo(0, inChannel.size(), outChannel);
+            }
+            in.close();
+            out.close();
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog eDialog = new ExceptionDialog(e);

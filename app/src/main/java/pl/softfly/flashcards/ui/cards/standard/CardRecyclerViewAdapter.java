@@ -98,7 +98,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                         .mapToInt(Card::getOrdinal)
                         .max()
                         .orElse(0)
-        ).length() * 20 + 70;
+        ).length() * 30 + 70 + 20;
     }
 
     public void onClickDeleteCard(int position) {

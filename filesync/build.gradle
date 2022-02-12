@@ -2,11 +2,11 @@ plugins {
     id 'com.android.dynamic-feature'
 }
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         testApplicationId "pl.softfly.flashcards.filesync.test"
-        minSdkVersion 30
+        minSdkVersion 26
 
         //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner "pl.softfly.flashcards.filesync.test.RunFileSyncInstrumentedTest"

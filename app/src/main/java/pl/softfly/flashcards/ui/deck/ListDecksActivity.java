@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
@@ -24,8 +25,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -137,11 +142,13 @@ public class ListDecksActivity extends AppCompatActivity {
     protected void askPermissionManageExternalStorage() {
         Config config = Config.getInstance(getApplicationContext());
         if (config.isDatabaseExternalStorage() || config.isTestFilesExternalStorage()) {
-            if (!Environment.isExternalStorageManager()) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                }
             }
         }
     }
@@ -160,8 +167,17 @@ public class ListDecksActivity extends AppCompatActivity {
                     deckName = storageDb.findFreeDeckName(deckName);
                 }
             }
-            InputStream importedDbIn = getContentResolver().openInputStream(importedDbUri);
-            FileUtils.copy(importedDbIn, new FileOutputStream(storageDb.getDbPath(deckName)));
+            InputStream in = getContentResolver().openInputStream(importedDbUri);
+            FileOutputStream out = new FileOutputStream(storageDb.getDbPath(deckName));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(in, out);
+            } else {
+                FileChannel inChannel = ((FileInputStream) in).getChannel();
+                FileChannel outChannel = out.getChannel();
+                inChannel.transferTo(0, inChannel.size(), outChannel);
+            }
+            in.close();
+            out.close();
             loadDecks();
         } catch (Exception e) {
             e.printStackTrace();
