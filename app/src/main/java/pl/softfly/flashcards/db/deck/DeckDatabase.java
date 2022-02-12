@@ -8,6 +8,7 @@ import pl.softfly.flashcards.dao.CardDao;
 import pl.softfly.flashcards.dao.CardDaoAsync;
 import pl.softfly.flashcards.dao.DeckConfigAsyncDao;
 import pl.softfly.flashcards.dao.DeckConfigDao;
+import pl.softfly.flashcards.dao.FileSyncedAsyncDao;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.DeckConfig;
@@ -46,5 +47,7 @@ public abstract class DeckDatabase extends RoomDatabase {
     public abstract DeckConfigDao deckConfigDao();
 
     public abstract DeckConfigAsyncDao deckConfigAsyncDao();
+
+    public abstract FileSyncedAsyncDao fileSyncedDao();
 
 }

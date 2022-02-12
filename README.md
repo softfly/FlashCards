@@ -14,6 +14,7 @@
         - C_09 Deselect all cards
 - C_C_10 Add a new card at the end of the deck.
 - C_C_11 Add a new card after the selected card.
+- C_FS_01 Show / hide recently synced cards.
 
 ### File Sync
 

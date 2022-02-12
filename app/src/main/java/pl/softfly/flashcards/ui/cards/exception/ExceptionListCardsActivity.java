@@ -74,4 +74,9 @@ public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
             return false;
         }
     }
+
+    protected void setAdapter(ExceptionCardRecyclerViewAdapter adapter) {
+        super.setAdapter(adapter);
+        this.adapter = adapter;
+    }
 }

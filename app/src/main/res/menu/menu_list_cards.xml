@@ -19,4 +19,18 @@
         android:visible="false"
         android:title="Export to new Excel">
     </item>
+    <item
+        android:id="@+id/show_recently_synced"
+        android:icon="@drawable/ic_round_file_upload_24"
+        app:showAsAction="never"
+        android:visible="false"
+        android:title="Show recently synced">
+    </item>
+    <item
+        android:id="@+id/hide_recently_synced"
+        android:icon="@drawable/ic_round_file_upload_24"
+        app:showAsAction="never"
+        android:visible="false"
+        android:title="Hide recently synced">
+    </item>
 </menu>

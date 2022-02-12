@@ -25,7 +25,7 @@ import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 public class SelectCardRecyclerViewAdapter
         extends DragSwipeCardRecyclerViewAdapter {
 
-    private final Set<Card> selectedCards = new HashSet<>();
+    protected final Set<Card> selectedCards = new HashSet<>();
 
     private SelectListCardsActivity activity;
 
@@ -68,7 +68,7 @@ public class SelectCardRecyclerViewAdapter
         Card card = getCards().get(viewHolder.getAdapterPosition());
         selectedCards.add(card);
         if (selectedCards.size() == 1)
-            // Enable the pop-up menu in the selection mode.
+            // Add selection mode options to the menu.
             activity.refreshMenuOnAppBar();
     }
 
@@ -77,14 +77,14 @@ public class SelectCardRecyclerViewAdapter
         Card card = getCards().get(viewHolder.getAdapterPosition());
         selectedCards.remove(card);
         if (selectedCards.isEmpty())
-            // Disable the pop-up menu in selection mode.
+            // Remove selection mode options from the menu.
             activity.refreshMenuOnAppBar();
     }
 
     public void onClickDeselectAll() {
         if (!selectedCards.isEmpty()) {
             selectedCards.clear();
-            // Disable the pop-up menu in selection mode.
+            // Remove selection mode options from the menu.
             activity.refreshMenuOnAppBar();
             // Clear background on items.
             this.notifyDataSetChanged();

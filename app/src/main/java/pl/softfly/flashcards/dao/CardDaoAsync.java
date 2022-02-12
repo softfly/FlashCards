@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
@@ -39,6 +40,10 @@ public abstract class CardDaoAsync {
             "OR Core_Card.nextReplayAt IS NULL " +
             "LIMIT 10")
     public abstract Maybe<List<Card>> getNextCards();
+
+    @NonNull
+    @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL AND modifiedAt=:modifiedAt")
+    public abstract Maybe<List<Card>> findByModifiedAt(LocalDateTime modifiedAt);
 
     @NonNull
     @Insert

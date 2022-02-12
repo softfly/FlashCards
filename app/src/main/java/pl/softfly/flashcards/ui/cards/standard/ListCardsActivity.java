@@ -69,20 +69,10 @@ public class ListCardsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        menu.add(0, R.id.new_card, 2,
+        menu.add(0, R.id.new_card, 1,
                 menuIconWithText(
                         getDrawable(R.drawable.ic_outline_add_24),
                         "New card"
-                ));
-        menu.add(0, R.id.sync_excel, 2,
-                menuIconWithText(
-                        getDrawable(R.drawable.ic_sharp_sync_24),
-                        "Sync with Excel"
-                ));
-        menu.add(0, R.id.export_excel, 2,
-                menuIconWithText(
-                        getDrawable(R.drawable.ic_round_file_upload_24),
-                        "Export to new Excel"
                 ));
         getMenuInflater().inflate(R.menu.menu_list_cards, menu);
         return true;
