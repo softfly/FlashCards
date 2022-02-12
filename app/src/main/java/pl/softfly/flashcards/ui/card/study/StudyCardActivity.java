@@ -42,8 +42,8 @@ public abstract class StudyCardActivity extends AppCompatActivity {
     private DeckDatabase deckDb;
     private Card card;
     private List<Card> cards;
-    private TextView questionView;
-    private TextView answerView;
+    private TextView termView;
+    private TextView definitionView;
     private Button againButton;
     private Button easyButton;
     private Button hardButton;
@@ -63,8 +63,8 @@ public abstract class StudyCardActivity extends AppCompatActivity {
 
             gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            initQuestionView();
-            initAnswerView();
+            initTermView();
+            initDefinitionView();
             initAgainButton();
             initEasyButton();
             initHardButton();
@@ -82,18 +82,18 @@ public abstract class StudyCardActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    protected void initQuestionView() {
-        questionView = findViewById(R.id.questionView);
-        questionView.setMovementMethod(new ScrollingMovementMethod());
+    protected void initTermView() {
+        termView = findViewById(R.id.termView);
+        termView.setMovementMethod(new ScrollingMovementMethod());
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    protected void initAnswerView() {
-        answerView = findViewById(R.id.answerView);
-        answerView.setMovementMethod(new ScrollingMovementMethod());
-        answerView.setOnClickListener(v -> {
+    protected void initDefinitionView() {
+        definitionView = findViewById(R.id.definitionView);
+        definitionView.setMovementMethod(new ScrollingMovementMethod());
+        definitionView.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(VISIBLE);
-            answerView.setText(card.getAnswer());
+            definitionView.setText(card.getDefinition());
         });
     }
 
@@ -161,8 +161,8 @@ public abstract class StudyCardActivity extends AppCompatActivity {
 
     protected void displayCard(@NonNull Card card) {
         this.card = card;
-        questionView.setText(card.getQuestion());
-        answerView.setText("?\nShow answer");
+        termView.setText(card.getTerm());
+        definitionView.setText("?\nShow definition");
 
         againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
         againButton.setText("Again\n" + againLearningProgress.getIntervalHour());

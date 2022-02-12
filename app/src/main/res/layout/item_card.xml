@@ -27,14 +27,14 @@
             android:background="@drawable/list_divider_material" />
 
         <TextView
-            android:id="@+id/question"
+            android:id="@+id/term"
             android:layout_weight="1"
             android:maxLines="4"
             android:paddingStart="6dp"
             android:paddingTop="6dp"
             android:paddingEnd="6dp"
             android:paddingBottom="6dp"
-            android:text="Question" />
+            android:text="Term" />
 
         <View
             android:layout_width="1dp"
@@ -42,14 +42,14 @@
             android:background="@drawable/list_divider_material" />
 
         <TextView
-            android:id="@+id/answer"
+            android:id="@+id/definition"
             android:layout_weight="1"
             android:maxLines="4"
             android:paddingStart="6dp"
             android:paddingTop="6dp"
             android:paddingEnd="16dp"
             android:paddingBottom="6dp"
-            android:text="Answer" />
+            android:text="Definition" />
 
     </TableRow>
 

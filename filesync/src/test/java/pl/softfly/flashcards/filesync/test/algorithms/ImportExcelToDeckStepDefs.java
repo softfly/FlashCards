@@ -122,8 +122,8 @@ public class ImportExcelToDeckStepDefs {
                         card ->
                                 assertThat(expectedList.next().toArray())
                                         .hasSameElementsAs(Arrays.asList(
-                                                card.getQuestion(),
-                                                card.getAnswer())
+                                                card.getTerm(),
+                                                card.getDefinition())
                                         )
                 )
         );

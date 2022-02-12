@@ -29,8 +29,8 @@ public class EditCardActivity extends NewCardActivity {
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(card -> runOnUiThread(() -> {
                     this.card = card;
-                    questionEditText.setText(card.getQuestion());
-                    answerEditText.setText(card.getAnswer());
+                    termEditText.setText(card.getTerm());
+                    definitionEditText.setText(card.getDefinition());
                 }))
                 .subscribe();
     }

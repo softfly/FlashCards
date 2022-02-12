@@ -25,12 +25,12 @@ public abstract class CardDao extends pl.softfly.flashcards.dao.CardDao {
     @Query("SELECT c.* FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +
             "WHERE " +
-            "c.Question LIKE :question " +
-            "AND c.answer LIKE :answer " +
+            "c.Term LIKE :term " +
+            "AND c.definition LIKE :definition " +
             "AND t.cardId IS NULL " +
             "AND c.id NOT IN(:cardIds)" +
             "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)")
-    public abstract Card findByQuestionLikeAndAnswerLikeAndCardNull(String question, String answer, List<Integer> cardIds, int fileSyncedId);
+    public abstract Card findByTermLikeAndDefinitionLikeAndCardNull(String term, String definition, List<Integer> cardIds, int fileSyncedId);
 
     @NonNull
     @Query("SELECT c.* " +

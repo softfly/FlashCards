@@ -88,7 +88,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         );
 
         findColumnIndexes(sheet);
-        if (getQuestionIndex() == -1 && getAnswerIndex() == -1)
+        if (getTermIndex() == -1 && getDefinitionIndex() == -1)
             throw new Exception("No cards in the file.");
 
         // @todo desc lastSync
@@ -179,8 +179,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
      * 2. Import cards {@link CardImported} and merge to the same deck card {@link Card}.
      */
     protected void importAndMatchCardsFromImportedFile() {
-        int questionPosition = getQuestionIndex();
-        int answerPosition = getAnswerIndex();
+        int termPosition = getTermIndex();
+        int definitionPosition = getDefinitionIndex();
         int skipHeaderRows = getSkipHeaderRows();
 
         List<CardImported> cardsToSaveList = new LinkedList<>();
@@ -196,26 +196,26 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 continue;
             }
 
-            String question = getStringCellValue(currentRow, questionPosition);
-            String answer = getStringCellValue(currentRow, answerPosition);
+            String term = getStringCellValue(currentRow, termPosition);
+            String definition = getStringCellValue(currentRow, definitionPosition);
 
-            if (nonEmpty(question) || nonEmpty(answer)) {
+            if (nonEmpty(term) || nonEmpty(definition)) {
                 CardImported cardImported = new CardImported();
 
                 if (!findSameCardAndConnect(
                         cardImported,
-                        question,
-                        answer,
+                        term,
+                        definition,
                         cardIdsConnected,
                         fileSynced.getId())
                 ) {
-                    if (!empty(question)) cardImported.setQuestion(question);
-                    if (!empty(answer)) cardImported.setAnswer(answer);
+                    if (!empty(term)) cardImported.setTerm(term);
+                    if (!empty(definition)) cardImported.setDefinition(definition);
                 }
 
                 // @todo remove, only for debugging
-                if (!empty(question)) cardImported.setQuestion(question);
-                if (!empty(answer)) cardImported.setAnswer(answer);
+                if (!empty(term)) cardImported.setTerm(term);
+                if (!empty(definition)) cardImported.setDefinition(definition);
 
                 cardImported.setId(id);
                 if (id - 1 > 0) cardImported.setPreviousId(id - 1);
@@ -251,13 +251,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     protected boolean findSameCardAndConnect(
             @NonNull CardImported cardImported,
-            String question,
-            String answer,
+            String term,
+            String definition,
             @NonNull List<Integer> cardsConnected,
             int fileSyncedId
     ) {
-        Card card = deckDb.cardDao().findByQuestionLikeAndAnswerLikeAndCardNull(
-                question, answer, cardsConnected, fileSyncedId
+        Card card = deckDb.cardDao().findByTermLikeAndDefinitionLikeAndCardNull(
+                term, definition, cardsConnected, fileSyncedId
         );
         if (card != null) {
             cardsConnected.add(card.getId());
@@ -270,8 +270,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                             CardImported.POSITION_STATUS_BY_DECK
             );
             // @todo remove, only for debugging
-            cardImported.setQuestion(question);
-            cardImported.setAnswer(answer);
+            cardImported.setTerm(term);
+            cardImported.setDefinition(definition);
             return true;
         }
         return false;
@@ -461,8 +461,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             cardImported.setContentStatus(CardImported.STATUS_INSERT_BY_DECK);
             cardImported.setPositionStatus(CardImported.POSITION_STATUS_BY_DECK);
             //@todo remove after debugging
-            cardImported.setQuestion(card.getQuestion());
-            cardImported.setAnswer(card.getAnswer());
+            cardImported.setTerm(card.getTerm());
+            cardImported.setDefinition(card.getDefinition());
         }
         return cardImported;
     }
@@ -586,8 +586,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 case CardImported.STATUS_INSERT_BY_FILE: {
                     Card card = new Card();
 
-                    card.setQuestion(cardImported.getQuestion());
-                    card.setAnswer(cardImported.getAnswer());
+                    card.setTerm(cardImported.getTerm());
+                    card.setDefinition(cardImported.getDefinition());
                     card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());
@@ -598,8 +598,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 break;
                 case CardImported.STATUS_UPDATE_BY_FILE: {
                     Card card = deckDb.cardDao().findById(cardImported.getCardId());
-                    card.setQuestion(cardImported.getQuestion());
-                    card.setAnswer(cardImported.getAnswer());
+                    card.setTerm(cardImported.getTerm());
+                    card.setDefinition(cardImported.getDefinition());
                     card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());
@@ -678,10 +678,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected void updateExcelCell(@NonNull Row row, @NonNull Card card) {
-        Cell cell = row.createCell(getQuestionIndex());
-        cell.setCellValue(card.getQuestion());
-        cell = row.createCell(getAnswerIndex());
-        cell.setCellValue(card.getAnswer());
+        Cell cell = row.createCell(getTermIndex());
+        cell.setCellValue(card.getTerm());
+        cell = row.createCell(getDefinitionIndex());
+        cell.setCellValue(card.getDefinition());
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {

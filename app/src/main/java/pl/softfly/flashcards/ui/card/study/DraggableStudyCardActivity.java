@@ -21,11 +21,11 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
     private ConstraintLayout cardView;
     private Guideline guideLineView;
     private View dividerView;
-    private TextView questionView;
-    private TextView answerView;
+    private TextView termView;
+    private TextView definitionView;
 
     /**
-     * Move divider to move question / answer view boundary.
+     * Move divider to move term / definition view boundary.
      */
     private final OnTouchListener moveDividerTouchListener = new OnTouchListener() {
 
@@ -92,17 +92,17 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
 
     @Override
     @SuppressLint("ClickableViewAccessibility")
-    protected void initQuestionView() {
-        super.initQuestionView();
-        questionView = findViewById(R.id.questionView);
-        questionView.setOnTouchListener((v, event) -> moveDividerTouchListener.onTouch(cardLayout, event));
+    protected void initTermView() {
+        super.initTermView();
+        termView = findViewById(R.id.termView);
+        termView.setOnTouchListener((v, event) -> moveDividerTouchListener.onTouch(cardLayout, event));
     }
 
     @Override
     @SuppressLint("ClickableViewAccessibility")
-    protected void initAnswerView() {
-        super.initAnswerView();
-        answerView = findViewById(R.id.answerView);
-        answerView.setOnTouchListener((v, event) -> moveDividerTouchListener.onTouch(cardLayout, event));
+    protected void initDefinitionView() {
+        super.initDefinitionView();
+        definitionView = findViewById(R.id.definitionView);
+        definitionView.setOnTouchListener((v, event) -> moveDividerTouchListener.onTouch(cardLayout, event));
     }
 }

@@ -22,8 +22,8 @@ public class CardViewHolder extends RecyclerView.ViewHolder
 
     private final CardRecyclerViewAdapter adapter;
     private final TextView idTextView;
-    private final TextView questionTextView;
-    private final TextView answerTextView;
+    private final TextView termTextView;
+    private final TextView definitionTextView;
     @NonNull
     private final GestureDetector gestureDetector;
 
@@ -31,8 +31,8 @@ public class CardViewHolder extends RecyclerView.ViewHolder
         super(itemView);
         this.adapter = adapter;
         idTextView = itemView.findViewById(R.id.id);
-        questionTextView = itemView.findViewById(R.id.question);
-        answerTextView = itemView.findViewById(R.id.answer);
+        termTextView = itemView.findViewById(R.id.term);
+        definitionTextView = itemView.findViewById(R.id.definition);
         gestureDetector = new GestureDetector(itemView.getContext(), this);
         itemView.setOnTouchListener(this);
     }
@@ -113,11 +113,11 @@ public class CardViewHolder extends RecyclerView.ViewHolder
         return idTextView;
     }
 
-    protected TextView getQuestionTextView() {
-        return questionTextView;
+    protected TextView getTermTextView() {
+        return termTextView;
     }
 
-    protected TextView getAnswerTextView() {
-        return answerTextView;
+    protected TextView getDefinitionTextView() {
+        return definitionTextView;
     }
 }

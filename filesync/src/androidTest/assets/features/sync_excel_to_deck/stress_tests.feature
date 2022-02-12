@@ -4,15 +4,15 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
   @disabled
   Scenario Outline: ST_01 No changes <repeat> cards.
     Given Generate cards <repeat> times into the deck:
-      | Sample question {i} | Sample answer {i} | 0 |
+      | Sample Term {i} | Sample Definition {i} | 0 |
     Given Generate cards <repeat> times into the file:
-      | Sample question {i} | Sample answer {i} |
+      | Sample Term {i} | Sample Definition {i} |
     When Synchronize the Excel file with the deck.
     Then <repeat> cards in the imported file.
     Then The expected deck with cards:
-      | Sample question 1 | Sample answer 1 |
-      | Sample question 2 | Sample answer 2 |
-      | Sample question 3 | Sample answer 3 |
+      | Sample Term 1 | Sample Definition 1 |
+      | Sample Term 2 | Sample Definition 2 |
+      | Sample Term 3 | Sample Definition 3 |
     Then Check the deck with cards.
     Then Check the Excel file.
     Examples:
@@ -23,16 +23,16 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
   @disabled
   Scenario Outline: ST_02 Similar <repeat> cards.
     Given Generate cards <repeat> times into the deck:
-      | Sample question deck {i}  | Sample answer deck {i}  | 0 |
+      | Sample Term deck {i}  | Sample Definition deck {i}  | 0 |
     Given Generate cards <repeat> times into the file:
-      | Sample question excel {i} | Sample answer excel {i} |
+      | Sample Term excel {i} | Sample Definition excel {i} |
     When Synchronize the Excel file with the deck.
     Then <repeat> cards in the deck.
     Then <repeat> cards in the imported file.
     Then The expected deck with cards:
-      | Sample question excel 1    | Sample answer excel 1      |
-      | Sample question excel 2    | Sample answer excel 2      |
-      | Sample question excel 3    | Sample answer excel 3      |
+      | Sample Term excel 1 | Sample Definition excel 1      |
+      | Sample Term excel 2 | Sample Definition excel 2      |
+      | Sample Term excel 3 | Sample Definition excel 3      |
     Then Check the deck with cards.
     Then Check the Excel file.
     Examples:
@@ -56,13 +56,13 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
     Then <expected> cards in the deck.
     Then <expected> cards in the imported file.
     Then The expected deck with cards:
-      | Common card   1  | Common card   1  |
-      | Deck Deck 1   1  | Deck Deck 1   1  |
-      | Deck Deck 2   1  | Deck Deck 2   1  |
-      | Deck Deck 3   1  | Deck Deck 3   1  |
-      | Excel Excel 1 1  | Excel Excel 1 1  |
-      | Excel Excel 2 1  | Excel Excel 2 1  |
-      | Excel Excel 3 1  | Excel Excel 3 1  |
+      | Common card   1 | Common card   1  |
+      | Deck Deck 1   1 | Deck Deck 1   1  |
+      | Deck Deck 2   1 | Deck Deck 2   1  |
+      | Deck Deck 3   1 | Deck Deck 3   1  |
+      | Excel Excel 1 1 | Excel Excel 1 1  |
+      | Excel Excel 2 1 | Excel Excel 2 1  |
+      | Excel Excel 3 1 | Excel Excel 3 1  |
     Then Check the deck with cards.
     Then Check the Excel file.
     Examples:
@@ -77,15 +77,15 @@ Feature: Sync the Excel file with the Deck. Find similar cards. Stress tests.
     If only changed records are saved to the file:
     UpdateExcelFile=00:00:00.095
     Given Add the following cards into the deck:
-      | Swap places 1       | Swap places 1     | 2 |
-      | Swap places 2       | Swap places 2     | 2 |
+      | Swap places 1   | Swap places 1     | 2 |
+      | Swap places 2   | Swap places 2     | 2 |
     Given Generate cards <repeat> times into the deck:
-      | Sample question {i} | Sample answer {i} | 0 |
+      | Sample Term {i} | Sample Definition {i} | 0 |
     Given Add the following cards into the file:
-      | Swap places 2       | Swap places 2     |
-      | Swap places 1       | Swap places 1     |
+      | Swap places 2   | Swap places 2     |
+      | Swap places 1   | Swap places 1     |
     Given Generate cards <repeat> times into the file:
-      | Sample question {i} | Sample answer {i} |
+      | Sample Term {i} | Sample Definition {i} |
     When Synchronize the Excel file with the deck.
     Then <expected> cards in the deck.
     Then <expected> cards in the imported file.

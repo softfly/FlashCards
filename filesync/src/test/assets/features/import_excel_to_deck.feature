@@ -4,135 +4,135 @@ Feature: Import Excel file to a new Deck.
   Scenario: IE_01_01 The spreadsheet does not include a header. 2 columns. Empty lines.
     Given The following Excel file:
       | |                   | |                 |
-      | | Sample question 1 | | Sample answer 1 |
+      | | Sample term 1 | | Sample definition 1 |
       | |                   | |                 |
-      | | Sample question 2 | | Sample answer 2 |
+      | | Sample term 2 | | Sample definition 2 |
       | |                   | |                 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | Sample answer 1 |
-      | Sample question 2 | Sample answer 2 |
+      | Sample term 1 | Sample definition 1 |
+      | Sample term 2 | Sample definition 2 |
 
 
 
   Scenario: IE_01_02 The spreadsheet does not include a header. 2 columns. Empty columns.
     Given The following Excel file:
-      | Sample question 1 |                 |
-      |                   | Sample answer 2 |
-      | Sample question 3 | Sample answer 3 |
+      | Sample term 1 |                 |
+      |                   | Sample definition 2 |
+      | Sample term 3 | Sample definition 3 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 |                 |
-      |                   | Sample answer 2 |
-      | Sample question 3 | Sample answer 3 |
+      | Sample term 1 |                 |
+      |                   | Sample definition 2 |
+      | Sample term 3 | Sample definition 3 |
 
 
 
   Scenario: IE_01_03 The spreadsheet does not include a header. 2 columns. Empty columns.
     Given The following Excel file:
-      |                   | Sample answer 1 |
-      | Sample question 2 |                 |
-      | Sample question 3 | Sample answer 3 |
+      |                   | Sample definition 1 |
+      | Sample term 2 |                 |
+      | Sample term 3 | Sample definition 3 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      |                   | Sample answer 1 |
-      | Sample question 2 |                 |
-      | Sample question 3 | Sample answer 3 |
+      |                   | Sample definition 1 |
+      | Sample term 2 |                 |
+      | Sample term 3 | Sample definition 3 |
 
 
 
-  Scenario: IE_02 The spreadsheet does not include a header. Only questions.
+  Scenario: IE_02 The spreadsheet does not include a header. Only terms.
     Given The following Excel file:
-      | Sample question 1 |
-      | Sample question 2 |
+      | Sample term 1 |
+      | Sample term 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | |
-      | Sample question 2 | |
+      | Sample term 1 | |
+      | Sample term 2 | |
 
 
 
-  Scenario: IE_03_01 The spreadsheet includes the header with the Question and Answer.
+  Scenario: IE_03_01 The spreadsheet includes the header with the Term and Definition.
     Given The following Excel file:
       | AnsWers         | QuesTIons         |
-      | Sample answer 1 | Sample question 1 |
-      | Sample answer 2 | Sample question 2 |
+      | Sample definition 1 | Sample term 1 |
+      | Sample definition 2 | Sample term 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | Sample answer 1 |
-      | Sample question 2 | Sample answer 2 |
+      | Sample term 1 | Sample definition 1 |
+      | Sample term 2 | Sample definition 2 |
 
 
 
-  Scenario: IE_03_02 The spreadsheet includes the header in the middle with the Question and Answer.
+  Scenario: IE_03_02 The spreadsheet includes the header in the middle with the Term and Definition.
     Given The following Excel file:
-      | Sample question 1 | Sample answer 1 |
-      | Question          | Answer          |
-      | Sample question 2 | Sample answer 2 |
+      | Sample term 1 | Sample definition 1 |
+      | Term          | Definition          |
+      | Sample term 2 | Sample definition 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | Sample answer 1 |
-      | Question          | Answer          |
-      | Sample question 2 | Sample answer 2 |
+      | Sample term 1 | Sample definition 1 |
+      | Term          | Definition          |
+      | Sample term 2 | Sample definition 2 |
 
 
 
-  Scenario: IE_04 The spreadsheet includes the header with the Question.
+  Scenario: IE_04 The spreadsheet includes the header with the Term.
     Given The following Excel file:
       |                   |
-      | Question          |
-      | Sample question 1 |
-      | Sample question 2 |
+      | Term          |
+      | Sample term 1 |
+      | Sample term 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | |
-      | Sample question 2 | |
+      | Sample term 1 | |
+      | Sample term 2 | |
 
 
 
-  Scenario: IE_05 The spreadsheet includes the header with the Answer.
+  Scenario: IE_05 The spreadsheet includes the header with the Definition.
     Given The following Excel file:
       |                 |
-      | Answer          |
-      | Sample answer 1 |
-      | Sample answer 2 |
+      | Definition          |
+      | Sample definition 1 |
+      | Sample definition 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | | Sample answer 1 |
-      | | Sample answer 2 |
+      | | Sample definition 1 |
+      | | Sample definition 2 |
 
 
 
-  Scenario: IE_06 The spreadsheet has 2 columns, but only the header for the Question.
+  Scenario: IE_06 The spreadsheet has 2 columns, but only the header for the Term.
     Given The following Excel file:
       |                 | QuesTIon          |
-      | Sample answer 1 | Sample question 1 |
-      | Sample answer 2 | Sample question 2 |
+      | Sample definition 1 | Sample term 1 |
+      | Sample definition 2 | Sample term 2 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | Sample answer 1 |
-      | Sample question 2 | Sample answer 2 |
+      | Sample term 1 | Sample definition 1 |
+      | Sample term 2 | Sample definition 2 |
 
 
 
-  Scenario: IE_07 The spreadsheet has 2 columns, but only the header for the Answer.
+  Scenario: IE_07 The spreadsheet has 2 columns, but only the header for the Definition.
     Given The following Excel file:
       | AnsWer          |                   |
-      | Sample answer 1 | Sample question 1 |
-      | Sample answer 2 | Sample question 2 |
-      | Sample answer 3 | Sample question 3 |
+      | Sample definition 1 | Sample term 1 |
+      | Sample definition 2 | Sample term 2 |
+      | Sample definition 3 | Sample term 3 |
     When Import the Excel file into the deck.
     Then A new deck with the following cards imported.
-      | Sample question 1 | Sample answer 1 |
-      | Sample question 2 | Sample answer 2 |
-      | Sample question 3 | Sample answer 3 |
+      | Sample term 1 | Sample definition 1 |
+      | Sample term 2 | Sample definition 2 |
+      | Sample term 3 | Sample definition 3 |
 
 
 
 #  Scenario Outline: Stress test. Import a lot of cards.
 #    Given Generate <repeat> rows.
 #    Given The following Excel file:
-#      | Sample answer {$i} | Sample question {$i} |
+#      | Sample definition {$i} | Sample term {$i} |
 #    When Import the Excel file into the deck.
 #
 #    Examples:

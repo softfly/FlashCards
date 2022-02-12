@@ -64,8 +64,8 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         importCards(
                 datatypeSheet,
                 deckName,
-                getQuestionIndex(),
-                getAnswerIndex(),
+                getTermIndex(),
+                getDefinitionIndex(),
                 getSkipHeaderRows(),
                 lastModifiedAtFile
         );
@@ -74,12 +74,12 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     protected void importCards(
             @NonNull Sheet datatypeSheet,
             @NonNull String deckName,
-            int questionPosition,
-            int answerPosition,
+            int termPosition,
+            int definitionPosition,
             int skipFirstRows,
             Long lastModifiedAtFile
     ) {
-        if (questionPosition == -1 && answerPosition == -1) return;
+        if (termPosition == -1 && definitionPosition == -1) return;
 
         Iterator<Row> rowIt = datatypeSheet.iterator();
         List<Card> cardsList = new LinkedList<>();
@@ -95,23 +95,23 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             ordinal+=SyncExcelToDeck.MULTIPLE_ORDINAL;
             card.setModifiedAt(createdAt);
 
-            if (questionPosition > -1) {
-                Cell currentCell = currentRow.getCell(questionPosition);
+            if (termPosition > -1) {
+                Cell currentCell = currentRow.getCell(termPosition);
                 String value = currentCell.getStringCellValue().trim();
-                card.setQuestion(value);
+                card.setTerm(value);
             }
-            if (answerPosition > -1) {
-                Cell currentCell = currentRow.getCell(answerPosition);
+            if (definitionPosition > -1) {
+                Cell currentCell = currentRow.getCell(definitionPosition);
                 String value = currentCell.getStringCellValue().trim();
-                card.setAnswer(value);
+                card.setDefinition(value);
             }
 
-            if (nonEmpty(card.getQuestion()) || nonEmpty(card.getAnswer())) {
-                if (empty(card.getQuestion())) {
-                    card.setQuestion(null);
+            if (nonEmpty(card.getTerm()) || nonEmpty(card.getDefinition())) {
+                if (empty(card.getTerm())) {
+                    card.setTerm(null);
                 }
-                if (empty(card.getAnswer())) {
-                    card.setAnswer(null);
+                if (empty(card.getDefinition())) {
+                    card.setDefinition(null);
                 }
                 if (deckDb == null) deckDb = getDeckDatabase(deckName);
                 cardsList.add(card);

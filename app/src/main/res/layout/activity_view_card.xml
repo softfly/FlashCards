@@ -18,12 +18,12 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <pl.softfly.flashcards.ui.card.study.ZoomTextView
-            android:id="@+id/questionView"
+            android:id="@+id/termView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:gravity="center"
             android:scrollbars="vertical"
-            android:text="Sample question"
+            android:text="Sample term"
             android:textAlignment="center"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="@+id/guideline"
@@ -37,7 +37,7 @@
             app:layout_constraintGuide_percent="0.5" />
 
         <pl.softfly.flashcards.ui.card.study.ZoomTextView
-            android:id="@+id/answerView"
+            android:id="@+id/definitionView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:gravity="center"

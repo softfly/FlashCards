@@ -102,14 +102,14 @@ public class CardImported {
      * Optimization for storing redundant text data.
      * {@link CardImported#STATUS_UNCHANGED}
      */
-    private String question;
+    private String term;
 
     /**
      * The value is blank if the value in the card is the same.
      * Optimization for storing redundant text data.
      * {@link CardImported#STATUS_UNCHANGED}
      */
-    private String answer;
+    private String definition;
 
     /**
      * Previous {@link CardImported}.
@@ -243,20 +243,20 @@ public class CardImported {
         this.orderChanged = orderChanged;
     }
 
-    public String getQuestion() {
-        return question;
+    public String getTerm() {
+        return term;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setTerm(String term) {
+        this.term = term;
     }
 
-    public String getAnswer() {
-        return answer;
+    public String getDefinition() {
+        return definition;
     }
 
-    public void setAnswer(String answer) {
-        this.answer = answer;
+    public void setDefinition(String definition) {
+        this.definition = definition;
     }
 
     public Integer getPreviousId() {

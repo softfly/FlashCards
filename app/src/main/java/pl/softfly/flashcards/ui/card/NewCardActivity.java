@@ -31,9 +31,9 @@ public class NewCardActivity extends AppCompatActivity {
     @Nullable
     protected DeckDatabase deckDb;
 
-    protected EditText questionEditText;
+    protected EditText termEditText;
 
-    protected EditText answerEditText;
+    protected EditText definitionEditText;
 
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
@@ -42,8 +42,8 @@ public class NewCardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_card);
 
-        questionEditText = findViewById(R.id.questionEditText);
-        answerEditText = findViewById(R.id.answerEditText);
+        termEditText = findViewById(R.id.termEditText);
+        definitionEditText = findViewById(R.id.definitionEditText);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -76,8 +76,8 @@ public class NewCardActivity extends AppCompatActivity {
     @NonNull
     protected Card createCard() {
         Card card = new Card();
-        card.setQuestion(questionEditText.getText().toString());
-        card.setAnswer(answerEditText.getText().toString());
+        card.setTerm(termEditText.getText().toString());
+        card.setDefinition(definitionEditText.getText().toString());
         card.setModifiedAt(LocalDateTime.now());
         return card;
     }

@@ -61,8 +61,8 @@ public class SyncExcelToDeckStepDefs {
 
     private static final String TAG = "SyncExcelToDeckStepDefs";
 
-    private static final int COLUMN_TEST_INDEX_QUESTION = 0;
-    private static final int COLUMN_TEST_INDEX_ANSWER = 1;
+    private static final int COLUMN_TEST_INDEX_TERM = 0;
+    private static final int COLUMN_TEST_INDEX_DEFINITION = 1;
     private static final int COLUMN_TEST_INDEX_MODIFIED_AT = 2;
 
     private final Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -170,8 +170,8 @@ public class SyncExcelToDeckStepDefs {
             Card card = new Card();
             card.setId(currentCardId);
             card.setOrdinal(currentCardId);
-            card.setQuestion(rowIn.get(COLUMN_TEST_INDEX_QUESTION));
-            card.setAnswer(rowIn.get(COLUMN_TEST_INDEX_ANSWER));
+            card.setTerm(rowIn.get(COLUMN_TEST_INDEX_TERM));
+            card.setDefinition(rowIn.get(COLUMN_TEST_INDEX_DEFINITION));
             long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
             card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt * 60 * 60));
             if (modifiedAt < 0) {
@@ -191,12 +191,12 @@ public class SyncExcelToDeckStepDefs {
                 Card card = new Card();
                 card.setId(currentCardId);
                 card.setOrdinal(currentCardId);
-                card.setQuestion(
-                        rowIn.get(COLUMN_TEST_INDEX_QUESTION)
+                card.setTerm(
+                        rowIn.get(COLUMN_TEST_INDEX_TERM)
                                 .replace("{i}", Integer.toString(i))
                 );
-                card.setAnswer(
-                        rowIn.get(COLUMN_TEST_INDEX_ANSWER)
+                card.setDefinition(
+                        rowIn.get(COLUMN_TEST_INDEX_DEFINITION)
                                 .replace("{i}", Integer.toString(i))
                 );
                 long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
@@ -317,7 +317,7 @@ public class SyncExcelToDeckStepDefs {
                 org.junit.Assert.assertEquals(ordinal++, card.getOrdinal().intValue());
                 assertThat(
                         new String[]{row.get(0), row.get(1)},
-                        is(new String[]{card.getQuestion(), card.getAnswer()})
+                        is(new String[]{card.getTerm(), card.getDefinition()})
                 );
             }
         } catch (@NonNull AssertionError | Exception e) {
@@ -328,12 +328,12 @@ public class SyncExcelToDeckStepDefs {
 
     @NonNull
     protected String printCards(@NonNull List<Card> cards) {
-        int maxLengthQuestion = cards.stream()
-                .flatMapToInt(card -> IntStream.of(card.getQuestion().length()))
+        int maxLengthTerm = cards.stream()
+                .flatMapToInt(card -> IntStream.of(card.getTerm().length()))
                 .max()
                 .getAsInt();
-        int maxLengthAnswer = cards.stream()
-                .flatMapToInt(card -> IntStream.of(card.getAnswer().length()))
+        int maxLengthDefinition = cards.stream()
+                .flatMapToInt(card -> IntStream.of(card.getDefinition().length()))
                 .max()
                 .getAsInt();
 
@@ -341,9 +341,9 @@ public class SyncExcelToDeckStepDefs {
         deckDb.cardDao().getCardsOrderByOrdinalAsc()
                 .forEach(card -> sb.append("\n")
                         .append("| ")
-                        .append(String.format("%-" + maxLengthQuestion + "." + maxLengthQuestion + "s", card.getQuestion()))
+                        .append(String.format("%-" + maxLengthTerm + "." + maxLengthTerm + "s", card.getTerm()))
                         .append(" | ")
-                        .append(String.format("%-" + maxLengthAnswer + "." + maxLengthAnswer + "s", card.getAnswer()))
+                        .append(String.format("%-" + maxLengthDefinition + "." + maxLengthDefinition + "s", card.getDefinition()))
                         .append(" |")
                 );
         return sb.toString();
@@ -361,8 +361,8 @@ public class SyncExcelToDeckStepDefs {
                 assertThat(
                         new String[]{row.get(0), row.get(1)},
                         is(new String[]{
-                                excelRow.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue(),
-                                excelRow.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue()
+                                excelRow.getCell(COLUMN_TEST_INDEX_TERM).getStringCellValue(),
+                                excelRow.getCell(COLUMN_TEST_INDEX_DEFINITION).getStringCellValue()
                         })
                 );
             });
@@ -386,16 +386,16 @@ public class SyncExcelToDeckStepDefs {
 
     @NonNull
     protected String printCards(@NonNull Sheet datatypeSheet) {
-        int maxLengthQuestion = 0;
-        int maxLengthAnswer = 0;
+        int maxLengthTerm = 0;
+        int maxLengthDefinition = 0;
         for (Row row : datatypeSheet) {
-            maxLengthQuestion = Math.max(
-                    maxLengthQuestion,
-                    row.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue().length()
+            maxLengthTerm = Math.max(
+                    maxLengthTerm,
+                    row.getCell(COLUMN_TEST_INDEX_TERM).getStringCellValue().length()
             );
-            maxLengthAnswer = Math.max(
-                    maxLengthAnswer,
-                    row.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue().length()
+            maxLengthDefinition = Math.max(
+                    maxLengthDefinition,
+                    row.getCell(COLUMN_TEST_INDEX_DEFINITION).getStringCellValue().length()
             );
         }
 
@@ -404,13 +404,13 @@ public class SyncExcelToDeckStepDefs {
             sb.append("\n")
                     .append("| ")
                     .append(String.format(
-                            "%-" + maxLengthQuestion + "." + maxLengthQuestion + "s",
-                            row.getCell(COLUMN_TEST_INDEX_QUESTION).getStringCellValue()
+                            "%-" + maxLengthTerm + "." + maxLengthTerm + "s",
+                            row.getCell(COLUMN_TEST_INDEX_TERM).getStringCellValue()
                     ))
                     .append(" | ")
                     .append(String.format(
-                            "%-" + maxLengthAnswer + "." + maxLengthAnswer + "s",
-                            row.getCell(COLUMN_TEST_INDEX_ANSWER).getStringCellValue()
+                            "%-" + maxLengthDefinition + "." + maxLengthDefinition + "s",
+                            row.getCell(COLUMN_TEST_INDEX_DEFINITION).getStringCellValue()
                     ))
                     .append(" |");
         }

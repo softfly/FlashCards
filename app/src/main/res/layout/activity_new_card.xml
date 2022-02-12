@@ -8,14 +8,14 @@
     tools:context=".ui.card.NewCardActivity">
 
     <TextView
-        android:id="@+id/questionLabel"
+        android:id="@+id/termLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Question:"
+        android:text="Term:"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/questionEditText"
+        android:id="@+id/termEditText"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -26,22 +26,22 @@
         android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/questionLabel"
+        app:layout_constraintTop_toBottomOf="@+id/termLabel"
         android:importantForAutofill="no"
-        android:hint="Question"/>
+        android:hint="Term"/>
 
     <TextView
-        android:id="@+id/answerLabel"
+        android:id="@+id/definitionLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Answer:"
+        android:text="Definition:"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/questionEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/termEditText" />
 
     <EditText
-        android:id="@+id/answerEditText"
+        android:id="@+id/definitionEditText"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:ems="10"
@@ -51,7 +51,7 @@
         android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/answerLabel"
+        app:layout_constraintTop_toBottomOf="@+id/definitionLabel"
         android:importantForAutofill="no" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

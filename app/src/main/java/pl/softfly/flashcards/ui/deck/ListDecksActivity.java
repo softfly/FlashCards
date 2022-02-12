@@ -204,16 +204,16 @@ public class ListDecksActivity extends AppCompatActivity {
             int NUM_CARDS = 20;
             Card[] cards = new Card[NUM_CARDS];
             for (int i = 0; i < NUM_CARDS; i++) {
-                StringBuilder questionBuilder = new StringBuilder("Sample question ").append(i + 1);
-                StringBuilder answerBuilder = new StringBuilder("Sample answer ").append(i + 1);
+                StringBuilder termBuilder = new StringBuilder("Sample term ").append(i + 1);
+                StringBuilder definitionBuilder = new StringBuilder("Sample definition ").append(i + 1);
                 for (int ii = 0; ii < 10; ii++) {
-                    questionBuilder.append("\n Sample question ").append(i + 1);
-                    answerBuilder.append("\n Sample answer ").append(i + 1);
+                    termBuilder.append("\n Sample term ").append(i + 1);
+                    definitionBuilder.append("\n Sample definition ").append(i + 1);
                 }
                 Card card = new Card();
                 card.setOrdinal(i + 1);
-                card.setQuestion(questionBuilder.toString());
-                card.setAnswer(answerBuilder.toString());
+                card.setTerm(termBuilder.toString());
+                card.setDefinition(definitionBuilder.toString());
                 card.setModifiedAt(LocalDateTime.now());
                 cards[i] = card;
             }

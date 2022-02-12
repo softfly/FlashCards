@@ -61,8 +61,8 @@ public class MatchSimilarCardsRunnable implements Runnable {
                 }
                 Card card = cardList.remove(0);
 
-                double similarity = calcSimilarity(card.getQuestion(), cardImported.getQuestion());
-                similarity += calcSimilarity(card.getAnswer(), cardImported.getAnswer());
+                double similarity = calcSimilarity(card.getTerm(), cardImported.getTerm());
+                similarity += calcSimilarity(card.getDefinition(), cardImported.getDefinition());
                 if (similarity > 1.5 & similarity > maxSimilarity) {
                     mostSimilarCard = card;
                     maxSimilarity = similarity;

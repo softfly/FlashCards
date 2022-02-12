@@ -63,8 +63,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                 idTextViewWidth,
                 TableRow.LayoutParams.MATCH_PARENT
         ));
-        holder.getQuestionTextView().setText(card.getQuestion());
-        holder.getAnswerTextView().setText(card.getAnswer());
+        holder.getTermTextView().setText(card.getTerm());
+        holder.getDefinitionTextView().setText(card.getDefinition());
     }
 
     public void loadCards() {

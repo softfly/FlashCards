@@ -66,8 +66,8 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         // The file must be very old to get changes only from deck.
         this.newLastSyncAt = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
 
-        setQuestionIndex(0);
-        setAnswerIndex(1);
+        setTermIndex(0);
+        setDefinitionIndex(1);
         setSkipHeaderRows(1);
 
         fileSynced.setLastSyncAt(this.newLastSyncAt);
@@ -112,12 +112,12 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         cellStyle.setFont(font);
 
         Row row = sheet.createRow(0);
-        Cell cell = row.createCell(getQuestionIndex());
-        cell.setCellValue("Question");
+        Cell cell = row.createCell(getTermIndex());
+        cell.setCellValue("Term");
         cell.setCellStyle(cellStyle);
 
-        cell = row.createCell(getAnswerIndex());
-        cell.setCellValue("Answer");
+        cell = row.createCell(getDefinitionIndex());
+        cell.setCellValue("Definition");
         cell.setCellStyle(cellStyle);
     }
 
@@ -126,12 +126,12 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setWrapText(true);
 
-        Cell cell = row.createCell(getQuestionIndex());
-        cell.setCellValue(card.getQuestion());
+        Cell cell = row.createCell(getTermIndex());
+        cell.setCellValue(card.getTerm());
         cell.setCellStyle(cellStyle);
 
-        cell = row.createCell(getAnswerIndex());
-        cell.setCellValue(card.getAnswer());
+        cell = row.createCell(getDefinitionIndex());
+        cell.setCellValue(card.getDefinition());
         cell.setCellStyle(cellStyle);
     }
 }

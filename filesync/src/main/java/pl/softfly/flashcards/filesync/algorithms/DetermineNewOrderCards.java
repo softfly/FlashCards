@@ -429,7 +429,7 @@ public class DetermineNewOrderCards {
         if (CardImported.STATUS_INSERT_BY_FILE.equals(firstCardImported.getContentStatus())) {
             CardImported firstVertex = new CardImported();
             firstVertex.setId(0);
-            firstVertex.setQuestion("The auxiliary first vertex of the graph.");
+            firstVertex.setTerm("The auxiliary first vertex of the graph.");
             firstVertex.setOrdinal(0);
             firstVertex.setNextId(firstCardImported.getId());
             firstVertex.setContentStatus(CardImported.STATUS_UNCHANGED);
