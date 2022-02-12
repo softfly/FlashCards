@@ -429,7 +429,7 @@ public class DetermineNewOrderCards {
         if (CardImported.STATUS_INSERT_BY_FILE.equals(firstCardImported.getContentStatus())) {
             CardImported firstVertex = new CardImported();
             firstVertex.setId(0);
-            firstVertex.setQuestion("The first vertex of the graph.");
+            firstVertex.setQuestion("The auxiliary first vertex of the graph.");
             firstVertex.setOrdinal(0);
             firstVertex.setNextId(firstCardImported.getId());
             firstVertex.setContentStatus(CardImported.STATUS_UNCHANGED);
@@ -589,12 +589,16 @@ public class DetermineNewOrderCards {
             if (cardImported.getNewOrdinal() != null) {
                 throw new InvalidAlgorithmException("The card already has a new ordinal number!");
             }
-            if (!ordinal.equals(cardImported.getOrdinal())) {
-                cardImported.setOrderChanged(true);
+
+            // Skip the auxiliary first vertex of the graph.
+            if (!Integer.valueOf(0).equals(cardImported.getId())) {
+                if (!ordinal.equals(cardImported.getOrdinal())) {
+                    cardImported.setOrderChanged(true);
+                }
+                cardImported.setNewOrdinal(ordinal);
+                cardImportedListToUpdate.add(cardImported);
+                ordinal += MULTIPLE_ORDINAL;
             }
-            cardImported.setNewOrdinal(ordinal);
-            cardImportedListToUpdate.add(cardImported);
-            ordinal += MULTIPLE_ORDINAL;
 
             if (cardImported.getNewNextCardImportedId() == null) {
                 break;

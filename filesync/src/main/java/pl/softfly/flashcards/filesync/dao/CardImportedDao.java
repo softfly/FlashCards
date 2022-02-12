@@ -31,7 +31,7 @@ public interface CardImportedDao {
             "AND contentStatus NOT IN (" +
                 "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
                 "'" + CardImported.STATUS_DELETE_BY_FILE + "'" +
-            ")")
+            ") AND id != 0")
     int countByNewOrdinalNull();
 
     @Query("SELECT count(*) FROM FileSync_CardImported WHERE orderChanged=1")

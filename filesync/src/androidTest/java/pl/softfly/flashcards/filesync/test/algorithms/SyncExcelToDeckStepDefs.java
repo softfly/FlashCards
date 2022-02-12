@@ -305,13 +305,15 @@ public class SyncExcelToDeckStepDefs {
         try {
             List<Card> cardList = deckDb.cardDao().getCardsOrderByOrdinalAsc();
             Iterator<Card> it = cardList.iterator();
-            expectedDeck.asLists().forEach(row -> {
+            int ordinal = 1;
+            for (List<String> row: expectedDeck.asLists()) {
                 Card card = it.next();
+                org.junit.Assert.assertEquals(ordinal++, card.getOrdinal().intValue());
                 assertThat(
                         new String[]{row.get(0), row.get(1)},
                         is(new String[]{card.getQuestion(), card.getAnswer()})
                 );
-            });
+            }
         } catch (@NonNull AssertionError | Exception e) {
             List<Card> cards = deckDb.cardDao().getCardsOrderByOrdinalAsc();
             throw new AssertionError(printCards(cards), e);
