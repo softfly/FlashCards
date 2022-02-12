@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/ziems/StudioProjects/FlashCards/app/src/main/res/drawable-v24/ic_baseline_delete_sweep_24.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/ziems/StudioProjects/FlashCards/app/src/main/res/drawable-v24/ic_baseline_deselect_24.xml" value="0.10092592592592593" />
+        <entry key="..\:/Users/ziems/StudioProjects/FlashCards/app/src/main/res/drawable-v24/ic_baseline_east_24.xml" value="0.10092592592592593" />
+        <entry key="..\:/Users/ziems/StudioProjects/FlashCards/app/src/main/res/drawable-v24/ic_round_file_upload_24.xml" value="0.10092592592592593" />
+        <entry key="..\:/Users/ziems/StudioProjects/FlashCards/app/src/main/res/drawable-v24/ic_round_visibility_24.xml" value="0.1" />
+      </map>
+    </option>
+  </component>
   <component name="EntryPointsManager">
     <list size="4">
       <item index="0" class="java.lang.String" itemvalue="io.cucumber.java.Before" />
@@ -8,8 +19,11 @@
       <item index="3" class="java.lang.String" itemvalue="io.cucumber.java.en.When" />
     </list>
   </component>
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../FlashCards-javaDoc" />
+  </component>
   <component name="NullableNotNullManager">
-    <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
+    <option name="myDefaultNullable" value="androidx.annotation.Nullable" />
     <option name="myDefaultNotNull" value="androidx.annotation.NonNull" />
     <option name="myNullables">
       <value>

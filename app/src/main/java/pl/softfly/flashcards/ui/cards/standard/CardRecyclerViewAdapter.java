@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
@@ -58,7 +57,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        Card card = cards.get(position);
+        Card card = getItem(position);
         holder.getIdTextView().setText(card.getOrdinal().toString());
         holder.getIdTextView().setLayoutParams(new TableRow.LayoutParams(
                 idTextViewWidth,
@@ -77,8 +76,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(cards -> activity.runOnUiThread(() -> {
-                    this.cards.clear();
-                    this.cards.addAll(cards);
+                    getCurrentList().clear();
+                    getCurrentList().addAll(cards);
                     idTextViewWidth = calcIdTextViewWidth();
                     if (positionStart < 0)
                         this.notifyDataSetChanged();
@@ -95,7 +94,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
 
     private int calcIdTextViewWidth() {
         return Integer.toString(
-                cards.stream()
+                getCurrentList().stream()
                         .mapToInt(Card::getOrdinal)
                         .max()
                         .orElse(0)
@@ -103,7 +102,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     }
 
     public void onClickDeleteCard(int position) {
-        deckDb.cardDao().deleteAsync(cards.remove(position))
+        deckDb.cardDao().deleteAsync(removeItem(position))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> activity.runOnUiThread(() -> {
                     loadCards();
@@ -121,22 +120,17 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                         ));
     }
 
-    @Override
-    public int getItemCount() {
-        return Objects.nonNull(cards) ? cards.size() : 0;
-    }
-
     protected void startEditCardActivity(int position) {
         Intent intent = new Intent(activity, EditCardActivity.class);
         intent.putExtra(EditCardActivity.DECK_NAME, deckName);
-        intent.putExtra(EditCardActivity.CARD_ID, cards.get(position).getId());
+        intent.putExtra(EditCardActivity.CARD_ID, getItem(position).getId());
         activity.startActivity(intent);
     }
 
     protected void startNewCardActivity(int position) {
         Intent intent = new Intent(activity, NewCardAfterOrdinalActivity.class);
         intent.putExtra(NewCardActivity.DECK_NAME, deckName);
-        intent.putExtra(AFTER_ORDINAL, cards.get(position).getOrdinal());
+        intent.putExtra(AFTER_ORDINAL, getItem(position).getOrdinal());
         activity.startActivity(intent);
     }
 
@@ -147,12 +141,25 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                 .getDeckDatabase(deckName);
     }
 
-    public ListCardsActivity getActivity() {
-        return activity;
+    @Override
+    public int getItemCount() {
+        return cards.size();
     }
 
     @NonNull
-    public List<Card> getCards() {
+    public List<Card> getCurrentList() {
         return cards;
+    }
+
+    public Card getItem(int position) {
+        return cards.get(position);
+    }
+
+    protected Card removeItem(int position) {
+        return cards.remove(position);
+    }
+
+    public ListCardsActivity getActivity() {
+        return activity;
     }
 }

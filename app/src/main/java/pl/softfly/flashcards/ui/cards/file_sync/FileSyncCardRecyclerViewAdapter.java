@@ -37,9 +37,9 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        if (selectedCards.contains(getCards().get(position))) {
+        if (selectedCards.contains(getItem(position))) {
             super.onBindViewHolder(holder, position);
-        } else if (recentlySyncedCards.contains(getCards().get(position))) {
+        } else if (recentlySyncedCards.contains(getItem(position))) {
             holder.itemView.setBackgroundColor(Color.GREEN);
         } else {
             super.onBindViewHolder(holder, position);
@@ -82,7 +82,7 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     @Override
     public void onCardUnselect(@NonNull RecyclerView.ViewHolder viewHolder) {
         super.onCardUnselect(viewHolder);
-        Card card = getCards().get(viewHolder.getAdapterPosition());
+        Card card = getItem(viewHolder.getAdapterPosition());
         if (recentlySyncedCards.contains(card)) {
             viewHolder.itemView.setBackgroundColor(Color.GREEN);
         }

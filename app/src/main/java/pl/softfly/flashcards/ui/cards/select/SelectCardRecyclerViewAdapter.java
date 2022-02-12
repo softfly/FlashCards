@@ -43,7 +43,7 @@ public class SelectCardRecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        if (selectedCards.contains(getCards().get(position))) {
+        if (selectedCards.contains(getItem(position))) {
             holder.itemView.setBackgroundColor(Color.LTGRAY);
         } else {
             holder.itemView.setBackgroundColor(0);
@@ -59,13 +59,13 @@ public class SelectCardRecyclerViewAdapter
     }
 
     public boolean isCardSelected(int position) {
-        Card card = getCards().get(position);
+        Card card = getItem(position);
         return card != null && selectedCards.contains(card);
     }
 
     public void onCardSelect(@NonNull RecyclerView.ViewHolder viewHolder) {
         viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
-        Card card = getCards().get(viewHolder.getAdapterPosition());
+        Card card = getItem(viewHolder.getAdapterPosition());
         selectedCards.add(card);
         if (selectedCards.size() == 1)
             // Add selection mode options to the menu.
@@ -74,7 +74,7 @@ public class SelectCardRecyclerViewAdapter
 
     public void onCardUnselect(@NonNull RecyclerView.ViewHolder viewHolder) {
         viewHolder.itemView.setBackgroundColor(0);
-        Card card = getCards().get(viewHolder.getAdapterPosition());
+        Card card = getItem(viewHolder.getAdapterPosition());
         selectedCards.remove(card);
         if (selectedCards.isEmpty())
             // Remove selection mode options from the menu.
@@ -98,7 +98,7 @@ public class SelectCardRecyclerViewAdapter
     public void onClickDeleteSelected() {
         Completable.fromAction(
                 () -> {
-                    getCards().remove(selectedCards);
+                    getCurrentList().remove(selectedCards);
                     deckDb.cardDao().delete(selectedCards);
                 })
                 .subscribeOn(Schedulers.io())

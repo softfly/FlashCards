@@ -49,7 +49,7 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
                 break;
             case ItemTouchHelper.ACTION_STATE_IDLE:
                 if (dragTo != -1) {
-                    Card card = adapter.getCards().get(dragTo);
+                    Card card = adapter.getItem(dragTo);
                     if (card.getOrdinal() != dragTo + 1) {
                         adapter.moveCard(card, dragTo + 1);
                     }

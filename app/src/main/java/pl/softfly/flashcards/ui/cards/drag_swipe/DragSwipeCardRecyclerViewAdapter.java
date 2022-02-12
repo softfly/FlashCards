@@ -34,9 +34,9 @@ public class DragSwipeCardRecyclerViewAdapter
     }
 
     public void onCardMoveNoSave(int fromPosition, int toPosition) {
-        Card card = getCards().get(fromPosition);
-        getCards().remove(card);
-        getCards().add(toPosition, card);
+        Card card = getItem(fromPosition);
+        getCurrentList().remove(card);
+        getCurrentList().add(toPosition, card);
         notifyItemMoved(fromPosition, toPosition);
     }
 
