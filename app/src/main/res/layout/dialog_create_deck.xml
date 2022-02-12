@@ -11,6 +11,8 @@
         android:ems="10"
         android:inputType="text"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginRight="20dp"
+        android:importantForAutofill="no"
+        android:hint="Deck name"/>
 
 </LinearLayout>

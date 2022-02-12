@@ -6,6 +6,7 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -183,24 +185,24 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
         if (isEditingUnlocked()) {
             menu.add(0, R.id.sync_excel, 2,
                     menuIconWithText(
-                            getDrawable(R.drawable.ic_sharp_sync_24),
+                            getDrawableHelper(R.drawable.ic_sharp_sync_24),
                             "Sync with Excel"
                     ));
             menu.add(0, R.id.export_excel, 3,
                     menuIconWithText(
-                            getDrawable(R.drawable.ic_round_file_upload_24),
+                            getDrawableHelper(R.drawable.ic_round_file_upload_24),
                             "Export to new Excel"
                     ));
             if (!adapter.isShowedRecentlySynced()) {
                 menu.add(0, R.id.show_recently_synced, 4,
                         menuIconWithText(
-                                getDrawable(R.drawable.ic_round_visibility_24),
+                                getDrawableHelper(R.drawable.ic_round_visibility_24),
                                 "Show recently synced"
                         ));
             } else {
                 menu.add(0, R.id.hide_recently_synced, 5,
                         menuIconWithText(
-                                getDrawable(R.drawable.ic_baseline_visibility_off_24),
+                                getDrawableHelper(R.drawable.ic_baseline_visibility_off_24),
                                 "Hide recently synced"
                         ));
             }

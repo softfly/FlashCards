@@ -11,6 +11,7 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,7 +72,7 @@ public class ListCardsActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         menu.add(0, R.id.new_card, 1,
                 menuIconWithText(
-                        getDrawable(R.drawable.ic_outline_add_24),
+                        getDrawableHelper(R.drawable.ic_outline_add_24),
                         "New card"
                 ));
         getMenuInflater().inflate(R.menu.menu_list_cards, menu);
@@ -85,6 +86,10 @@ public class ListCardsActivity extends AppCompatActivity {
         ImageSpan imageSpan = new ImageSpan(r, ImageSpan.ALIGN_BOTTOM);
         sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return sb;
+    }
+
+    protected Drawable getDrawableHelper(int id) {
+        return AppCompatResources.getDrawable(getApplicationContext(), id);
     }
 
     @Override

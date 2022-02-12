@@ -5,13 +5,16 @@
     <application
         android:name=".FlashCardsApp"
         android:allowBackup="true"
+        android:fullBackupOnly="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FlashCards">
-        <activity android:name=".ui.deck.ListDecksActivity">
+        <activity
+            android:name=".ui.deck.ListDecksActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -19,25 +22,32 @@
         </activity>
         <activity
             android:name=".ui.card.study.DraggableStudyCardActivity"
-            android:parentActivityName=".ui.deck.ListDecksActivity">
+            android:parentActivityName=".ui.deck.ListDecksActivity"
+            android:exported="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />
         </activity>
-        <activity android:name=".ui.card.NewCardActivity">
+        <activity
+            android:name=".ui.card.NewCardActivity"
+            android:exported="false">
         </activity>
-        <activity android:name=".ui.card.NewCardAfterOrdinalActivity">
+        <activity
+            android:name=".ui.card.NewCardAfterOrdinalActivity"
+            android:exported="false">
         </activity>
         <activity
             android:name=".ui.card.EditCardActivity"
-            android:parentActivityName=".ui.cards.exception.ExceptionListCardsActivity">
+            android:parentActivityName=".ui.cards.exception.ExceptionListCardsActivity"
+            android:exported="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.cards.exception.ExceptionListCardsActivity" />
         </activity>
         <activity
             android:name=".ui.cards.exception.ExceptionListCardsActivity"
-            android:parentActivityName=".ui.deck.ListDecksActivity">
+            android:parentActivityName=".ui.deck.ListDecksActivity"
+            android:exported="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />

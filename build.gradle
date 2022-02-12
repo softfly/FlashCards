@@ -22,8 +22,9 @@ allprojects {
 }
 
 ext {
-    room_version = "2.3.0"
-    work_version = "2.6.0"
+    appcompat_version = "1.4.1"
+    room_version = "2.4.1"
+    work_version = "2.7.1"
 }
 
 task clean(type: Delete) {

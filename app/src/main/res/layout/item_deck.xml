@@ -17,19 +17,21 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:padding="14dp"
-        app:srcCompat="@drawable/ic_outline_description_24" />
+        app:srcCompat="@drawable/ic_outline_description_24"
+        android:contentDescription="Deck icon" />
 
     <TextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/moreTextView"
+        android:layout_toStartOf="@+id/moreTextView"
         android:layout_toEndOf="@id/imageView"
-        android:paddingEnd="80dp"
-
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
+
+        android:paddingStart="0dp"
         android:paddingTop="8dp"
+        android:paddingEnd="10dp"
         android:scrollHorizontally="true"
 
         android:singleLine="true"
@@ -75,7 +77,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="16dp"
         android:background="?android:attr/selectableItemBackground"

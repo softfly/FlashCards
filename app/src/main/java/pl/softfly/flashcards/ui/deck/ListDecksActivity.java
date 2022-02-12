@@ -3,6 +3,7 @@ package pl.softfly.flashcards.ui.deck;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
 import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -145,6 +146,7 @@ public class ListDecksActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("Range")
     protected void importDbDeck(Uri importedDbUri) {
         StorageDb storageDb = AppDatabaseUtil
                 .getInstance(getApplicationContext())

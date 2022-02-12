@@ -6,6 +6,7 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -114,16 +115,21 @@ public class SyncExcelToDeckStepDefs {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void initTestDir() {
-        if (Environment.isExternalStorageManager()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + "/" + appContext.getResources().getString(R.string.app_name) + "/tests/";
+            } else {
+                // @todo use getContext
+                testDirPath = InstrumentationRegistry
+                        .getInstrumentation()
+                        .getTargetContext()
+                        .getFilesDir()
+                        .getPath() + "/tests/";
+            }
+        } else {
             testDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/" + appContext.getResources().getString(R.string.app_name) + "/tests/";
-        } else {
-            // @todo use getContext
-            testDirPath = InstrumentationRegistry
-                    .getInstrumentation()
-                    .getTargetContext()
-                    .getFilesDir()
-                    .getPath() + "/tests/";
         }
         new File(testDirPath).mkdirs();
         Log.i(TAG, "testDirPath=" + testDirPath);

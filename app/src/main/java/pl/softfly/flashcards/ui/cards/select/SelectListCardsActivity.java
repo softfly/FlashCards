@@ -35,12 +35,12 @@ public class SelectListCardsActivity extends DragSwipeListCardsActivity {
         if (adapter.isSelectionMode()) {
             menu.add(0, R.id.deselect_all, 2,
                     menuIconWithText(
-                            getDrawable(R.drawable.ic_baseline_deselect_24),
+                            getDrawableHelper(R.drawable.ic_baseline_deselect_24),
                             "Deselect all"
                     ));
             menu.add(0, R.id.delete_selected, 2,
                     menuIconWithText(
-                            getDrawable(R.drawable.ic_baseline_delete_sweep_24),
+                            getDrawableHelper(R.drawable.ic_baseline_delete_sweep_24),
                             "Delete cards"
                     ));
             getMenuInflater().inflate(R.menu.menu_list_cards_select_mode, menu);

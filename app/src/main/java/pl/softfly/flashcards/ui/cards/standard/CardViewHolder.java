@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.ui.cards.standard;
 
+import android.annotation.SuppressLint;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -102,6 +103,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder
     }
 
     @Override
+    @SuppressLint("ClickableViewAccessibility")
     public boolean onTouch(View v, MotionEvent event) {
         gestureDetector.onTouchEvent(event);
         return false;

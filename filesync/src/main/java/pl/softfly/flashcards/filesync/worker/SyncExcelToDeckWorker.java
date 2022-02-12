@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.filesync.worker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -97,6 +98,7 @@ public class SyncExcelToDeckWorker extends Worker {
     /**
      * https://developer.android.com/training/data-storage/shared/documents-files
      */
+    @SuppressLint("Range")
     protected InputStream openExcelFile(Uri uri) throws FileNotFoundException {
         try (Cursor cursor = getApplicationContext().getContentResolver()
                 .query(uri, null, null, null)) {
