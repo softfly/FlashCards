@@ -25,14 +25,14 @@ public abstract class AppStorageDb<DB extends RoomDatabase> extends StorageDb {
         return Room.databaseBuilder(
                 appContext,
                 getTClass(),
-                addDbFilenameExtensionIfRequired(deckName)
+                getDbPath(deckName)
         ).build();
     }
 
     @NonNull
     @Override
     protected String getDbFolder() {
-        return appContext.getFilesDir().getParentFile().getPath() + "/databases";
+        return appContext.getFilesDir().getParentFile().getPath() + "/databases/decks";
     }
 
     @NonNull
