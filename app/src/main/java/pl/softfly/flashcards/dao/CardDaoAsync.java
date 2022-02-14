@@ -35,9 +35,11 @@ public abstract class CardDaoAsync {
     public abstract Maybe<List<Card>> getCardsByDeletedNotOrderByOrdinal();
 
     @NonNull
-    @Query("SELECT * FROM Core_Card WHERE " +
-            "Core_Card.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) " +
-            "OR Core_Card.nextReplayAt IS NULL " +
+    @Query("SELECT * FROM Core_Card c " +
+            "LEFT JOIN Core_Card_LearningProgress l ON l.cardId = c.id " +
+            "WHERE " +
+            "l.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) " +
+            "OR l.nextReplayAt IS NULL " +
             "LIMIT 10")
     public abstract Maybe<List<Card>> getNextCards();
 

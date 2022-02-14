@@ -1,5 +1,8 @@
 package pl.softfly.flashcards.ui.card.study;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -14,8 +17,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardReplayScheduler;
 import pl.softfly.flashcards.R;
@@ -23,20 +28,18 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.CardLearningProgress;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
-
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 
 public abstract class StudyCardActivity extends AppCompatActivity {
 
     private final static String TAG = "ViewCardActivity";
 
-    java.util.ListIterator<Card> cardIterator;
-    CardLearningProgress againLearningProgress;
-    CardLearningProgress easyLearningProgress;
-    CardLearningProgress hardLearningProgress;
+    ListIterator<Card> cardIterator;
+    private CardLearningProgress againLearningProgress;
+    private CardLearningProgress easyLearningProgress;
+    private CardLearningProgress hardLearningProgress;
     private String deckName;
     @Nullable
     private DeckDatabase deckDb;
@@ -101,12 +104,7 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         againButton = findViewById(R.id.againButton);
         againButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            card.setLearningProgress(againLearningProgress);
-
-            deckDb.cardDaoAsync().updateAll(card)
-                    .subscribeOn(Schedulers.io())
-                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
-                    .subscribe();
+            updateCard(againLearningProgress);
         });
     }
 
@@ -114,12 +112,7 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         easyButton = findViewById(R.id.easyButton);
         easyButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            card.setLearningProgress(easyLearningProgress);
-
-            deckDb.cardDaoAsync().updateAll(card)
-                    .subscribeOn(Schedulers.io())
-                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
-                    .subscribe();
+            updateCard(easyLearningProgress);
         });
     }
 
@@ -127,15 +120,27 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         hardButton = findViewById(R.id.hardButton);
         hardButton.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(INVISIBLE);
-            card.setLearningProgress(hardLearningProgress);
-
-
-            deckDb.cardDaoAsync().updateAll(card)
-                    .subscribeOn(Schedulers.io())
-                    .doOnComplete(() -> runOnUiThread(this::loadNextCard))
-                    .subscribe();
-            loadNextCard();
+            updateCard(hardLearningProgress);
         });
+    }
+
+    private void updateCard(CardLearningProgress learningProgress) {
+        deckDb.cardDaoAsync().updateAll(card)
+                .subscribeOn(Schedulers.io())
+                .doOnComplete(() -> {
+                    Completable c;
+                    if (learningProgress.getId() == null) {
+                        c = deckDb.cardLearningProgressAsyncDao()
+                                .insertAll(learningProgress);
+                    } else {
+                        c = deckDb.cardLearningProgressAsyncDao()
+                                .updateAll(learningProgress);
+                    }
+                    c.subscribeOn(Schedulers.io())
+                            .doOnComplete(() -> runOnUiThread(this::loadNextCard))
+                            .subscribe();
+                })
+                .subscribe();
     }
 
     protected void loadNextCard() {
@@ -163,15 +168,33 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         this.card = card;
         termView.setText(card.getTerm());
         definitionView.setText("?\nShow definition");
+        deckDb.cardLearningProgressAsyncDao()
+                .findByCardId(card.getId())
+                .subscribeOn(Schedulers.io())
+                .doOnEvent((value, error) -> {
+                    if (value == null && error == null) {
+                        againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
+                        easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(null);
+                        hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(null);
 
-        againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
-        againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
+                        runOnUiThread(() -> {
+                            againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
+                            easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
+                            hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
+                        });
+                    }
+                })
+                .subscribe(cardLearningProgress -> {
+                    againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
+                    easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(cardLearningProgress);
+                    hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(cardLearningProgress);
 
-        easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(card.getLearningProgress());
-        easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
-
-        hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(card.getLearningProgress());
-        hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
+                    runOnUiThread(() -> {
+                        againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
+                        easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
+                        hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
+                    });
+                }, Throwable::printStackTrace);
     }
 
     @Override
