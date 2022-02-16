@@ -83,6 +83,15 @@ public class ExceptionHandler {
             @NonNull Throwable e,
             @NonNull FragmentManager manager,
             String tag,
+            String message
+    ) {
+        handleException(e, manager, tag, message, null);
+    }
+
+    public void handleException(
+            @NonNull Throwable e,
+            @NonNull FragmentManager manager,
+            String tag,
             DialogInterface.OnClickListener positiveListener
     ) {
         handleException(e, manager, tag, null, positiveListener);

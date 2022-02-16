@@ -64,28 +64,44 @@ public abstract class CardDao {
     @Update
     public abstract void updateAll(List<Card> cards);
 
+    protected void decreaseOrdinalByBetween(int greaterThan, int lessThanEqual) {
+        decreaseOrdinalByBetween(1, greaterThan, lessThanEqual);
+    }
+
     @Query("UPDATE Core_Card SET ordinal=ordinal-:decrease " +
             "WHERE deletedAt IS NULL AND ordinal>:greaterThan AND ordinal<=:lessThanEqual")
     protected abstract void decreaseOrdinalByBetween(int decrease, int greaterThan, int lessThanEqual);
+
+    protected void decreaseOrdinalByGreaterThan(int greaterThan) {
+        decreaseOrdinalByGreaterThan(1, greaterThan);
+    }
 
     @Query("UPDATE Core_Card SET ordinal=ordinal-:decrease " +
             "WHERE deletedAt IS NULL AND ordinal>:greaterThan")
     protected abstract void decreaseOrdinalByGreaterThan(int decrease, int greaterThan);
 
-    @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
-            "WHERE deletedAt IS NULL AND ordinal>=:greaterThanEqual AND ordinal<:lessThan")
-    protected abstract void increaseOrdinalByBetween(int greaterThanEqual, int lessThan);
+    protected void increaseOrdinalByBetween(int greaterThanEqual, int lessThan) {
+        increaseOrdinalByBetween(1, greaterThanEqual,lessThan);
+    }
 
-    @Query("UPDATE Core_Card SET ordinal=ordinal+1 " +
+    @Query("UPDATE Core_Card SET ordinal=ordinal+:increase " +
+            "WHERE deletedAt IS NULL AND ordinal>=:greaterThanEqual AND ordinal<:lessThan")
+    protected abstract void increaseOrdinalByBetween(int increase, int greaterThanEqual, int lessThan);
+
+    protected void increaseOrdinalByGreaterThanEqual(int greaterThanEqual) {
+        increaseOrdinalByGreaterThanEqual(1, greaterThanEqual);
+    }
+
+    @Query("UPDATE Core_Card SET ordinal=ordinal+:increase " +
             "WHERE deletedAt IS NULL AND ordinal>=:greaterThanEqual")
-    protected abstract void increaseOrdinalByGreaterThanEqual(int greaterThanEqual);
+    protected abstract void increaseOrdinalByGreaterThanEqual(int increase, int greaterThanEqual);
 
     @Transaction
     public void changeCardOrdinal(@NonNull Card card, int newOrdinal) {
         if (card.getOrdinal() == newOrdinal) {
             throw new RuntimeException("Move to the same place.");
         } else if (newOrdinal > card.getOrdinal()) {
-            decreaseOrdinalByBetween(1, card.getOrdinal(), newOrdinal);
+            decreaseOrdinalByBetween(card.getOrdinal(), newOrdinal);
             card.setOrdinal(newOrdinal);
         } else {
             increaseOrdinalByBetween(newOrdinal, card.getOrdinal());
@@ -122,7 +138,7 @@ public abstract class CardDao {
     @Transaction
     protected void delete(@NonNull Card card) {
         setDeletedAt(card.getId());
-        decreaseOrdinalByGreaterThan(1, card.getOrdinal());
+        decreaseOrdinalByGreaterThan(card.getOrdinal());
     }
 
     /**
@@ -150,6 +166,47 @@ public abstract class CardDao {
         }
         setDeletedAt(card1.getId());
         decreaseOrdinalByGreaterThan(deleted, card1.getOrdinal());
+    }
+
+    /**
+     * Restore and refresh ordinal numbers.
+     */
+    @Transaction
+    protected void restore(@NonNull Card card) {
+        increaseOrdinalByGreaterThanEqual(card.getOrdinal());
+        card.setDeletedAt(null);
+        updateAll(card);
+    }
+
+    /**
+     * Restore and refresh ordinal numbers.
+     */
+    @NonNull
+    public Completable restoreAsync(@NonNull Card card) {
+        return Completable.fromAction(() -> restore(card));
+    }
+
+    /**
+     * Restore and refresh ordinal numbers.
+     */
+    @Transaction
+    protected void restore(@NonNull List<Card> cards) {
+        List<Card> sorted = cards.stream()
+                .sorted(Comparator.comparing(Card::getOrdinal))
+                .collect(Collectors.toList());
+        for (Card card : sorted) {
+            card.setDeletedAt(null);
+            increaseOrdinalByGreaterThanEqual(1, card.getOrdinal());
+            updateAll(card);
+        }
+    }
+
+    /**
+     * Restore and refresh ordinal numbers.
+     */
+    @NonNull
+    public Completable restoreAsync(@NonNull List<Card> cards) {
+        return Completable.fromAction(() -> restore(cards));
     }
 
     @Query("DELETE FROM Core_Card WHERE deletedAt IS NOT NULL")

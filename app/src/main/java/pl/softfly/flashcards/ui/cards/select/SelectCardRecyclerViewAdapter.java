@@ -2,19 +2,23 @@ package pl.softfly.flashcards.ui.cards.select;
 
 import android.graphics.Color;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
@@ -98,30 +102,61 @@ public class SelectCardRecyclerViewAdapter
     public void onClickDeleteSelected() {
         Completable.fromAction(
                 () -> {
-                    getCurrentList().remove(selectedCards);
+                    getCurrentList().removeAll(selectedCards);
                     deckDb.cardDao().delete(selectedCards);
                 })
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> {
-                    Integer minPosition = selectedCards.stream()
-                            .mapToInt(Card::getOrdinal)
+                    List cardsToRevert = new ArrayList(selectedCards);
+
+                    int first = selectedCards.stream()
+                            .mapToInt(card -> card.getOrdinal())
                             .min()
-                            .getAsInt() - 1;
-                    loadCards(minPosition, getItemCount());
-                    selectedCards.clear();
+                            .getAsInt();
+
+                    Stream<Card> stream = selectedCards.stream()
+                            .sorted((o1, o2) -> o2.getOrdinal().compareTo(o1.getOrdinal()));
+
+                    activity.runOnUiThread(
+                            () -> {
+                                stream.forEach(card -> notifyItemRemoved(card.getOrdinal() - 1));
+                                loadCards(first-1, getItemCount()-first+1);
+                                selectedCards.clear();
+                            }
+                    );
+
+                    activity.runOnUiThread(
+                            () -> Snackbar.make(getActivity().findViewById(R.id.listCards),
+                                    "The card has been deleted.",
+                                    Snackbar.LENGTH_LONG)
+                                    .setAction("Undo", v -> revertCards(cardsToRevert))
+                                    .show());
+
                     // Disable the pop-up menu in selection mode.
                     activity.refreshMenuOnAppBar();
-                    activity.runOnUiThread(
-                            () -> Toast.makeText(
-                                    activity,
-                                    "The cards have been deleted.",
-                                    Toast.LENGTH_SHORT
-                            ).show());
                 })
-                .subscribe(() -> {
-                }, e -> exceptionHandler.handleException(
+                .subscribe(() -> { }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
-                        SelectCardRecyclerViewAdapter.class.getSimpleName() + "OnClickDeleteSelected"
+                        SelectCardRecyclerViewAdapter.class.getSimpleName()
+                                + "OnClickDeleteSelectedCards",
+                        "Error while removing the selected cards."
+                ));
+    }
+
+    private void revertCards(List<Card> cards) {
+        deckDb.cardDao().restoreAsync(cards)
+                .subscribeOn(Schedulers.io())
+                .doOnComplete(() -> {
+                    selectedCards.addAll(cards);
+                    activity.runOnUiThread(() -> loadCards());
+                    // Enable the pop-up menu in selection mode.
+                    activity.refreshMenuOnAppBar();
+                })
+                .subscribe(() -> {}, e -> exceptionHandler.handleException(
+                        e, activity.getSupportFragmentManager(),
+                        SelectCardRecyclerViewAdapter.class.getSimpleName()
+                                + "OnClickRevertSelectedCards",
+                        "Error while restoring the removed cards."
                 ));
     }
 

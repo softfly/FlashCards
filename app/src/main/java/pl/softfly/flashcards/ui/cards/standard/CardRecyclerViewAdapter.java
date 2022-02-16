@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -75,19 +77,19 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         deckDb.cardDaoAsync().getCardsByDeletedNotOrderByOrdinal()
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
-                .doOnSuccess(cards -> activity.runOnUiThread(() -> {
-                    getCurrentList().clear();
-                    getCurrentList().addAll(cards);
-                    idTextViewWidth = calcIdTextViewWidth();
-                    if (positionStart < 0)
-                        this.notifyDataSetChanged();
-                    else
-                        this.notifyItemRangeChanged(positionStart, itemCount);
-                }))
-                .subscribe(cards1 -> { },
+                .subscribe(cards -> activity.runOnUiThread(() -> {
+                            getCurrentList().clear();
+                            getCurrentList().addAll(cards);
+                            if (idTextViewWidth == 0) idTextViewWidth = calcIdTextViewWidth();
+                            if (positionStart < 0)
+                                this.notifyDataSetChanged();
+                            else
+                                this.notifyItemRangeChanged(positionStart, itemCount);
+                        }),
                         e -> exceptionHandler.handleException(
                                 e, activity.getSupportFragmentManager(),
                                 CardRecyclerViewAdapter.class.getSimpleName() + "_LoadCards",
+                                "Error while loading cards.",
                                 (dialog, which) -> activity.onBackPressed()
                         ));
     }
@@ -102,22 +104,41 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     }
 
     public void onClickDeleteCard(int position) {
-        deckDb.cardDao().deleteAsync(removeItem(position))
+        Card card = removeItem(position);
+        deckDb.cardDao().deleteAsync(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> activity.runOnUiThread(() -> {
-                    loadCards();
-                    Toast.makeText(
-                            activity,
+                    notifyItemRemoved(position);
+                    //Refresh ordinal numbers.
+                    loadCards(position, getItemCount() - position);
+                    Snackbar.make(getActivity().findViewById(R.id.listCards),
                             "The card has been deleted.",
-                            Toast.LENGTH_SHORT
-                    ).show();
+                            Snackbar.LENGTH_LONG)
+                            .setAction("Undo", v -> revertCard(card))
+                            .show();
                 }))
-                .subscribe(() -> {
-                        },
-                        e -> exceptionHandler.handleException(
+                .subscribe(() -> {}, e -> exceptionHandler.handleException(
                                 e, activity.getSupportFragmentManager(),
-                                CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard"
+                                CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard",
+                                "Error while removing the card."
                         ));
+    }
+
+    private void revertCard(Card card) {
+        deckDb.cardDao().restoreAsync(card)
+                .subscribeOn(Schedulers.io())
+                .doOnComplete(() -> activity.runOnUiThread(
+                        () -> {
+                            loadCards(card.getOrdinal() - 1, getItemCount() - card.getOrdinal() + 2);
+                            Toast.makeText(activity, "The card has been restored.", Toast.LENGTH_SHORT).show();
+                        })
+                )
+                .subscribe(() -> {
+                }, e -> exceptionHandler.handleException(
+                        e, activity.getSupportFragmentManager(),
+                        CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickRevertCard",
+                        "Error while restoring the card."
+                ));
     }
 
     protected void startEditCardActivity(int position) {

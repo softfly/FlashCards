@@ -109,10 +109,14 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
     }
 
     private void unfocusCard(PopupMenu p) {
-        if (adapter.isCardSelected(getAdapterPosition())) {
-            this.itemView.setBackgroundColor(Color.LTGRAY);
-        } else {
-            this.itemView.setBackgroundColor(0);
+        // Check that the card has not been removed.
+        int position = getBindingAdapterPosition();
+        if (-1 < position && position < adapter.getItemCount()){
+            if (adapter.isCardSelected(getBindingAdapterPosition())) {
+                this.itemView.setBackgroundColor(Color.LTGRAY);
+            } else {
+                this.itemView.setBackgroundColor(0);
+            }
         }
     }
 }
