@@ -18,15 +18,16 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.filesync.ui.EditingDeckLockedDialog;
+import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.filesync.worker.ExportExcelFromDeckWorker;
 import pl.softfly.flashcards.filesync.worker.ImportExcelToDeckWorker;
 import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
-import pl.softfly.flashcards.filesync.ui.EditingDeckLockedDialog;
-import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
@@ -45,6 +46,8 @@ public class FileSyncBean implements FileSync {
 
     @Nullable
     private FileSyncDeckDatabase deckDb;
+
+    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     /**
      * SE Synchronize deck with excel file.
@@ -225,7 +228,12 @@ public class FileSyncBean implements FileSync {
                         andThen.run();
                     }
                 })
-                .subscribe();
+                .subscribe(blockedAt -> {}, e -> exceptionHandler.handleException(
+                        e, activity.getSupportFragmentManager(),
+                        FileSyncBean.class.getSimpleName(),
+                        "Error while exporting or syncing cards.",
+                        (dialog, which) -> activity.onBackPressed()
+                ));
     }
 
     protected void setUpAutoSync(

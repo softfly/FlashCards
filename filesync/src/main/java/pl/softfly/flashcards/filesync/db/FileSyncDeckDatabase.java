@@ -8,6 +8,7 @@ import pl.softfly.flashcards.dao.DeckConfigAsyncDao;
 import pl.softfly.flashcards.dao.DeckConfigDao;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.CardLearningProgress;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.dao.CardDao;
 import pl.softfly.flashcards.filesync.dao.CardEdgeDao;
@@ -30,6 +31,7 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
 @Database(
         entities = {
                 Card.class,
+                CardLearningProgress.class,
                 DeckConfig.class,
                 CardImported.class,
                 CardEdge.class,
@@ -42,7 +44,8 @@ import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
                 CountToGraphOnlyNewCards.class
         },
         exportSchema = false,
-        version = 1)
+        version = 1
+)
 @TypeConverters({Converters.class})
 public abstract class FileSyncDeckDatabase extends RoomDatabase {
 

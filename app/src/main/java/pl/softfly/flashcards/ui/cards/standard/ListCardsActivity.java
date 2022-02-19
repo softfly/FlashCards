@@ -1,6 +1,9 @@
 package pl.softfly.flashcards.ui.cards.standard;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -14,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.color.MaterialColors;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.ExceptionDialog;
@@ -38,6 +43,8 @@ public class ListCardsActivity extends AppCompatActivity {
             Intent intent = getIntent();
             deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
             initRecyclerView();
+
+            getSupportActionBar().setElevation(0); // Remove shadow under
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog dialog = new ExceptionDialog(e);
@@ -79,9 +86,14 @@ public class ListCardsActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("ResourceAsColor")
     @NonNull
     protected CharSequence menuIconWithText(@NonNull Drawable r, String title) {
         r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
+        r.setColorFilter(
+                MaterialColors.getColor(findViewById(R.id.card_list_view), R.attr.colorIcons),
+                PorterDuff.Mode.MULTIPLY
+        );
         SpannableString sb = new SpannableString("    " + title);
         ImageSpan imageSpan = new ImageSpan(r, ImageSpan.ALIGN_BOTTOM);
         sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -89,7 +101,7 @@ public class ListCardsActivity extends AppCompatActivity {
     }
 
     protected Drawable getDrawableHelper(int id) {
-        return AppCompatResources.getDrawable(getApplicationContext(), id);
+        return AppCompatResources.getDrawable(getBaseContext(), id);
     }
 
     @Override

@@ -63,7 +63,7 @@
         android:id="@+id/editingLocked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corner_top"
+        android:background="@drawable/ui_rounded_corner_top"
         android:paddingHorizontal="10dp"
         android:paddingVertical="8dp"
         android:text="Deck editing is locked. Sync in progress..."

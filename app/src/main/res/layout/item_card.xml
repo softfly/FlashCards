@@ -24,7 +24,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@drawable/list_divider_material" />
+            android:background="@drawable/ui_list_divider_material" />
 
         <TextView
             android:id="@+id/term"
@@ -39,7 +39,7 @@
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@drawable/list_divider_material" />
+            android:background="@drawable/ui_list_divider_material" />
 
         <TextView
             android:id="@+id/definition"
@@ -57,6 +57,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/cardRow"
-        android:background="@drawable/list_divider_material" />
+        android:background="@drawable/ui_list_divider_material" />
 
 </RelativeLayout>

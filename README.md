@@ -1,4 +1,10 @@
 # FlashCards
+Application for learning, studying and memorizing using the so-called flashcards.
+
+The inspiration for the application was independence from storing cards in commercial products. Instead, the cards are kept on your own memory that you always have access to. Cards can be edited in an Excel spreadsheet, such as on a laptop, which is faster and more convenient than editing on a smartphone.
+- Sheets can be automatically synced with the app when you open and close the deck.
+- Sheets can be stored in cloud storage.
+
 ## Features
 
 ### Decks
@@ -14,20 +20,20 @@
 - C_R_02 Display all cards.
     - C_U_03 Edit the card.
     - C_D_04 Delete the card by clicking in the context menu.
-        - C_U_06 Undo remove card.
-    - C_D_05 Delete the card by swiping.
-        - C_U_06 Undo remove card.
-    - C_U_07 Dragging the card to another position.
-    - C_08 Select (cut) / deselect the card by clicking.
-    - C_09 Select / deselect the card by clicking in the context menu.
+        - C_U_05 Undo remove card.
+    - C_D_06 Delete the card by swiping.
+        - C_U_07 Undo remove card(s).
+    - C_U_08 Dragging the card to another position.
+    - C_09 Select (cut) / deselect the card by clicking.
+    - C_10 Select / deselect the card by clicking in the context menu.
     - After selecting the card(s)
-        - C_D_10 Delete selected card(s)
-            - C_D_11 Undo remove selected card(s)
-        - C_U_12 Paste the card(s)
-        - C_13 Deselect all cards
-    - C_C_14 Add a new card at the end of the deck.
-    - C_C_15 Add a new card after the selected card.
-    - C_FS_16 Show / hide recently synced cards.
+        - C_D_11 Delete selected card(s)
+            - C_D_12 Undo remove selected card(s)
+        - C_U_13 Paste the card(s)
+        - C_14 Deselect all cards
+    - C_C_15 Add a new card at the end of the deck.
+    - C_C_16 Add a new card after the selected card.
+    - C_FS_17 Show / hide recently synced cards.
 
 ### File Sync
 

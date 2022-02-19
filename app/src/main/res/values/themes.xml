@@ -1,24 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Base application theme. -->
     <style name="Theme.FlashCards" parent="Theme.MaterialComponents.Light.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
+        <item name="colorPrimary">@color/purple_900</item>
+        <item name="colorPrimaryVariant">@color/purple_900</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-        <item name="colorListDivider">@color/list_divider_color_light</item>
-        <item name="opacityListDivider">@color/list_divider_opacity_device_default_light</item>
-    </style>
+        <item name="colorListDivider">@color/grey_300</item>
+        <item name="opacityListDivider">@color/opacity_100</item>
 
-    <style name="fab_labelStyle">
-        <item name="android:background">@drawable/fab_label_style</item>
-        <item name="android:textColor">#fff</item>
+        <item name="colorItemRecentlySynced">@color/green_200</item>
+        <item name="colorItemSelected">@color/deep_purple_50</item>
+        <item name="colorItemActive">@color/deep_purple_200</item>
+
+        <item name="colorIcons">@color/grey_600</item>
     </style>
 
     <style name="PopupMenuWithLeftOffset" parent="@style/Widget.AppCompat.PopupMenu">

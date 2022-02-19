@@ -1,13 +1,13 @@
 package pl.softfly.flashcards.ui.cards.drag_swipe;
 
-import android.graphics.Color;
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -45,7 +45,10 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
         switch (actionState) {
             case ItemTouchHelper.ACTION_STATE_DRAG:
             case ItemTouchHelper.ACTION_STATE_SWIPE:
-                setFocusColorItem(viewHolder.itemView);
+                viewHolder.itemView.setActivated(true);
+                viewHolder.itemView.setBackgroundColor(
+                        MaterialColors.getColor(viewHolder.itemView, R.attr.colorItemActive)
+                );
                 break;
             case ItemTouchHelper.ACTION_STATE_IDLE:
                 if (dragTo != -1) {
@@ -56,10 +59,6 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
                 }
                 break;
         }
-    }
-
-    private void setFocusColorItem(@NonNull View itemView) {
-        itemView.setBackgroundColor(Color.GRAY);
     }
 
     @Override
@@ -78,13 +77,13 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
             @NonNull RecyclerView.ViewHolder viewHolder,
             @NonNull RecyclerView.ViewHolder target
     ) {
-        dragTo = target.getAdapterPosition();
-        adapter.onCardMoveNoSave(viewHolder.getAdapterPosition(), dragTo);
+        dragTo = target.getBindingAdapterPosition();
+        adapter.onCardMoveNoSave(viewHolder.getBindingAdapterPosition(), dragTo);
         return true;
     }
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        adapter.onClickDeleteCard(viewHolder.getAdapterPosition());
+        adapter.onClickDeleteCard(viewHolder.getBindingAdapterPosition());
     }
 }

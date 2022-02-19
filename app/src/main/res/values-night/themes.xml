@@ -2,17 +2,45 @@
     <!-- Base application theme. -->
     <style name="Theme.FlashCards" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#121212</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
-        <!-- Customize your theme here. -->
-        <item name="colorListDivider">@color/list_divider_color_dark</item>
-        <item name="opacityListDivider">@color/list_divider_opacity_device_default_dark</item>
+        <item name="colorPrimary">@color/grey_1000</item>
+        <item name="colorPrimaryVariant">@color/grey_1000</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">@color/grey_1000</item>
+        <item name="actionBarStyle">@style/AppBarDarkStyle</item>
+        <item name="android:windowBackground">@android:color/black</item>
+
+        <item name="alertDialogTheme">@style/ThemeOverlay.MyApp.MaterialAlertDialog</item>
+        <!--<item name="materialAlertDialogTheme">@style/ThemeOverlay.MyApp.MaterialAlertDialog</item>-->
+
+
+        <item name="colorListDivider">@color/grey_900</item>
+        <item name="opacityListDivider">@color/opacity_80</item>
+
+        <item name="colorItemRecentlySynced">@color/green_800</item>
+        <item name="colorItemSelected">@color/deep_purple_700</item>
+        <item name="colorItemActive">@color/deep_purple_900</item>
+
+        <item name="colorIcons">@android:color/white</item>
     </style>
+
+    <style name="AppBarDarkStyle" parent="Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">@color/grey_1000</item>
+    </style>
+
+    <!-- BEGIN MaterialAlertDialog -->
+    <style name="ThemeOverlay.MyApp.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog</item>
+    </style>
+
+    <style name="Widget.MyApp.Button.TextButton.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.MyApp.Button.TextButton.Dialog</item>
+    </style>
+
+    <style name="ThemeOverlay.MyApp.Button.TextButton.Dialog" parent="">
+        <item name="colorPrimary">@android:color/white</item>
+    </style>
+    <!-- END MaterialAlertDialog -->
+
 </resources>

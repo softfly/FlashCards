@@ -1,15 +1,17 @@
 package pl.softfly.flashcards.ui.cards.file_sync;
 
-import android.graphics.Color;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.ui.cards.select.SelectCardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
@@ -40,7 +42,9 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
         if (selectedCards.contains(getItem(position))) {
             super.onBindViewHolder(holder, position);
         } else if (recentlySyncedCards.contains(getItem(position))) {
-            holder.itemView.setBackgroundColor(Color.GREEN);
+            holder.itemView.setBackgroundColor(
+                    MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlySynced)
+            );
         } else {
             super.onBindViewHolder(holder, position);
         }
@@ -82,9 +86,11 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     @Override
     public void onCardUnselect(@NonNull RecyclerView.ViewHolder viewHolder) {
         super.onCardUnselect(viewHolder);
-        Card card = getItem(viewHolder.getAdapterPosition());
+        Card card = getItem(viewHolder.getBindingAdapterPosition());
         if (recentlySyncedCards.contains(card)) {
-            viewHolder.itemView.setBackgroundColor(Color.GREEN);
+            viewHolder.itemView.setBackgroundColor(
+                    MaterialColors.getColor(viewHolder.itemView, R.attr.colorItemRecentlySynced)
+            );
         }
     }
 

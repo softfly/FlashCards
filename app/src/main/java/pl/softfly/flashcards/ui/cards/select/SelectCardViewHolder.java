@@ -1,6 +1,5 @@
 package pl.softfly.flashcards.ui.cards.select;
 
-import android.graphics.Color;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -8,6 +7,8 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.material.color.MaterialColors;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardViewHolder;
@@ -109,12 +110,18 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
     }
 
     private void unfocusCard(PopupMenu p) {
+        this.itemView.setActivated(false);
         // Check that the card has not been removed.
         int position = getBindingAdapterPosition();
         if (-1 < position && position < adapter.getItemCount()){
             if (adapter.isCardSelected(getBindingAdapterPosition())) {
-                this.itemView.setBackgroundColor(Color.LTGRAY);
+                this.itemView.setSelected(true);
+                this.itemView.setBackgroundColor(
+                        MaterialColors.getColor(this.itemView, R.attr.colorItemSelected)
+                );
+
             } else {
+                this.itemView.setSelected(false);
                 this.itemView.setBackgroundColor(0);
             }
         }

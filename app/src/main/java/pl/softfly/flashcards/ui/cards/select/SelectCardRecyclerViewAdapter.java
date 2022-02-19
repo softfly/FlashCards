@@ -1,11 +1,11 @@
 package pl.softfly.flashcards.ui.cards.select;
 
-import android.graphics.Color;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -47,15 +47,19 @@ public class SelectCardRecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        if (selectedCards.contains(getItem(position))) {
-            holder.itemView.setBackgroundColor(Color.LTGRAY);
+        if (isCardSelected(position)) {
+            holder.itemView.setSelected(true);
+            holder.itemView.setBackgroundColor(
+                    MaterialColors.getColor(holder.itemView, R.attr.colorItemSelected)
+            );
         } else {
+            holder.itemView.setSelected(false);
             holder.itemView.setBackgroundColor(0);
         }
     }
 
     public void onCardInvertSelect(@NonNull RecyclerView.ViewHolder viewHolder) {
-        if (isCardSelected(viewHolder.getAdapterPosition())) {
+        if (isCardSelected(viewHolder.getBindingAdapterPosition())) {
             onCardUnselect(viewHolder);
         } else {
             onCardSelect(viewHolder);
@@ -68,8 +72,11 @@ public class SelectCardRecyclerViewAdapter
     }
 
     public void onCardSelect(@NonNull RecyclerView.ViewHolder viewHolder) {
-        viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
-        Card card = getItem(viewHolder.getAdapterPosition());
+        viewHolder.itemView.setSelected(true);
+        viewHolder.itemView.setBackgroundColor(
+                MaterialColors.getColor(viewHolder.itemView, R.attr.colorItemSelected)
+        );
+        Card card = getItem(viewHolder.getBindingAdapterPosition());
         selectedCards.add(card);
         if (selectedCards.size() == 1)
             // Add selection mode options to the menu.
@@ -77,8 +84,9 @@ public class SelectCardRecyclerViewAdapter
     }
 
     public void onCardUnselect(@NonNull RecyclerView.ViewHolder viewHolder) {
+        viewHolder.itemView.setSelected(false);
         viewHolder.itemView.setBackgroundColor(0);
-        Card card = getItem(viewHolder.getAdapterPosition());
+        Card card = getItem(viewHolder.getBindingAdapterPosition());
         selectedCards.remove(card);
         if (selectedCards.isEmpty())
             // Remove selection mode options from the menu.
