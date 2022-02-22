@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class FlashCardsApp extends Application {
 
+    @Nullable
     private Activity activeActivity = null;
 
     @Override
@@ -19,6 +22,7 @@ public class FlashCardsApp extends Application {
         registerActivityLifecycleCallbacks(setupActivityListener());
     }
 
+    @NonNull
     protected ActivityLifecycleCallbacks setupActivityListener() {
         return new ActivityLifecycleCallbacks() {
             @Override
@@ -60,6 +64,7 @@ public class FlashCardsApp extends Application {
         };
     }
 
+    @Nullable
     public AppCompatActivity getActiveActivity() {
         return (AppCompatActivity) activeActivity;
     }

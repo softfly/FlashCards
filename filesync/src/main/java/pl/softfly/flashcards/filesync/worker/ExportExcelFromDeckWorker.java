@@ -28,6 +28,7 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
         super(context, workerParams);
     }
 
+    @NonNull
     @Override
     public Result doWork() {
         try {

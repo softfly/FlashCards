@@ -1,5 +1,6 @@
 package pl.softfly.flashcards.ui.cards.drag_swipe;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +27,7 @@ public class DragSwipeListCardsActivity extends ListCardsActivity {
         return adapter;
     }
 
+    @NonNull
     protected ItemTouchHelper.Callback onCreateTouchHelper() {
         return new DragSwipeCardTouchHelper(adapter);
     }

@@ -20,6 +20,7 @@ public class ExceptionHandler {
 
     private static ExceptionHandler INSTANCE;
 
+    @NonNull
     private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
     public static synchronized ExceptionHandler getInstance() {
@@ -34,7 +35,7 @@ public class ExceptionHandler {
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
-            String tag
+            @NonNull String tag
     ) {
         tryHandleException(r, manager, tag, null, null);
     }
@@ -42,8 +43,8 @@ public class ExceptionHandler {
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
-            String tag,
-            String message
+            @NonNull String tag,
+            @NonNull String message
     ) {
         tryHandleException(r, manager, tag, message, null);
     }
@@ -51,7 +52,7 @@ public class ExceptionHandler {
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
-            String tag,
+            @NonNull String tag,
             DialogInterface.OnClickListener callback
     ) {
         tryHandleException(r, manager, tag, null, callback);
@@ -60,8 +61,8 @@ public class ExceptionHandler {
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
-            String tag,
-            String message,
+            @NonNull String tag,
+            @NonNull String message,
             DialogInterface.OnClickListener callback
     ) {
         try {
@@ -74,7 +75,7 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull FragmentManager manager,
-            String tag
+            @NonNull String tag
     ) {
         handleException(e, manager, tag, null, null);
     }
@@ -82,8 +83,8 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull FragmentManager manager,
-            String tag,
-            String message
+            @NonNull String tag,
+            @NonNull String message
     ) {
         handleException(e, manager, tag, message, null);
     }
@@ -91,7 +92,7 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull FragmentManager manager,
-            String tag,
+            @NonNull String tag,
             DialogInterface.OnClickListener positiveListener
     ) {
         handleException(e, manager, tag, null, positiveListener);
@@ -100,8 +101,8 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull FragmentManager manager,
-            String tag,
-            String message,
+            @NonNull String tag,
+            @NonNull String message,
             DialogInterface.OnClickListener positiveListener
     ) {
         e.printStackTrace();
@@ -117,7 +118,7 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull AppCompatActivity activity,
-            String tag
+            @NonNull String tag
     ) {
         handleException(e, activity, tag, null, null);
     }
@@ -125,8 +126,8 @@ public class ExceptionHandler {
     public void handleException(
             @NonNull Throwable e,
             @NonNull AppCompatActivity activity,
-            String tag,
-            String message,
+            @NonNull String tag,
+            @NonNull String message,
             DialogInterface.OnClickListener positiveListener
     ) {
         e.printStackTrace();

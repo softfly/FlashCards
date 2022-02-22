@@ -89,8 +89,8 @@ public class FileSyncBean implements FileSync {
 
     protected void syncWorkRequest(
             String deckName,
-            FileSynced fileSynced,
-            FileSyncListCardsActivity listCardsActivity
+            @NonNull FileSynced fileSynced,
+            @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(SyncExcelToDeckWorker.class)
@@ -116,7 +116,8 @@ public class FileSyncBean implements FileSync {
                 });
     }
 
-    protected Data createInputData(String deckName, FileSynced fileSynced) {
+    @NonNull
+    protected Data createInputData(String deckName, @NonNull FileSynced fileSynced) {
         return new Data.Builder()
                 .putString(SyncExcelToDeckWorker.DECK_NAME, deckName)
                 .putString(SyncExcelToDeckWorker.FILE_URI, fileSynced.getUri())
@@ -139,8 +140,8 @@ public class FileSyncBean implements FileSync {
     }
 
     protected void importWorkRequest(
-            FileSynced fileSynced,
-            ListDecksActivity listDecksActivity
+            @NonNull FileSynced fileSynced,
+            @NonNull ListDecksActivity listDecksActivity
     ) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(ImportExcelToDeckWorker.class)
@@ -194,7 +195,7 @@ public class FileSyncBean implements FileSync {
         });
     }
 
-    protected void exportWorkRequest(String deckName, FileSynced fileSynced, Context context) {
+    protected void exportWorkRequest(String deckName, @NonNull FileSynced fileSynced, @NonNull Context context) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(ExportExcelFromDeckWorker.class)
                         .setInputData(createInputData(deckName, fileSynced))

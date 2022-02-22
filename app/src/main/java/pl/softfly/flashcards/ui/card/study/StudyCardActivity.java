@@ -124,7 +124,7 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         });
     }
 
-    private void updateCard(CardLearningProgress learningProgress) {
+    private void updateCard(@NonNull CardLearningProgress learningProgress) {
         deckDb.cardDaoAsync().updateAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> {

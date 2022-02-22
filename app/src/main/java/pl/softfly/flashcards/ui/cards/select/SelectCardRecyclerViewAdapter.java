@@ -151,7 +151,7 @@ public class SelectCardRecyclerViewAdapter
                 ));
     }
 
-    private void revertCards(List<Card> cards) {
+    private void revertCards(@NonNull List<Card> cards) {
         deckDb.cardDao().restoreAsync(cards)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> {

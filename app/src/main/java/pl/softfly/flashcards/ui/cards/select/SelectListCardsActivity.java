@@ -25,6 +25,7 @@ public class SelectListCardsActivity extends DragSwipeListCardsActivity {
         return adapter;
     }
 
+    @NonNull
     @Override
     protected ItemTouchHelper.Callback onCreateTouchHelper() {
         return new SelectCardTouchHelper(adapter);

@@ -1,11 +1,13 @@
 package pl.softfly.flashcards.ui.cards.standard;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -20,12 +22,17 @@ import pl.softfly.flashcards.R;
 public class CardViewHolder extends RecyclerView.ViewHolder
         implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
+    protected final static int MOVE_POPUP_SLIGHTLY_TO_LEFT = 200;
+    protected final static int MOVE_POPUP_SLIGHTLY_TO_UNDER = 100;
+
     private final CardRecyclerViewAdapter adapter;
     private final TextView idTextView;
     private final TextView termTextView;
     private final TextView definitionTextView;
     @NonNull
     private final GestureDetector gestureDetector;
+    private float lastTouchX;
+    private float lastTouchY;
 
     public CardViewHolder(@NonNull View itemView, CardRecyclerViewAdapter adapter) {
         super(itemView);
@@ -37,36 +44,51 @@ public class CardViewHolder extends RecyclerView.ViewHolder
         itemView.setOnTouchListener(this);
     }
 
+    @SuppressLint("RestrictedApi")
     public void showPopupMenu() {
-        PopupMenu popup = initPopupMenu();
-        popup.show();
+        // A view that allows to display a popup with coordinates.
+        final ViewGroup layout = adapter.getActivity().findViewById(R.id.listCards);
+        final View view = createParentViewPopupMenu();
+        layout.addView(view);
+        PopupMenu popupMenu = new PopupMenu(
+                this.itemView.getContext(),
+                view,
+                Gravity.TOP | Gravity.LEFT
+        );
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_card, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(this::onPopupMenuItemClick);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
+        popupMenu.setOnDismissListener(menu -> {
+            layout.removeView(view);
+        });
+        popupMenu.show();
     }
 
-    protected PopupMenu initPopupMenu() {
-        PopupMenu popup = new PopupMenu(
-                this.itemView.getContext(),
-                this.itemView,
-                Gravity.START,
-                0,
-                R.style.PopupMenuWithLeftOffset
-        );
-        popup.getMenuInflater().inflate(R.menu.popup_menu_card, popup.getMenu());
-        popup.setOnMenuItemClickListener(this::onPopupMenuItemClick);
-        return popup;
+    /**
+     * A view that allows to display a popup with coordinates.
+     */
+    @NonNull
+    protected View createParentViewPopupMenu() {
+        final View view = new View(adapter.getActivity());
+        view.setLayoutParams(new ViewGroup.LayoutParams(1, 1));
+        view.setX(getLastTouchX() - MOVE_POPUP_SLIGHTLY_TO_LEFT);
+        final float maxY_ToDisplay = itemView.getY() + itemView.getHeight();
+        view.setY(Math.min(getLastTouchY() + MOVE_POPUP_SLIGHTLY_TO_UNDER, maxY_ToDisplay));
+        return view;
     }
 
     protected boolean onPopupMenuItemClick(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit: {
-                adapter.startEditCardActivity(getAdapterPosition());
+                adapter.startEditCardActivity(getBindingAdapterPosition());
                 return true;
             }
             case R.id.add: {
-                adapter.startNewCardActivity(getAdapterPosition());
+                adapter.startNewCardActivity(getBindingAdapterPosition());
                 return true;
             }
             case R.id.delete: {
-                adapter.onClickDeleteCard(getAdapterPosition());
+                adapter.onClickDeleteCard(getBindingAdapterPosition());
                 return true;
             }
         }
@@ -104,7 +126,9 @@ public class CardViewHolder extends RecyclerView.ViewHolder
 
     @Override
     @SuppressLint("ClickableViewAccessibility")
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouch(View v, @NonNull MotionEvent event) {
+        lastTouchX = event.getX();
+        lastTouchY = event.getY();
         gestureDetector.onTouchEvent(event);
         return false;
     }
@@ -119,5 +143,13 @@ public class CardViewHolder extends RecyclerView.ViewHolder
 
     protected TextView getDefinitionTextView() {
         return definitionTextView;
+    }
+
+    protected float getLastTouchX() {
+        return lastTouchX;
+    }
+
+    protected float getLastTouchY() {
+        return lastTouchY;
     }
 }

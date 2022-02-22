@@ -1,22 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/select"
+        android:icon="@drawable/ic_baseline_playlist_add_24"
         android:title="Select" />
     <item
         android:id="@+id/unselect"
+        android:icon="@drawable/ic_baseline_deselect_24"
         android:title="Unselect" />
     <item
         android:id="@+id/delete_selected"
+        android:icon="@drawable/ic_baseline_delete_sweep_24"
         android:title="Delete selected" />
     <item
         android:id="@+id/paste_before"
         android:visible="false"
+        android:icon="@drawable/ic_round_content_paste_24"
         android:title="Paste before" />
     <item
         android:id="@+id/paste_after"
         android:visible="false"
+        android:icon="@drawable/ic_round_content_paste_24"
         android:title="Paste after" />
     <item
         android:id="@+id/paste"
+        android:icon="@drawable/ic_round_content_paste_24"
         android:title="Paste" />
 </menu>

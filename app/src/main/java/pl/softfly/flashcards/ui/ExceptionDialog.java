@@ -22,6 +22,7 @@ public class ExceptionDialog extends DialogFragment {
 
     private AlertDialog alertDialog;
 
+    @Nullable
     private DialogInterface.OnClickListener positiveListener;
 
     public ExceptionDialog(Throwable e) {
@@ -36,7 +37,7 @@ public class ExceptionDialog extends DialogFragment {
         this(e, message, null);
     }
 
-    public ExceptionDialog(Throwable e, String message, DialogInterface.OnClickListener positiveListener) {
+    public ExceptionDialog(Throwable e, String message, @Nullable DialogInterface.OnClickListener positiveListener) {
         this.e = e;
         this.message = message;
         this.positiveListener = positiveListener != null ? positiveListener : (dialog, which) -> {} ;

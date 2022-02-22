@@ -1,9 +1,12 @@
 package pl.softfly.flashcards.ui.cards.select;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -31,28 +34,50 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         return false;
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
-    protected PopupMenu initPopupMenu() {
-        PopupMenu popup = super.initPopupMenu();
-        popup.setOnDismissListener(this::unfocusCard);
-        popup.getMenu().findItem(R.id.select).setVisible(!adapter.isSelectionMode());
-        return popup;
+    public void showPopupMenu() {
+        // A view that allows to display a popup with coordinates.
+        final ViewGroup layout = adapter.getActivity().findViewById(R.id.listCards);
+        final View view = createParentViewPopupMenu();
+        layout.addView(view);
+        PopupMenu popupMenu = new PopupMenu(
+                this.itemView.getContext(),
+                view,
+                Gravity.TOP | Gravity.LEFT
+        );
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_card, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(this::onPopupMenuItemClick);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
+        popupMenu.setOnDismissListener(menu -> {
+            layout.removeView(view);
+            unfocusCard(popupMenu);
+        });
+        popupMenu.getMenu().findItem(R.id.select).setVisible(!adapter.isSelectionMode());
+        popupMenu.show();
     }
 
     public void showSelectPopupMenu() {
-        PopupMenu popup = new PopupMenu(
+        // A view that allows to display a popup with coordinates.
+        final ViewGroup layout = adapter.getActivity().findViewById(R.id.listCards);
+        final View view = createParentViewPopupMenu();
+        layout.addView(view);
+
+        PopupMenu popupMenu = new PopupMenu(
                 this.itemView.getContext(),
-                this.itemView,
-                Gravity.START,
-                0,
-                R.style.PopupMenuWithLeftOffset
+                view,
+                Gravity.TOP | Gravity.LEFT
         );
-        popup.getMenuInflater().inflate(R.menu.popup_menu_card_select_mode, popup.getMenu());
-        popup.setOnMenuItemClickListener(this::onPopupMenuItemClick);
-        popup.setOnDismissListener(this::unfocusCard);
-        showSelect(popup);
-        showPaste(popup);
-        popup.show();
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_card_select_mode, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(this::onPopupMenuItemClick);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
+        popupMenu.setOnDismissListener(menu -> {
+            layout.removeView(view);
+            unfocusCard(popupMenu);
+        });
+        showSelect(popupMenu);
+        showPaste(popupMenu);
+        popupMenu.show();
     }
 
     @Override
@@ -111,9 +136,9 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
 
     private void unfocusCard(PopupMenu p) {
         this.itemView.setActivated(false);
-        // Check that the card has not been removed.
+        // Check that the card has not been previously selected.
         int position = getBindingAdapterPosition();
-        if (-1 < position && position < adapter.getItemCount()){
+        if (-1 < position && position < adapter.getItemCount()) {
             if (adapter.isCardSelected(getBindingAdapterPosition())) {
                 this.itemView.setSelected(true);
                 this.itemView.setBackgroundColor(

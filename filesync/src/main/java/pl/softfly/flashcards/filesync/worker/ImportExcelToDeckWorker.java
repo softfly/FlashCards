@@ -111,7 +111,7 @@ public class ImportExcelToDeckWorker extends Worker {
         );
     }
 
-    protected void showExceptionDialog(Exception e) {
+    protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
                 SyncExcelToDeckWorker.class.getSimpleName()

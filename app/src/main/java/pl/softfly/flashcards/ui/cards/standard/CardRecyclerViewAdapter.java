@@ -124,7 +124,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                         ));
     }
 
-    private void revertCard(Card card) {
+    private void revertCard(@NonNull Card card) {
         deckDb.cardDao().restoreAsync(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> activity.runOnUiThread(

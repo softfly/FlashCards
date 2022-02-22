@@ -1,15 +1,10 @@
 package pl.softfly.flashcards.ui.cards.select;
 
-import android.graphics.Color;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import pl.softfly.flashcards.ui.ExceptionDialog;
-import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardTouchHelper;
 
 /**
@@ -38,6 +33,7 @@ public class SelectCardTouchHelper extends DragSwipeCardTouchHelper {
                     ((SelectCardViewHolder) viewHolder).showSelectPopupMenu();
                 } else {
                     ((SelectCardViewHolder) viewHolder).showPopupMenu();
+
                 }
             }
             super.clearView(recyclerView, viewHolder);

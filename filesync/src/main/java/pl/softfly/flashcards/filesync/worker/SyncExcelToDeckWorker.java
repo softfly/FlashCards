@@ -11,6 +11,7 @@ import android.provider.DocumentsContract;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -37,10 +38,12 @@ public class SyncExcelToDeckWorker extends Worker {
     public static final String AUTO_SYNC = "AUTO_SYNC";
 
     protected Uri fileUri;
+    @Nullable
     protected String deckName;
     protected String mimeType;
     protected Long fileLastModifiedAt;
     protected FileSynced fileSynced;
+    @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
@@ -51,6 +54,7 @@ public class SyncExcelToDeckWorker extends Worker {
         super(context, workerParams);
     }
 
+    @NonNull
     @Override
     public Result doWork() {
         try {
@@ -123,13 +127,14 @@ public class SyncExcelToDeckWorker extends Worker {
         );
     }
 
-    protected void showExceptionDialog(Exception e) {
+    protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
                 SyncExcelToDeckWorker.class.getSimpleName()
         );
     }
 
+    @Nullable
     protected FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
     }

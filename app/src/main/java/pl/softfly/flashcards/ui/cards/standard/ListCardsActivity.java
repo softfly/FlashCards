@@ -2,7 +2,6 @@ package pl.softfly.flashcards.ui.cards.standard;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -13,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -100,6 +100,7 @@ public class ListCardsActivity extends AppCompatActivity {
         return sb;
     }
 
+    @Nullable
     protected Drawable getDrawableHelper(int id) {
         return AppCompatResources.getDrawable(getBaseContext(), id);
     }

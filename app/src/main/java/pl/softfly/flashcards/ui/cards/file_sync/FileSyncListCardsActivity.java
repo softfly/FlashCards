@@ -56,6 +56,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
+    @NonNull
     private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
     @Nullable
