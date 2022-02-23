@@ -10,6 +10,7 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,11 +35,15 @@ public class ListCardsActivity extends AppCompatActivity {
 
     private CardRecyclerViewAdapter adapter;
 
+    public TextView idHeader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_list_cards);
+
+            idHeader = findViewById(R.id.idHeader);
 
             Intent intent = getIntent();
             deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
@@ -55,7 +60,16 @@ public class ListCardsActivity extends AppCompatActivity {
     protected void initRecyclerView() {
         RecyclerView recyclerView = getRecyclerView();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(onCreateRecyclerViewAdapter());
+        CardRecyclerViewAdapter adapter = onCreateRecyclerViewAdapter();
+        recyclerView.setAdapter(adapter);
+
+        // ID.WIDTH.3. If the id width has not been calculated, calculate id width.
+        if (adapter.idTextViewWidth == 0) {
+            recyclerView.getViewTreeObserver()
+                    .addOnDrawListener(
+                            getCalcCardIdWidth().calcIdWidth(recyclerView, idHeader)
+                    );
+        }
     }
 
     protected CardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
@@ -130,6 +144,10 @@ public class ListCardsActivity extends AppCompatActivity {
 
     protected String getDeckName() {
         return deckName;
+    }
+
+    private CalcCardIdWidth getCalcCardIdWidth() {
+        return CalcCardIdWidth.getInstance();
     }
 
     protected void setAdapter(CardRecyclerViewAdapter adapter) {

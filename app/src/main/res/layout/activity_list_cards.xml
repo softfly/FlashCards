@@ -22,7 +22,8 @@
             android:background="?attr/colorPrimary">
 
             <TextView
-                android:layout_width="50dp"
+                android:id="@+id/idHeader"
+                android:layout_width="wrap_content"
                 android:paddingStart="16dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="6dp"

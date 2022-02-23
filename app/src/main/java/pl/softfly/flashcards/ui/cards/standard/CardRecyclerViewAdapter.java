@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TableRow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,8 +34,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     private final List<Card> cards = new LinkedList<>();
     @Nullable
     protected DeckDatabase deckDb;
-    private int idTextViewWidth = 0;
+    public int idTextViewWidth = 0;
     private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
 
     public CardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         this.activity = activity;
@@ -61,10 +61,10 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
         Card card = getItem(position);
         holder.getIdTextView().setText(card.getOrdinal().toString());
-        holder.getIdTextView().setLayoutParams(new TableRow.LayoutParams(
-                idTextViewWidth,
-                TableRow.LayoutParams.MATCH_PARENT
-        ));
+        // ID.WIDTH.2. Use the id width if calculated. Use case end.
+        if (idTextViewWidth!=0) {
+            calcCardIdWidth.setIdWidth(holder, idTextViewWidth);
+        }
         holder.getTermTextView().setText(card.getTerm());
         holder.getDefinitionTextView().setText(card.getDefinition());
     }
@@ -80,7 +80,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                 .subscribe(cards -> activity.runOnUiThread(() -> {
                             getCurrentList().clear();
                             getCurrentList().addAll(cards);
-                            if (idTextViewWidth == 0) idTextViewWidth = calcIdTextViewWidth();
+                            // ID.WIDTH.1. Check if the id width has been calculated for the currently used max id length.
+                            idTextViewWidth = calcCardIdWidth.getIdWidth(cards);
+                            activity.idHeader.setWidth(idTextViewWidth);
                             if (positionStart < 0)
                                 this.notifyDataSetChanged();
                             else
@@ -92,15 +94,6 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                                 "Error while loading cards.",
                                 (dialog, which) -> activity.onBackPressed()
                         ));
-    }
-
-    private int calcIdTextViewWidth() {
-        return Integer.toString(
-                getCurrentList().stream()
-                        .mapToInt(Card::getOrdinal)
-                        .max()
-                        .orElse(0)
-        ).length() * 30 + 70 + 20;
     }
 
     public void onClickDeleteCard(int position) {
