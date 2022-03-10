@@ -28,10 +28,17 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         this.adapter = adapter;
     }
 
+    /**
+     * C_02_03 When any card is selected and tap on the card, select or unselect the card.
+     */
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        adapter.onCardInvertSelect(this);
-        return false;
+        if (adapter.isSelectionMode()) {
+            adapter.onCardInvertSelect(this);
+            return false;
+        } else {
+            return super.onSingleTapUp(e);
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -57,6 +64,9 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         popupMenu.show();
     }
 
+    /**
+     * C_02_04 When any card is selected and long pressing on the card, show the selected popup menu.
+     */
     public void showSelectPopupMenu() {
         // A view that allows to display a popup with coordinates.
         final ViewGroup layout = adapter.getActivity().findViewById(R.id.listCards);

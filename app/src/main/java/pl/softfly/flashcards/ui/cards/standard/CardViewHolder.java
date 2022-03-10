@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
+
 import pl.softfly.flashcards.R;
 
 /**
@@ -44,6 +46,9 @@ public class CardViewHolder extends RecyclerView.ViewHolder
         itemView.setOnTouchListener(this);
     }
 
+    /**
+     * C_02_01 When no card is selected and tap on the card, show the popup menu.
+     */
     @SuppressLint("RestrictedApi")
     public void showPopupMenu() {
         // A view that allows to display a popup with coordinates.
@@ -104,8 +109,17 @@ public class CardViewHolder extends RecyclerView.ViewHolder
     public void onShowPress(MotionEvent e) {
     }
 
+    /**
+     * C_02_01 When no card is selected and tap on the card, show the popup menu.
+     */
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
+    public boolean onSingleTapUp(MotionEvent event) {
+        lastTouchX = event.getRawX();
+        lastTouchY = event.getRawY();
+        this.itemView.setActivated(true);
+        this.itemView.setBackgroundColor(
+                MaterialColors.getColor(this.itemView, R.attr.colorItemActive)
+        );
         showPopupMenu();
         return false;
     }

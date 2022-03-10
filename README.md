@@ -17,8 +17,12 @@ The inspiration for the application was independence from storing cards in comme
 
 ### Cards
 - C_R_01 Study the cards.
-- C_R_02 Display all cards.
-    - C_U_03 Edit the card.
+- C_02 Display all cards.
+    - C_02_01 When no card is selected and tap on the card, show the popup menu.
+    - C_02_02 When no card is selected and long pressing on the card, select the card.
+    - C_02_03 When any card is selected and tap on the card, select or unselect the card.
+    - C_02_04 When any card is selected and long pressing on the card, show the selected popup menu.
+      
     - C_D_04 Delete the card by clicking in the context menu.
         - C_U_05 Undo remove card.
     - C_D_06 Delete the card by swiping.
@@ -34,6 +38,7 @@ The inspiration for the application was independence from storing cards in comme
     - C_C_15 Add a new card at the end of the deck.
     - C_C_16 Add a new card after the selected card.
     - C_FS_17 Show / hide recently synced cards.
+- C_U_18 Edit the card.
 
 ### File Sync
 

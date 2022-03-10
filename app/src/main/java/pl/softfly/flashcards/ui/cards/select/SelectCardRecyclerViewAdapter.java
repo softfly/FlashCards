@@ -1,6 +1,7 @@
 package pl.softfly.flashcards.ui.cards.select;
 
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,6 +59,9 @@ public class SelectCardRecyclerViewAdapter
         }
     }
 
+    /**
+     * C_02_02 When no card is selected and long pressing on the card, select the card.
+     */
     public void onCardInvertSelect(@NonNull RecyclerView.ViewHolder viewHolder) {
         if (isCardSelected(viewHolder.getBindingAdapterPosition())) {
             onCardUnselect(viewHolder);
@@ -78,9 +82,16 @@ public class SelectCardRecyclerViewAdapter
         );
         Card card = getItem(viewHolder.getBindingAdapterPosition());
         selectedCards.add(card);
-        if (selectedCards.size() == 1)
+        if (selectedCards.size() == 1) {
             // Add selection mode options to the menu.
             activity.refreshMenuOnAppBar();
+
+            Toast.makeText(
+                    activity,
+                    "Single tap to select.\nLong press to display a pop-up menu.",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
     public void onCardUnselect(@NonNull RecyclerView.ViewHolder viewHolder) {

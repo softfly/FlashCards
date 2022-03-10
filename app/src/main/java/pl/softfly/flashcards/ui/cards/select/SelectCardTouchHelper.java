@@ -28,15 +28,16 @@ public class SelectCardTouchHelper extends DragSwipeCardTouchHelper {
             @NonNull RecyclerView recyclerView,
             @NonNull RecyclerView.ViewHolder viewHolder
     ) {
-            if (isLongPress) {
-                if (adapter.isSelectionMode()) {
-                    ((SelectCardViewHolder) viewHolder).showSelectPopupMenu();
-                } else {
-                    ((SelectCardViewHolder) viewHolder).showPopupMenu();
-
-                }
+        if (isLongPress) {
+            if (adapter.isSelectionMode()) {
+                // C_02_04 When any card is selected and long pressing on the card, show the selected popup menu.
+                ((SelectCardViewHolder) viewHolder).showSelectPopupMenu();
+            } else {
+                // C_02_02 When no card is selected and long pressing on the card, select the card.
+                adapter.onCardInvertSelect(viewHolder);
             }
-            super.clearView(recyclerView, viewHolder);
+        }
+        super.clearView(recyclerView, viewHolder);
     }
 
     @Override
