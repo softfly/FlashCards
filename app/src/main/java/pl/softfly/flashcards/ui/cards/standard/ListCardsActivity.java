@@ -64,7 +64,7 @@ public class ListCardsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // ID.WIDTH.3. If the id width has not been calculated, calculate id width.
-        if (adapter.idTextViewWidth == 0) {
+        if (adapter.idTextViewWidth == 0) { // @todo it is always 0
             recyclerView.getViewTreeObserver()
                     .addOnDrawListener(
                             getCalcCardIdWidth().calcIdWidth(recyclerView, idHeader)

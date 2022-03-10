@@ -48,7 +48,9 @@ public class EditCardActivity extends NewCardActivity {
     }
 
     protected void onClickUpdateCard() {
-        deckDb.cardDaoAsync().updateAll(createCard())
+        card.setTerm(termEditText.getText().toString());
+        card.setDefinition(definitionEditText.getText().toString());
+        deckDb.cardDaoAsync().updateAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
                     Toast.makeText(this, "The card has been updated.", Toast.LENGTH_SHORT).show();

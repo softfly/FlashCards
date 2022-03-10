@@ -12,6 +12,12 @@ import java.util.List;
 import pl.softfly.flashcards.entity.Card;
 
 /**
+ * This sets the width of the ID column and the width of the header columns.
+ *
+ * What problem does this solve?
+ * I was unable to use the SDK to set the relative width of the ID column
+ * to match with the length of the text.
+ *
  * @author Grzegorz Ziemski
  */
 public class CalcCardIdWidth {
@@ -69,8 +75,12 @@ public class CalcCardIdWidth {
     public ViewTreeObserver.OnDrawListener calcIdWidth(RecyclerView recyclerView, TextView idHeader) {
         return () -> {
             int width = findMaxIdWidth(recyclerView);
-            setIdWidth(recyclerView, width);
-            idHeader.setWidth(width);
+            if (width != 0) {
+                setIdWidth(recyclerView, width);
+                if (idHeader.getWidth() != width) {
+                    idHeader.setWidth(width);
+                }
+            }
         };
     }
 
