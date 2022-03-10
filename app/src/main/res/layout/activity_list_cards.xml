@@ -8,10 +8,23 @@
     android:stretchColumns="1"
     tools:context=".ui.cards.file_sync.FileSyncListCardsActivity">
 
-    <TableLayout
-        android:id="@+id/tableLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/header">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/card_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -24,6 +37,8 @@
             <TextView
                 android:id="@+id/idHeader"
                 android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="bottom"
                 android:paddingStart="16dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="6dp"
@@ -32,8 +47,10 @@
                 android:textColor="?attr/colorOnPrimary" />
 
             <TextView
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:paddingStart="9dp"
+                android:gravity="bottom"
+                android:paddingStart="6dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="6dp"
                 android:paddingBottom="6dp"
@@ -41,8 +58,10 @@
                 android:textColor="?attr/colorOnPrimary" />
 
             <TextView
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:paddingStart="9dp"
+                android:gravity="bottom"
+                android:paddingStart="6dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="6dp"
@@ -51,16 +70,9 @@
 
         </TableRow>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/card_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical" />
-
-    </TableLayout>
+    </RelativeLayout>
 
     <TextView
-        android:visibility="invisible"
         android:id="@+id/editingLocked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -69,6 +81,7 @@
         android:paddingVertical="8dp"
         android:text="Deck editing is locked. Sync in progress..."
         android:textColor="?attr/colorOnPrimary"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
