@@ -23,13 +23,14 @@ import com.google.android.material.color.MaterialColors;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.ExceptionDialog;
+import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ListCardsActivity extends AppCompatActivity {
+public class ListCardsActivity extends IconWithTextInTopbarActivity {
 
     private String deckName;
 
@@ -98,25 +99,6 @@ public class ListCardsActivity extends AppCompatActivity {
                 ));
         getMenuInflater().inflate(R.menu.menu_list_cards, menu);
         return true;
-    }
-
-    @SuppressLint("ResourceAsColor")
-    @NonNull
-    protected CharSequence menuIconWithText(@NonNull Drawable r, String title) {
-        r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
-        r.setColorFilter(
-                MaterialColors.getColor(findViewById(R.id.card_list_view), R.attr.colorIcons),
-                PorterDuff.Mode.MULTIPLY
-        );
-        SpannableString sb = new SpannableString("    " + title);
-        ImageSpan imageSpan = new ImageSpan(r, ImageSpan.ALIGN_BOTTOM);
-        sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return sb;
-    }
-
-    @Nullable
-    protected Drawable getDrawableHelper(int id) {
-        return AppCompatResources.getDrawable(getBaseContext(), id);
     }
 
     @Override

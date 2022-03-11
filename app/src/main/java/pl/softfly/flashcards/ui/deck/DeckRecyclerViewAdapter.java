@@ -37,7 +37,7 @@ import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 /**
  * @author Grzegorz Ziemski
  */
-public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerViewAdapter.ViewHolder> {
+public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckViewHolder> {
 
     public static final String DECK_NAME = "deckName";
 
@@ -104,13 +104,13 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DeckViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
-        return new ViewHolder(view);
+        return new DeckViewHolder(view, this);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull DeckViewHolder holder, int position) {
         String deckName = deckNames.get(position);
         holder.nameTextView.setText(deckName);
         holder.nameTextView.setSelected(true);
@@ -132,66 +132,36 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckRecyclerVi
         }
     }
 
+    public void newListCardsActivity(int position) {
+        Intent intent = new Intent(activity, ExceptionListCardsActivity.class);
+        intent.putExtra(DECK_NAME, deckNames.get(position));
+        activity.startActivity(intent);
+    }
+
+    public void newNewCardActivity(int position) {
+        Intent intent = new Intent(activity, NewCardActivity.class);
+        intent.putExtra(DECK_NAME, deckNames.get(position));
+        activity.startActivity(intent);
+    }
+
+    public void showDeleteDeckDialog(int position) {
+        RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(position));
+        dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
+    }
+
+    public void exportDbDeck(int position) {
+        deckName = deckNames.get(position);
+        exportDbDeck.launch(deckName);
+    }
+
+    public void mewStudyCardActivity(int position) {
+        Intent intent = new Intent(activity, DraggableStudyCardActivity.class);
+        intent.putExtra(DECK_NAME, deckNames.get(position));
+        activity.startActivity(intent);
+    }
+
     @Override
     public int getItemCount() {
         return deckNames.size();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        TextView nameTextView;
-        TextView moreTextView;
-        TextView totalTextView;
-        RelativeLayout deckLayoutListItem;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
-            deckLayoutListItem = itemView.findViewById(R.id.deckListItem);
-            itemView.setOnClickListener(this);
-            initMoreTextView();
-        }
-
-        protected void initMoreTextView() {
-            totalTextView = itemView.findViewById(R.id.totalTextView);
-            moreTextView = itemView.findViewById(R.id.moreTextView);
-            moreTextView.setOnClickListener(v -> {
-
-                PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
-                popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
-                popup.setOnMenuItemClickListener(item -> {
-                    switch (item.getItemId()) {
-                        case R.id.listCards: {
-                            Intent intent = new Intent(activity, ExceptionListCardsActivity.class);
-                            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
-                            activity.startActivity(intent);
-                            return true;
-                        }
-                        case R.id.addCard:
-                            Intent intent = new Intent(activity, NewCardActivity.class);
-                            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
-                            activity.startActivity(intent);
-                            return true;
-                        case R.id.removeDeck:
-                            RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(getAdapterPosition()));
-                            dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
-                            return true;
-                        case R.id.exportDbDeck:
-                            deckName = deckNames.get(getAdapterPosition());
-                            exportDbDeck.launch(deckName);
-                            return true;
-                    }
-                    return false;
-                });
-                popup.show();
-            });
-        }
-
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(activity, DraggableStudyCardActivity.class);
-            intent.putExtra(DECK_NAME, deckNames.get(getAdapterPosition()));
-            activity.startActivity(intent);
-        }
     }
 }

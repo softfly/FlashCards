@@ -4,16 +4,20 @@
         android:id="@+id/new_deck"
         android:icon="@drawable/ic_outline_add_24"
         app:showAsAction="ifRoom"
-        android:title="Add a new deck">
+        android:title="New deck">
     </item>
     <item
         android:id="@+id/import_excel"
+        android:icon="@drawable/ic_round_file_download_24"
         app:showAsAction="never"
+        android:visible="false"
         android:title="Import Excel">
     </item>
     <item
         android:id="@+id/import_db"
+        android:icon="@drawable/ic_round_file_download_24"
         app:showAsAction="never"
+        android:visible="false"
         android:title="Import DB">
     </item>
 </menu>

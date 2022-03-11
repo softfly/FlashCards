@@ -43,11 +43,12 @@ import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
+import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ListDecksActivity extends AppCompatActivity {
+public class ListDecksActivity extends IconWithTextInTopbarActivity {
 
     private final ArrayList<String> deckNames = new ArrayList<>();
 
@@ -114,6 +115,21 @@ public class ListDecksActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, R.id.new_deck, 1,
+                menuIconWithText(
+                        getDrawableHelper(R.drawable.ic_outline_add_24),
+                        "New deck"
+                ));
+        menu.add(0, R.id.import_excel, 2,
+                menuIconWithText(
+                        getDrawableHelper(R.drawable.ic_round_file_download_24),
+                        "Import Excel"
+                ));
+        menu.add(0, R.id.import_db, 3,
+                menuIconWithText(
+                        getDrawableHelper(R.drawable.ic_round_file_download_24),
+                        "Import DB"
+                ));
         getMenuInflater().inflate(R.menu.menu_list_decks, menu);
         return true;
     }

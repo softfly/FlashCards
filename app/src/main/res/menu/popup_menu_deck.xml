@@ -1,14 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/listCards"
+        android:icon="@drawable/ic_round_list_24"
         android:title="List cards" />
     <item
         android:id="@+id/addCard"
+        android:icon="@drawable/ic_round_add_card_24"
         android:title="Add a new card" />
     <item
         android:id="@+id/removeDeck"
+        android:icon="@drawable/ic_round_delete_24"
         android:title="Remove deck" />
     <item
         android:id="@+id/exportDbDeck"
+        android:icon="@drawable/ic_round_file_upload_24"
         android:title="Export DB" />
 </menu>
