@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.DeckConfig;
@@ -59,6 +60,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected InputStream isImportedFile;
     protected Workbook workbook;
     protected Sheet sheet;
+    private final CardUtil cardUtil = CardUtil.getInstance();
 
     //Only for tests
     public SyncExcelToDeck(Context appContext, DetermineNewOrderCards determineNewOrderCards) {
@@ -585,9 +587,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 break;
                 case CardImported.STATUS_INSERT_BY_FILE: {
                     Card card = new Card();
-
-                    card.setTerm(cardImported.getTerm());
-                    card.setDefinition(cardImported.getDefinition());
+                    cardUtil.setTerm(card, cardImported.getTerm());
+                    cardUtil.setDefinition(card, cardImported.getDefinition());
                     card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());
@@ -598,8 +599,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 break;
                 case CardImported.STATUS_UPDATE_BY_FILE: {
                     Card card = deckDb.cardDao().findById(cardImported.getCardId());
-                    card.setTerm(cardImported.getTerm());
-                    card.setDefinition(cardImported.getDefinition());
+                    cardUtil.setTerm(card, cardImported.getTerm());
+                    cardUtil.setDefinition(card, cardImported.getDefinition());
                     card.setModifiedAt(newLastSyncAt);
 
                     card.setOrdinal(cardImported.getNewOrdinal());

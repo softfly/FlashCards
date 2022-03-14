@@ -26,6 +26,10 @@ public class Card {
 
     private LocalDateTime deletedAt;
 
+    private boolean termHtml;
+
+    private boolean definitionHtml;
+
     public Integer getId() {
         return id;
     }
@@ -72,6 +76,22 @@ public class Card {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public boolean isTermHtml() {
+        return termHtml;
+    }
+
+    public void setTermHtml(boolean termHtml) {
+        this.termHtml = termHtml;
+    }
+
+    public boolean isDefinitionHtml() {
+        return definitionHtml;
+    }
+
+    public void setDefinitionHtml(boolean definitionHtml) {
+        this.definitionHtml = definitionHtml;
     }
 
     @Override

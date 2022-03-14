@@ -38,8 +38,8 @@ public abstract class CardDaoAsync {
     @Query("SELECT * FROM Core_Card c " +
             "LEFT JOIN Core_Card_LearningProgress l ON l.cardId = c.id " +
             "WHERE " +
-            "l.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) " +
-            "OR l.nextReplayAt IS NULL " +
+            "c.deletedAt IS NULL " +
+            "AND (l.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR l.nextReplayAt IS NULL) " +
             "LIMIT 10")
     public abstract Maybe<List<Card>> getNextCards();
 

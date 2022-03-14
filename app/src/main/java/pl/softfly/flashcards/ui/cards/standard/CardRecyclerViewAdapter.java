@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
+import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -37,6 +38,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     public int idTextViewWidth = 0;
     private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     private CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
+    private HtmlUtil htmlUtil = HtmlUtil.getInstance();
 
     public CardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
         this.activity = activity;
@@ -65,8 +67,18 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         if (idTextViewWidth!=0) {
             calcCardIdWidth.setIdWidth(holder, idTextViewWidth);
         }
-        holder.getTermTextView().setText(card.getTerm());
-        holder.getDefinitionTextView().setText(card.getDefinition());
+
+        if (htmlUtil.isHtml(card.getTerm())) {
+            holder.getTermTextView().setText(htmlUtil.fromHtml(card.getTerm()).toString());
+        } else {
+            holder.getTermTextView().setText(card.getTerm());
+        }
+
+        if (htmlUtil.isHtml(card.getDefinition())) {
+            holder.getDefinitionTextView().setText(htmlUtil.fromHtml(card.getDefinition()).toString());
+        } else {
+            holder.getDefinitionTextView().setText(card.getTerm());
+        }
     }
 
     public void loadCards() {

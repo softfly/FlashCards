@@ -23,19 +23,20 @@ import java.util.Objects;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardReplayScheduler;
+import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.CardLearningProgress;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public abstract class StudyCardActivity extends AppCompatActivity {
 
     private final static String TAG = "ViewCardActivity";
-
+    private final CardReplayScheduler cardReplayScheduler = new CardReplayScheduler();
+    private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
     ListIterator<Card> cardIterator;
     private CardLearningProgress againLearningProgress;
     private CardLearningProgress easyLearningProgress;
@@ -51,7 +52,6 @@ public abstract class StudyCardActivity extends AppCompatActivity {
     private Button easyButton;
     private Button hardButton;
     private View gradeButtonsLayout;
-    private final CardReplayScheduler cardReplayScheduler = new CardReplayScheduler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +96,11 @@ public abstract class StudyCardActivity extends AppCompatActivity {
         definitionView.setMovementMethod(new ScrollingMovementMethod());
         definitionView.setOnClickListener(v -> {
             gradeButtonsLayout.setVisibility(VISIBLE);
-            definitionView.setText(card.getDefinition());
+            if (htmlUtil.isHtml(card.getDefinition())) {
+                definitionView.setText(htmlUtil.fromHtml(card.getDefinition()));
+            } else {
+                definitionView.setText(card.getDefinition());
+            }
         });
     }
 
@@ -166,7 +170,12 @@ public abstract class StudyCardActivity extends AppCompatActivity {
 
     protected void displayCard(@NonNull Card card) {
         this.card = card;
-        termView.setText(card.getTerm());
+        if (htmlUtil.isHtml(card.getTerm())) {
+            termView.setText(htmlUtil.fromHtml(card.getTerm()));
+        } else {
+            termView.setText(card.getTerm());
+        }
+
         definitionView.setText("?\nShow definition");
         deckDb.cardLearningProgressAsyncDao()
                 .findByCardId(card.getId())

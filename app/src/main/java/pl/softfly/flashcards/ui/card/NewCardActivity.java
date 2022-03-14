@@ -15,12 +15,12 @@ import java.time.LocalDateTime;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 public class NewCardActivity extends AppCompatActivity {
 
@@ -36,6 +36,8 @@ public class NewCardActivity extends AppCompatActivity {
     protected EditText definitionEditText;
 
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+
+    protected CardUtil cardUtil = CardUtil.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +78,8 @@ public class NewCardActivity extends AppCompatActivity {
     @NonNull
     protected Card createCard() {
         Card card = new Card();
-        card.setTerm(termEditText.getText().toString());
-        card.setDefinition(definitionEditText.getText().toString());
+        cardUtil.setTerm(card, termEditText.getText().toString());
+        cardUtil.setDefinition(card, definitionEditText.getText().toString());
         card.setModifiedAt(LocalDateTime.now());
         return card;
     }

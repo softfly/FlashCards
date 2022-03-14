@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import pl.softfly.flashcards.CardUtil;
+import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -41,6 +43,8 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     @Nullable
     private DeckDatabase deckDb;
+
+    private final CardUtil cardUtil = CardUtil.getInstance();
 
     //For testing, mocking
     public ImportExcelToDeck() {}
@@ -98,12 +102,12 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             if (termPosition > -1) {
                 Cell currentCell = currentRow.getCell(termPosition);
                 String value = currentCell.getStringCellValue().trim();
-                card.setTerm(value);
+                cardUtil.setTerm(card, value);
             }
             if (definitionPosition > -1) {
                 Cell currentCell = currentRow.getCell(definitionPosition);
                 String value = currentCell.getStringCellValue().trim();
-                card.setDefinition(value);
+                cardUtil.setDefinition(card, value);
             }
 
             if (nonEmpty(card.getTerm()) || nonEmpty(card.getDefinition())) {

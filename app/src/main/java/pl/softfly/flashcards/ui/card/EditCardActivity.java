@@ -48,8 +48,8 @@ public class EditCardActivity extends NewCardActivity {
     }
 
     protected void onClickUpdateCard() {
-        card.setTerm(termEditText.getText().toString());
-        card.setDefinition(definitionEditText.getText().toString());
+        cardUtil.setTerm(card, termEditText.getText().toString());
+        cardUtil.setDefinition(card, definitionEditText.getText().toString());
         deckDb.cardDaoAsync().updateAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
