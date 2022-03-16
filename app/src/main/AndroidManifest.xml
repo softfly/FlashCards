@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.card.study.DraggableStudyCardActivity"
+            android:name=".ui.card.study.ExceptionStudyCardActivity"
             android:parentActivityName=".ui.deck.ListDecksActivity"
             android:exported="false">
             <meta-data

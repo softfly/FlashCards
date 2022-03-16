@@ -28,6 +28,12 @@ public class Converters {
 
     @Nullable
     @TypeConverter
+    public static Float fromStringToFloat(@Nullable String value) {
+        return value == null ? null : Float.parseFloat(value);
+    }
+
+    @Nullable
+    @TypeConverter
     public static Date fromTimestamp(@Nullable Long value) {
         return value == null ? null : new Date(TimeUnit.SECONDS.toMillis(value));
     }

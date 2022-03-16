@@ -1,5 +1,7 @@
 package pl.softfly.flashcards;
 
+import androidx.annotation.NonNull;
+
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -18,17 +20,17 @@ public class CardUtil {
         return INSTANCE;
     }
 
-    public void setTerm(Card card, String term) {
+    public void setTerm(@NonNull Card card, String term) {
         if (htmlUtil.isHtml(term)) {
             card.setTermHtml(true);
         }
         card.setTerm(term);
     }
 
-    public void setDefinition(Card card, String definition) {
+    public void setDefinition(@NonNull Card card, String definition) {
         if (htmlUtil.isHtml(definition)) {
-            card.setTermHtml(true);
+            card.setDefinitionHtml(true);
         }
-        card.setTerm(definition);
+        card.setDefinition(definition);
     }
 }

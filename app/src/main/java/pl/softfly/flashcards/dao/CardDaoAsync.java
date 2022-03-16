@@ -1,6 +1,7 @@
 package pl.softfly.flashcards.dao;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -35,7 +36,7 @@ public abstract class CardDaoAsync {
     public abstract Maybe<List<Card>> getCardsByDeletedNotOrderByOrdinal();
 
     @NonNull
-    @Query("SELECT * FROM Core_Card c " +
+    @Query("SELECT c.* FROM Core_Card c " +
             "LEFT JOIN Core_Card_LearningProgress l ON l.cardId = c.id " +
             "WHERE " +
             "c.deletedAt IS NULL " +

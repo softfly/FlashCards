@@ -115,7 +115,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         menu.add(0, R.id.new_deck, 1,
                 menuIconWithText(
                         getDrawableHelper(R.drawable.ic_outline_add_24),

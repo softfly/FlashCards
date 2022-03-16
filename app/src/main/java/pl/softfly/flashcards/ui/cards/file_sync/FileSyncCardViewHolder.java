@@ -45,7 +45,7 @@ public class FileSyncCardViewHolder extends SelectCardViewHolder {
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
+    public boolean onSingleTapUp(@NonNull MotionEvent e) {
         if (adapter.getActivity().isEditingUnlocked()) return super.onSingleTapUp(e);
         return false;
     }

@@ -11,6 +11,12 @@ public class DeckConfig {
 
     public static final String FILE_SYNC_EDITING_BLOCKED_AT = "FileSync_EditingBlockedAt";
 
+    public static final String STUDY_CARD_TERM_FONT_SIZE = "StudyCard_Term_FontSize";
+
+    public static final String STUDY_CARD_DEFINITION_FONT_SIZE = "StudyCard_Term_FontSize";
+
+    public static final String STUDY_CARD_TD_DISPLAY_RATIO = "StudyCard_TD_DisplayRatio";
+
     @PrimaryKey
     private Integer id;
 

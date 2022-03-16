@@ -32,7 +32,7 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
      * C_02_03 When any card is selected and tap on the card, select or unselect the card.
      */
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
+    public boolean onSingleTapUp(@NonNull MotionEvent e) {
         if (adapter.isSelectionMode()) {
             adapter.onCardInvertSelect(this);
             return false;

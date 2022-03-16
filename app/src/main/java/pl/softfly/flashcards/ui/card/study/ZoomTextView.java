@@ -70,4 +70,12 @@ public class ZoomTextView extends TextView {
         }
         return super.onTouchEvent(event);
     }
+
+    public float getScaledTextSize() {
+        return super.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
+    }
+
+    public void setTextSize(float size) {
+        super.setTextSize(size);
+    }
 }

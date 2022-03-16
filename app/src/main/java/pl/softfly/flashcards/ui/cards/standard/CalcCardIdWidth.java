@@ -4,6 +4,7 @@ import android.view.ViewTreeObserver;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -47,12 +48,12 @@ public class CalcCardIdWidth {
     /**
      * ID.WIDTH.1. Check if the id width has been calculated for the currently used max id length.
      */
-    public int getIdWidth(List<Card> cards) {
+    public int getIdWidth(@NonNull List<Card> cards) {
         int length = calcMaxIdLength(cards);
         return getIdWidth(length);
     }
 
-    private int calcMaxIdLength(List<Card> cards) {
+    private int calcMaxIdLength(@NonNull List<Card> cards) {
         return Integer.toString(cards.stream()
                 .mapToInt(Card::getOrdinal)
                 .max()
@@ -62,7 +63,7 @@ public class CalcCardIdWidth {
     /**
      * ID.WIDTH.2. Use the id width if calculated. Use case end.
      */
-    public void setIdWidth(CardViewHolder holder, int width) {
+    public void setIdWidth(@NonNull CardViewHolder holder, int width) {
         holder.getIdTextView().setLayoutParams(new TableRow.LayoutParams(
                 width,
                 TableRow.LayoutParams.MATCH_PARENT
@@ -72,7 +73,8 @@ public class CalcCardIdWidth {
     /**
      * ID.WIDTH.3. If the id width has not been calculated, calculate id width.
      */
-    public ViewTreeObserver.OnDrawListener calcIdWidth(RecyclerView recyclerView, TextView idHeader) {
+    @NonNull
+    public ViewTreeObserver.OnDrawListener calcIdWidth(@NonNull RecyclerView recyclerView, @NonNull TextView idHeader) {
         return () -> {
             int width = findMaxIdWidth(recyclerView);
             if (width != 0) {
@@ -84,7 +86,7 @@ public class CalcCardIdWidth {
         };
     }
 
-    private int findMaxIdWidth(RecyclerView recyclerView) {
+    private int findMaxIdWidth(@NonNull RecyclerView recyclerView) {
         int maxIdWidth = 0;
         for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i) {
             CardViewHolder holder = (CardViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(i));
@@ -96,7 +98,7 @@ public class CalcCardIdWidth {
         return maxIdWidth;
     }
 
-    private void setIdWidth(RecyclerView recyclerView, int width) {
+    private void setIdWidth(@NonNull RecyclerView recyclerView, int width) {
         for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i) {
             CardViewHolder holder = (CardViewHolder) recyclerView.getChildViewHolder(recyclerView.getChildAt(i));
             if (holder.getIdTextView().getWidth() != width) {

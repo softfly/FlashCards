@@ -113,7 +113,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder
      * C_02_01 When no card is selected and tap on the card, show the popup menu.
      */
     @Override
-    public boolean onSingleTapUp(MotionEvent event) {
+    public boolean onSingleTapUp(@NonNull MotionEvent event) {
         lastTouchX = event.getRawX();
         lastTouchY = event.getRawY();
         this.itemView.setActivated(true);

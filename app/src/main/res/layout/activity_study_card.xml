@@ -23,7 +23,7 @@
             android:layout_height="0dp"
             android:gravity="center"
             android:scrollbars="vertical"
-            android:text="Sample term"
+            android:text=""
             android:textAlignment="center"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="@+id/guideline"
@@ -36,15 +36,28 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.5" />
 
+        <TextView
+            android:id="@+id/showDefinitionView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:scrollbars="vertical"
+            android:text="\?\nShow definition"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline" />
+
         <pl.softfly.flashcards.ui.card.study.ZoomTextView
             android:id="@+id/definitionView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:gravity="center"
             android:scrollbars="vertical"
-            android:text="\?"
+            android:text=""
             android:textAlignment="center"
             android:textSize="24sp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline" />
 

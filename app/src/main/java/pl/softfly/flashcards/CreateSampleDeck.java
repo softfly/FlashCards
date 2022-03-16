@@ -2,6 +2,8 @@ package pl.softfly.flashcards;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.time.LocalDateTime;
 
 import io.reactivex.rxjava3.functions.Action;
@@ -140,7 +142,7 @@ public class CreateSampleDeck {
             }
     };
 
-    public void create(Context context, Action doOnComplete) {
+    public void create(@NonNull Context context, @NonNull Action doOnComplete) {
         if (!AppDatabaseUtil
                 .getInstance(context)
                 .getStorageDb()

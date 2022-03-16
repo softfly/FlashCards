@@ -1,5 +1,7 @@
 package pl.softfly.flashcards.ui.card.study;
 
+import static android.view.View.OnTouchListener;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -10,12 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Guideline;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
-
-import static android.view.View.OnTouchListener;
+import pl.softfly.flashcards.entity.DeckConfig;
 
 public class DraggableStudyCardActivity extends StudyCardActivity {
+
+    private final static float DEFAULT_TD_DISPLAY_RATIO = 0.5f;
 
     private ConstraintLayout cardLayout;
     private ConstraintLayout cardView;
@@ -23,6 +26,7 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
     private View dividerView;
     private TextView termView;
     private TextView definitionView;
+    private float displayRatio = DEFAULT_TD_DISPLAY_RATIO;
 
     /**
      * Move divider to move term / definition view boundary.
@@ -53,9 +57,7 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
 
                         float newY = (event.getRawY() - absoluteTopY);
                         if (newY > minY && newY < maxY) {
-                            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLineView.getLayoutParams();
-                            params.guidePercent = newY / height;
-                            guideLineView.setLayoutParams(params);
+                            setDisplayRatio(newY / height);
                         }
                         modeDrag = true;
                         return true;
@@ -88,6 +90,23 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
         guideLineView = findViewById(R.id.guideline);
         dividerView = findViewById(R.id.divider);
         dividerView.setOnTouchListener(moveDividerTouchListener);
+
+        deckDb.deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_TD_DISPLAY_RATIO)
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(displayRatio -> runOnUiThread(() -> setDisplayRatio(displayRatio)))
+                .subscribe(deckConfig -> {
+                }, e -> getExceptionHandler().handleException(
+                        e, getSupportFragmentManager(),
+                        StudyCardActivity.class.getSimpleName() + "_InitDefinitionView",
+                        "Error while read the deck view settings."
+                ));
+    }
+
+    private void setDisplayRatio(Float displayRatio) {
+        this.displayRatio = displayRatio;
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLineView.getLayoutParams();
+        params.guidePercent = displayRatio;
+        guideLineView.setLayoutParams(params);
     }
 
     @Override
@@ -104,5 +123,24 @@ public class DraggableStudyCardActivity extends StudyCardActivity {
         super.initDefinitionView();
         definitionView = findViewById(R.id.definitionView);
         definitionView.setOnTouchListener((v, event) -> moveDividerTouchListener.onTouch(cardLayout, event));
+    }
+
+    @Override
+    protected void resetView() {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLineView.getLayoutParams();
+        displayRatio = DEFAULT_TD_DISPLAY_RATIO;
+        params.guidePercent = displayRatio;
+        guideLineView.setLayoutParams(params);
+        super.resetView();
+    }
+
+    @Override
+    protected void onStop() {
+        deckDb.deckConfigAsyncDao().updateDeckConfig(
+                DeckConfig.STUDY_CARD_TD_DISPLAY_RATIO,
+                Float.toString(displayRatio),
+                getOnErrorSavingViewSettings()
+        );
+        super.onStop();
     }
 }

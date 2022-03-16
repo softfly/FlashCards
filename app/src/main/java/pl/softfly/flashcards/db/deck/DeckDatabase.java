@@ -6,6 +6,7 @@ import androidx.room.TypeConverters;
 
 import pl.softfly.flashcards.dao.CardDao;
 import pl.softfly.flashcards.dao.CardDaoAsync;
+import pl.softfly.flashcards.dao.CardDaoLiveData;
 import pl.softfly.flashcards.dao.CardLearningProgressAsyncDao;
 import pl.softfly.flashcards.dao.DeckConfigAsyncDao;
 import pl.softfly.flashcards.dao.DeckConfigDao;
@@ -46,6 +47,8 @@ public abstract class DeckDatabase extends RoomDatabase {
     public abstract CardDao cardDao();
 
     public abstract CardDaoAsync cardDaoAsync();
+
+    public abstract CardDaoLiveData cardDaoLiveData();
 
     public abstract CardLearningProgressAsyncDao cardLearningProgressAsyncDao();
 
