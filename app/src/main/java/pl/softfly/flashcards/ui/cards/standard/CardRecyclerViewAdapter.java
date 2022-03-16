@@ -77,7 +77,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         if (htmlUtil.isHtml(card.getDefinition())) {
             holder.getDefinitionTextView().setText(htmlUtil.fromHtml(card.getDefinition()).toString());
         } else {
-            holder.getDefinitionTextView().setText(card.getTerm());
+            holder.getDefinitionTextView().setText(card.getDefinition());
         }
     }
 

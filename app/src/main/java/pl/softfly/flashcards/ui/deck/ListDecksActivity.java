@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
+import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -83,7 +84,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
         loadDecks();
         askPermissionManageExternalStorage();
         try {
-            createSampleDeck();
+            (new CreateSampleDeck()).create(getApplicationContext(), this::loadDecks);
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog dialog = new ExceptionDialog(e);
@@ -199,46 +200,6 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
             e.printStackTrace();
             ExceptionDialog eDialog = new ExceptionDialog(e);
             eDialog.show(getSupportFragmentManager(), "ImportDbDeck");
-        }
-    }
-
-    protected void createSampleDeck() {
-        String deckName = "Sample Deck";
-        if (!AppDatabaseUtil
-                .getInstance(getApplicationContext())
-                .getStorageDb()
-                .exists(deckName)) {
-            AppDatabaseUtil
-                    .getInstance(getApplicationContext())
-                    .getStorageDb()
-                    .removeDatabase(deckName);
-
-            DeckDatabase deckDB = AppDatabaseUtil
-                    .getInstance(getApplicationContext())
-                    .getDeckDatabase(deckName);
-
-            int NUM_CARDS = 20;
-            Card[] cards = new Card[NUM_CARDS];
-            for (int i = 0; i < NUM_CARDS; i++) {
-                StringBuilder termBuilder = new StringBuilder("Sample term ").append(i + 1);
-                StringBuilder definitionBuilder = new StringBuilder("Sample definition ").append(i + 1);
-                for (int ii = 0; ii < 10; ii++) {
-                    termBuilder.append("\n Sample term ").append(i + 1);
-                    definitionBuilder.append("\n Sample definition ").append(i + 1);
-                }
-                Card card = new Card();
-                card.setOrdinal(i + 1);
-                card.setTerm(termBuilder.toString());
-                card.setDefinition(definitionBuilder.toString());
-                card.setModifiedAt(LocalDateTime.now());
-                cards[i] = card;
-            }
-
-            deckDB.cardDaoAsync().insertAll(cards)
-                    .subscribeOn(Schedulers.io())
-                    .doOnError(Throwable::printStackTrace)
-                    .doOnComplete(() -> runOnUiThread(this::loadDecks))
-                    .subscribe();
         }
     }
 }
