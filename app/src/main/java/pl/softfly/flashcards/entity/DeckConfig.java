@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey;
 /**
  * @author Grzegorz Ziemski
  */
-@Entity
+@Entity(tableName = "Core_Deck_Config")
 public class DeckConfig {
 
     public static final String FILE_SYNC_EDITING_BLOCKED_AT = "FileSync_EditingBlockedAt";

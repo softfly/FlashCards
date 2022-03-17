@@ -20,7 +20,7 @@ import pl.softfly.flashcards.entity.DeckConfig;
 @Dao
 public interface DeckConfigDao {
 
-    @Query("SELECT * FROM DeckConfig WHERE `key`=:key")
+    @Query("SELECT * FROM Core_Deck_Config WHERE `key`=:key")
     DeckConfig findByKey(String key);
 
     @NonNull

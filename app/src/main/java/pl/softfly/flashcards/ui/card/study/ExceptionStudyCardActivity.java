@@ -2,7 +2,7 @@ package pl.softfly.flashcards.ui.card.study;
 
 import android.os.Bundle;
 
-import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
+import pl.softfly.flashcards.entity.Card;
 
 /**
  * @author Grzegorz Ziemski
@@ -16,6 +16,15 @@ public class ExceptionStudyCardActivity extends DraggableStudyCardActivity {
                 getSupportFragmentManager(),
                 ExceptionStudyCardActivity.class.getName(),
                 (dialog, which) -> onBackPressed()
+        );
+    }
+
+    protected void onChanged(Card card) {
+        getExceptionHandler().tryHandleException(
+                () -> super.onChanged(card),
+                getSupportFragmentManager(),
+                ExceptionStudyCardActivity.class.getName(),
+                "Error while the updating the model card."
         );
     }
 

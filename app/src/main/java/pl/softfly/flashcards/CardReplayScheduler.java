@@ -47,17 +47,17 @@ public class CardReplayScheduler {
     }
 
     @NonNull
-    public CardLearningProgress scheduleReplayAfterHard(CardLearningProgress learningProgress) {
+    public CardLearningProgress scheduleReplayAfterHard(@NonNull CardLearningProgress learningProgress) {
         return scheduleReplayRemembered(learningProgress, DEFAULT_HARD_FIRST_INTERVAL, DEFAULT_HARD_FACTOR);
     }
 
     @NonNull
-    public CardLearningProgress scheduleReplayAfterEasy(CardLearningProgress learningProgress) {
+    public CardLearningProgress scheduleReplayAfterEasy(@NonNull CardLearningProgress learningProgress) {
         return scheduleReplayRemembered(learningProgress, DEFAULT_EASY_FIRST_INTERVAL, DEFAULT_EASY_FACTOR);
     }
 
     @NonNull
-    protected CardLearningProgress scheduleReplayRemembered(CardLearningProgress learningProgress, int defaultIntervalStart, int factor) {
+    protected CardLearningProgress scheduleReplayRemembered(@NonNull CardLearningProgress learningProgress, int defaultIntervalStart, int factor) {
         if (Objects.nonNull(learningProgress) && !learningProgress.getRemembered()) {
             return this.scheduleReplayForgotten();
         } else {

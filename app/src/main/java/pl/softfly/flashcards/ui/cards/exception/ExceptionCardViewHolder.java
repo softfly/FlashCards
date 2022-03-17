@@ -24,7 +24,7 @@ public class ExceptionCardViewHolder extends FileSyncCardViewHolder {
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent event) {
+    public boolean onSingleTapUp(@NonNull MotionEvent event) {
         try {
             return super.onSingleTapUp(event);
         } catch (Exception e) {

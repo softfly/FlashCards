@@ -15,17 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ListIterator;
-import java.util.Objects;
-
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.CardReplayScheduler;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
@@ -42,15 +38,10 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
     private final static int DEFAULT_TERM_FONT_SIZE = 24;
     private final static int DEFAULT_DEFINITION_FONT_SIZE = 24;
-    private final CardReplayScheduler cardReplayScheduler = new CardReplayScheduler();
     private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
     protected DeckDatabase deckDb;
-    private ListIterator<Card> cardIterator;
-    private LiveData<Card> card;
+    private StudyCardViewModel model;
     private String deckName;
-    private CardLearningProgress againLearningProgress;
-    private CardLearningProgress easyLearningProgress;
-    private CardLearningProgress hardLearningProgress;
     private ZoomTextView termView;
     private ZoomTextView definitionView;
     private TextView showDefinitionView;
@@ -67,7 +58,9 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         Intent intent = getIntent();
         deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
         deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
-        loadNextCard();
+
+        model = new ViewModelProvider(this).get(StudyCardViewModel.class);
+        model.setDeckDb(deckDb);
 
         gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
         gradeButtonsLayout.setVisibility(INVISIBLE);
@@ -77,16 +70,35 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         initAgainButton();
         initEasyButton();
         initHardButton();
+
+        model.getCard().observe(this, this::onChanged);
+        model.nextCard();
+    }
+
+    protected void onChanged(@Nullable Card card) {
+        if (card == null) {
+            NoStudyCardsDialog dialog = new NoStudyCardsDialog();
+            dialog.show(this.getSupportFragmentManager(), "NoStudyCardsDialog");
+        } else {
+            if (htmlUtil.isHtml(card.getTerm())) {
+                termView.setText(htmlUtil.fromHtml(card.getTerm()));
+            } else {
+                termView.setText(card.getTerm());
+            }
+            if (htmlUtil.isHtml(card.getDefinition())) {
+                definitionView.setText(htmlUtil.fromHtml(card.getDefinition()));
+            } else {
+                definitionView.setText(card.getDefinition());
+            }
+            gradeButtonsLayout.setVisibility(INVISIBLE);
+            definitionView.setVisibility(INVISIBLE);
+            showDefinitionView.setVisibility(VISIBLE);
+        }
     }
 
     private void initShowDefinition() {
         showDefinitionView = findViewById(R.id.showDefinitionView);
         showDefinitionView.setOnClickListener(v -> {
-            if (htmlUtil.isHtml(card.getValue().getDefinition())) {
-                definitionView.setText(htmlUtil.fromHtml(card.getValue().getDefinition()));
-            } else {
-                definitionView.setText(card.getValue().getDefinition());
-            }
             gradeButtonsLayout.setVisibility(VISIBLE);
             definitionView.setVisibility(VISIBLE);
             showDefinitionView.setVisibility(INVISIBLE);
@@ -113,14 +125,6 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     protected void initDefinitionView() {
         definitionView = findViewById(R.id.definitionView);
         definitionView.setMovementMethod(new ScrollingMovementMethod());
-        definitionView.setOnClickListener(v -> {
-            gradeButtonsLayout.setVisibility(VISIBLE);
-            if (htmlUtil.isHtml(card.getValue().getDefinition())) {
-                definitionView.setText(htmlUtil.fromHtml(card.getValue().getDefinition()));
-            } else {
-                definitionView.setText(card.getValue().getDefinition());
-            }
-        });
         deckDb.deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_DEFINITION_FONT_SIZE)
                 .subscribeOn(Schedulers.io())
                 .doOnSuccess(deckConfig -> definitionView.setTextSize(deckConfig))
@@ -135,131 +139,44 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     protected void initAgainButton() {
         againButton = findViewById(R.id.againButton);
         againButton.setOnClickListener(v -> {
-            gradeButtonsLayout.setVisibility(INVISIBLE);
-            definitionView.setVisibility(INVISIBLE);
-            showDefinitionView.setVisibility(VISIBLE);
-
-            updateCardLearningProgress(againLearningProgress);
+            updateCardLearningProgress(model.getAgainLearningProgress().getValue());
+            model.nextCard();
         });
+        model.getAgainLearningProgress().observe(this,
+                cardLearningProgress ->
+                        againButton.setText("Again\n" + cardLearningProgress.getIntervalHour()));
     }
 
     private void initEasyButton() {
         easyButton = findViewById(R.id.easyButton);
         easyButton.setOnClickListener(v -> {
-            gradeButtonsLayout.setVisibility(INVISIBLE);
-            definitionView.setVisibility(INVISIBLE);
-            showDefinitionView.setVisibility(VISIBLE);
-            updateCardLearningProgress(easyLearningProgress);
+            updateCardLearningProgress(model.getEasyLearningProgress().getValue());
+            model.nextCard();
         });
+        model.getEasyLearningProgress().observe(this,
+                cardLearningProgress ->
+                        easyButton.setText("Easy\n" + cardLearningProgress.getIntervalHour()));
     }
 
     private void initHardButton() {
         hardButton = findViewById(R.id.hardButton);
         hardButton.setOnClickListener(v -> {
-            gradeButtonsLayout.setVisibility(INVISIBLE);
-            definitionView.setVisibility(INVISIBLE);
-            showDefinitionView.setVisibility(VISIBLE);
-            updateCardLearningProgress(hardLearningProgress);
+            updateCardLearningProgress(model.getHardLearningProgress().getValue());
+            model.nextCard();
         });
+        model.getEasyLearningProgress().observe(this,
+                cardLearningProgress ->
+                        hardButton.setText("Hard\n" + cardLearningProgress.getIntervalHour()));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void updateCardLearningProgress(@NonNull CardLearningProgress learningProgress) {
-        Completable updateCardLearningProgress;
-        if (learningProgress.getId() == null) {
-            updateCardLearningProgress = deckDb
-                    .cardLearningProgressAsyncDao()
-                    .insertAll(learningProgress);
-        } else {
-            updateCardLearningProgress = deckDb
-                    .cardLearningProgressAsyncDao()
-                    .updateAll(learningProgress);
-        }
-        updateCardLearningProgress.subscribeOn(Schedulers.io())
-                .doOnComplete(() -> runOnUiThread(this::loadNextCard))
+        model.updateLearningProgress(learningProgress)
                 .subscribe(() -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
                         StudyCardActivity.class.getSimpleName() + "_UpdateCardLearningProgress",
                         "Error while updating card learning progress."
-                ));
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void loadNextCard() {
-        if (Objects.nonNull(cardIterator) && cardIterator.hasNext()) {
-            displayCard(cardIterator.next().getId());
-        } else {
-            deckDb.cardDaoAsync().getNextCards()
-                    .subscribeOn(Schedulers.io())
-                    .doOnError(Throwable::printStackTrace)
-                    .doOnSuccess(cards -> runOnUiThread(() -> {
-                        cardIterator = cards.listIterator();
-                        if (cardIterator.hasNext()) {
-                            displayCard(cardIterator.next().getId());
-                        } else {
-                            NoStudyCardsDialog dialog = new NoStudyCardsDialog();
-                            dialog.show(this.getSupportFragmentManager(), "NoStudyCardsDialog");
-                        }
-                    }))
-                    .subscribe(cards -> {
-                    }, e -> getExceptionHandler().handleException(
-                            e, getSupportFragmentManager(),
-                            StudyCardActivity.class.getSimpleName() + "_LoadNextCard",
-                            "Error while loading the next card."
-                    ));
-        }
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void displayCard(int cardId) {
-        runOnUiThread(() -> {
-            if (card != null) {
-                card.removeObservers(this);
-            }
-            card = deckDb.cardDaoLiveData().getCard(cardId);
-            card.observe(this, card -> {
-                if (card.getDeletedAt() == null) {
-                    if (htmlUtil.isHtml(card.getTerm())) {
-                        termView.setText(htmlUtil.fromHtml(card.getTerm()));
-                    } else {
-                        termView.setText(card.getTerm());
-                    }
-                }
-            });
-        });
-        deckDb.cardLearningProgressAsyncDao()
-                .findByCardId(cardId)
-                .subscribeOn(Schedulers.io())
-                .doOnSuccess(cardLearningProgress -> {
-                    againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
-                    easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(cardLearningProgress);
-                    hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(cardLearningProgress);
-
-                    runOnUiThread(() -> {
-                        againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
-                        easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
-                        hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
-                    });
-                })
-                .doOnEvent((value, error) -> {
-                    if (value == null && error == null) {
-                        againLearningProgress = cardReplayScheduler.scheduleReplayAfterAgain();
-                        easyLearningProgress = cardReplayScheduler.scheduleReplayAfterEasy(null);
-                        hardLearningProgress = cardReplayScheduler.scheduleReplayAfterHard(null);
-
-                        runOnUiThread(() -> {
-                            againButton.setText("Again\n" + againLearningProgress.getIntervalHour());
-                            easyButton.setText("Easy\n" + easyLearningProgress.getIntervalHour());
-                            hardButton.setText("Hard\n" + hardLearningProgress.getIntervalHour());
-                        });
-                    }
-                })
-                .subscribe(cardLearningProgress -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_DisplayCard",
-                        "Error while displaying the card."
                 ));
     }
 
@@ -301,7 +218,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
             startEditCardActivity();
             return true;
         } else if (item.getItemId() == R.id.delete) {
-            deleteCard(card.getValue());
+            deleteCard();
         } else if (item.getItemId() == R.id.resetView) {
             resetView();
         }
@@ -311,23 +228,19 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     private void startEditCardActivity() {
         Intent intent = new Intent(this, EditCardActivity.class);
         intent.putExtra(EditCardActivity.DECK_NAME, deckName);
-        intent.putExtra(EditCardActivity.CARD_ID, card.getValue().getId());
+        intent.putExtra(EditCardActivity.CARD_ID, model.getCard().getValue().getId());
         this.startActivity(intent);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void deleteCard(@NonNull Card card) {
-        cardIterator.remove();
-        deckDb.cardDao().deleteAsync(card)
-                .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> {
-                    loadNextCard();
-                    Snackbar.make(findViewById(android.R.id.content),
-                            "The card has been deleted.",
-                            Snackbar.LENGTH_LONG)
-                            .setAction("Undo", v -> revertCard(card))
-                            .show();
-                })
+    private void deleteCard() {
+        Card card = model.getCard().getValue();
+        model.deleteCard()
+                .doOnComplete(() -> Snackbar.make(findViewById(android.R.id.content),
+                        "The card has been deleted.",
+                        Snackbar.LENGTH_LONG)
+                        .setAction("Undo", v -> revertCard(card))
+                        .show())
                 .subscribe(() -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
@@ -338,20 +251,13 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void revertCard(@NonNull Card card) {
-        deckDb.cardDao().restoreAsync(card)
-                .subscribeOn(Schedulers.io())
+        model.revertCard(card)
                 .doOnComplete(() -> runOnUiThread(
-                        () -> {
-                            cardIterator.previous();
-                            cardIterator.add(card);
-                            cardIterator.previous();
-                            loadNextCard();
-                            Toast.makeText(
-                                    this,
-                                    "The card has been restored.",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        })
+                        () -> Toast.makeText(
+                                this,
+                                "The card has been restored.",
+                                Toast.LENGTH_SHORT
+                        ).show())
                 )
                 .subscribe(() -> {
                 }, e -> getExceptionHandler().handleException(
