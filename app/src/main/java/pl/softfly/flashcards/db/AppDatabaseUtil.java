@@ -5,7 +5,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 import pl.softfly.flashcards.Config;
@@ -54,18 +56,38 @@ public class AppDatabaseUtil {
         return INSTANCE;
     }
 
-    @Nullable
+    /*
+    @NonNull
+    @Deprecated
     public synchronized DeckDatabase getDeckDatabase(@NonNull String dbName) {
-        DeckDatabase db = DECKS.get(dbName);
+        return getDeckDatabase(new File(storageDb.getDbFolder()), dbName);
+    }*/
+
+    @NonNull
+    public synchronized DeckDatabase getDeckDatabase(@NonNull File folder, @NonNull String name) {
+        return getDeckDatabase(folder.getPath(), name);
+    }
+
+    @NonNull
+    public synchronized DeckDatabase getDeckDatabase(@NonNull String folder, @NonNull String name) {
+        return getDeckDatabase(folder + "/" + name);
+    }
+
+    @NonNull
+    public synchronized DeckDatabase getDeckDatabase(@NonNull String dbPath) {
+        Objects.nonNull(dbPath);
+        DeckDatabase db = DECKS.get(dbPath);
         if (db == null) {
-            db = storageDb.getDatabase(dbName);
-            DECKS.put(dbName, db);
+            db = storageDb.getDatabase(dbPath);
+            DECKS.put(dbPath, db);
         } else if (!db.isOpen()) {
-            db = storageDb.getDatabase(dbName);
-            DECKS.put(dbName, db);
+            db = storageDb.getDatabase(dbPath);
+            DECKS.put(dbPath, db);
         }
         return db;
     }
+
+
 
     public synchronized void closeDeckDatabase(String dbName) {
         DeckDatabase db = DECKS.get(dbName);

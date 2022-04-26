@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -143,19 +144,16 @@ public class CreateSampleDeck {
     };
 
     public void create(@NonNull Context context, @NonNull Action doOnComplete) {
-        if (!AppDatabaseUtil
+        StorageDb storageDb = AppDatabaseUtil
                 .getInstance(context)
-                .getStorageDb()
-                .exists(DECK_NAME)) {
+                .getStorageDb();
 
-            AppDatabaseUtil
-                    .getInstance(context)
-                    .getStorageDb()
-                    .removeDatabase(DECK_NAME);
+        String dbDeckPath = storageDb.getDbFolder() + "/" + DECK_NAME;
 
-            DeckDatabase deckDB = AppDatabaseUtil
+        if (!storageDb.exists(dbDeckPath)) {
+            DeckDatabase deckDb = AppDatabaseUtil
                     .getInstance(context)
-                    .getDeckDatabase(DECK_NAME);
+                    .getDeckDatabase(dbDeckPath);
 
             Card[] cards = new Card[SAMPLE_DECK.length];
             LocalDateTime modifiedAt = LocalDateTime.now();
@@ -169,7 +167,7 @@ public class CreateSampleDeck {
                 cards[i] = card;
             }
 
-            deckDB.cardDaoAsync().insertAll(cards)
+            deckDb.cardDaoAsync().insertAll(cards)
                     .subscribeOn(Schedulers.io())
                     .doOnError(Throwable::printStackTrace)
                     .doOnComplete(doOnComplete)

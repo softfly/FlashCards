@@ -23,8 +23,8 @@ public class DragSwipeCardRecyclerViewAdapter
 
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
-    public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
-        super(activity, deckName);
+    public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
+        super(activity, deckDbPath);
     }
 
     @NonNull

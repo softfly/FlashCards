@@ -26,8 +26,8 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
 
     private FileSyncListCardsActivity activity;
 
-    public FileSyncCardRecyclerViewAdapter(FileSyncListCardsActivity activity, String deckName) {
-        super(activity, deckName);
+    public FileSyncCardRecyclerViewAdapter(FileSyncListCardsActivity activity, String deckDbPath) {
+        super(activity, deckDbPath);
         this.activity = activity;
     }
 

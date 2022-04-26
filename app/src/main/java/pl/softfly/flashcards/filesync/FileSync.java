@@ -25,13 +25,13 @@ public interface FileSync {
     /**
      * IE Create a deck from an imported Excel file.
      */
-    void importFile(Uri uri, ListDecksActivity listDecksActivity);
+    void importFile(String importToFolderPath, Uri uri, ListDecksActivity listDecksActivity);
 
     /**
      * EE Create a new Excel file from the exported deck.
      */
     void exportFile(
-            String deckName,
+            String deckDbPath,
             Uri uri,
             FileSyncListCardsActivity listCardsActivity
     );

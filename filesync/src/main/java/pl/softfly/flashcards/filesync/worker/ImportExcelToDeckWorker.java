@@ -18,6 +18,7 @@ import androidx.work.WorkerParameters;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
@@ -31,19 +32,13 @@ import pl.softfly.flashcards.filesync.entity.FileSynced;
  */
 public class ImportExcelToDeckWorker extends Worker {
 
+    public static final String IMPORT_TO_FOLDER_PATH = "IMPORT_TO_FOLDER_PATH";
     public static final String FILE_URI = "FILE_URI";
     public static final String AUTO_SYNC = "AUTO_SYNC";
 
-    private Uri fileUri;
-
     private String fileName;
-
     private String mimeType;
-
     private Long fileLastModifiedAt;
-
-    private FileSynced fileSynced;
-
     private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public ImportExcelToDeckWorker(
@@ -58,8 +53,16 @@ public class ImportExcelToDeckWorker extends Worker {
     public Result doWork() {
         try {
             Data inputData = getInputData();
-            fileUri = Uri.parse(inputData.getString(FILE_URI));
-            fileSynced = new FileSynced();
+
+            String fileUriS = inputData.getString(FILE_URI);
+            Objects.requireNonNull(fileUriS);
+
+            String importToFolderPath = inputData.getString(IMPORT_TO_FOLDER_PATH);
+            Objects.requireNonNull(importToFolderPath);
+
+            Uri fileUri = Uri.parse(inputData.getString(FILE_URI));
+
+            FileSynced fileSynced = new FileSynced();
             fileSynced.setUri(fileUri.toString());
             fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
 
@@ -67,7 +70,13 @@ public class ImportExcelToDeckWorker extends Worker {
             InputStream isImportedFile = openExcelFile(fileUri);
 
             ImportExcelToDeck ImportExcelToDeck = new ImportExcelToDeck(getApplicationContext());
-            ImportExcelToDeck.importExcelFile(fileName, isImportedFile, mimeType, fileLastModifiedAt);
+            ImportExcelToDeck.importExcelFile(
+                    inputData.getString(IMPORT_TO_FOLDER_PATH),
+                    fileName,
+                    isImportedFile,
+                    mimeType,
+                    fileLastModifiedAt
+            );
 
             showSuccessNotification();
             return Result.success();
@@ -114,7 +123,7 @@ public class ImportExcelToDeckWorker extends Worker {
     protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
-                SyncExcelToDeckWorker.class.getSimpleName()
+                ImportExcelToDeckWorker.class.getSimpleName()
         );
     }
 }

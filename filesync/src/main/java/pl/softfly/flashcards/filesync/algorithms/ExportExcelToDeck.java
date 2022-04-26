@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
@@ -41,28 +42,28 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
     }
 
     public void syncExcelFile(
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile
     ) {
-        syncExcelFile(deckName, fileSynced, inputStream, typeFile, null);
+        syncExcelFile(deckDbPath, fileSynced, inputStream, typeFile, null);
     }
 
     @Override
     public void syncExcelFile(
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
             Long lastModifiedAtFile
     ) {
         this.isImportedFile = inputStream;
-        this.deckDb = getDeckDB(deckName);
-        this.workbook = typeFile.equals(TYPE_XLS)
+        this.deckDb = getDeckDB(deckDbPath);
+        this.workbook = TYPE_XLS.equals(typeFile)
                 ? new HSSFWorkbook()
                 : new XSSFWorkbook();
-        this.sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(deckName));
+        this.sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(getDeckName(deckDbPath)));
         // The file must be very old to get changes only from deck.
         this.newLastSyncAt = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
 
@@ -71,7 +72,9 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         setSkipHeaderRows(1);
 
         fileSynced.setLastSyncAt(this.newLastSyncAt);
-        fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
+        if (fileSynced.getId() == null) {
+            fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
+        }
         this.fileSynced = fileSynced;
 
         // 1. Purge sync entities in the database before starting.
@@ -133,5 +136,10 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         cell = row.createCell(getDefinitionIndex());
         cell.setCellValue(card.getDefinition());
         cell.setCellStyle(cellStyle);
+    }
+
+    @NonNull
+    protected String getDeckName(@NonNull String deckDbPath) {
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
     }
 }

@@ -14,8 +14,8 @@ public class ExceptionCardRecyclerViewAdapter extends FileSyncCardRecyclerViewAd
 
     private final ExceptionListCardsActivity activity;
 
-    public ExceptionCardRecyclerViewAdapter(ExceptionListCardsActivity activity, String deckName) {
-        super(activity, deckName);
+    public ExceptionCardRecyclerViewAdapter(ExceptionListCardsActivity activity, String deckDbPath) {
+        super(activity, deckDbPath);
         this.activity = activity;
     }
 

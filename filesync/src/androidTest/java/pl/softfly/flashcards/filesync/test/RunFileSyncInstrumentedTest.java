@@ -39,8 +39,8 @@ public class RunFileSyncInstrumentedTest extends CucumberAndroidJUnitRunner {
                 .getStorageDb();
 
         if (BuildConfig.DEBUG) {
-            storageDb.listDatabases()
-                    .forEach(storageDb::removeDatabase);
+            storageDb.listDatabases(new File(storageDb.getDbFolder()))
+                    .forEach(storageDb::removeDatabase2);
         }
         super.onCreate(bundle);
     }

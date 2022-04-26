@@ -73,14 +73,14 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     public void syncExcelFile(
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
             @NonNull Long lastModifiedAtFile
     ) throws Exception {
         this.isImportedFile = inputStream;
-        this.deckDb = getDeckDB(deckName);
+        this.deckDb = getDeckDB(deckDbPath);
         this.workbook = typeFile.equals(TYPE_XLS)
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
@@ -216,8 +216,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 }
 
                 // @todo remove, only for debugging
-                if (!empty(term)) cardImported.setTerm(term);
-                if (!empty(definition)) cardImported.setDefinition(definition);
+                //if (!empty(term)) cardImported.setTerm(term);
+                //if (!empty(definition)) cardImported.setDefinition(definition);
 
                 cardImported.setId(id);
                 if (id - 1 > 0) cardImported.setPreviousId(id - 1);
@@ -463,8 +463,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             cardImported.setContentStatus(CardImported.STATUS_INSERT_BY_DECK);
             cardImported.setPositionStatus(CardImported.POSITION_STATUS_BY_DECK);
             //@todo remove after debugging
-            cardImported.setTerm(card.getTerm());
-            cardImported.setDefinition(card.getDefinition());
+            //cardImported.setTerm(card.getTerm());
+            //cardImported.setDefinition(card.getDefinition());
         }
         return cardImported;
     }
@@ -642,40 +642,37 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         CardImported.STATUS_DELETE_BY_DECK,
                         CardImported.STATUS_DELETE_BY_FILE
                 }, 0);
-        try {
-            int rowNum = Math.max(skipHeaderRows, 0);
 
-            for (; !cardImportedList.isEmpty(); rowNum++) {
-                CardImported cardImported = cardImportedList.remove(0);
-                Card card = deckDb.cardDao().findById(cardImported.getCardId());
+        int rowNum = Math.max(skipHeaderRows, 0);
 
-                if (CardImported.STATUS_UNCHANGED.equals(cardImported.getContentStatus())) {
-                    if (cardImported.isOrderChanged()) {
-                        updateExcelCell(sheet.createRow(rowNum), card);
-                    }
-                } else {
+        for (; !cardImportedList.isEmpty(); rowNum++) {
+            CardImported cardImported = cardImportedList.remove(0);
+            Card card = deckDb.cardDao().findById(cardImported.getCardId());
+
+            if (CardImported.STATUS_UNCHANGED.equals(cardImported.getContentStatus())) {
+                if (cardImported.isOrderChanged()) {
                     updateExcelCell(sheet.createRow(rowNum), card);
                 }
-
-                if (cardImportedList.isEmpty()) {
-                    cardImportedList = deckDb.cardImportedDao()
-                            .findByStatusNotOrderByCardOrdinalAsc(new String[]{
-                                    CardImported.STATUS_DELETE_BY_DECK,
-                                    CardImported.STATUS_DELETE_BY_FILE
-                            }, card.getOrdinal());
-                }
-            }
-            for (int i=deckDb.cardImportedDao().countByDeleteByDeck(); i>0; i--) {
-                sheet.removeRow(sheet.getRow(rowNum++));
+            } else {
+                updateExcelCell(sheet.createRow(rowNum), card);
             }
 
-            this.isImportedFile.close();
-            this.workbook.write(os);
-            this.workbook.close();
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (cardImportedList.isEmpty()) {
+                cardImportedList = deckDb.cardImportedDao()
+                        .findByStatusNotOrderByCardOrdinalAsc(new String[]{
+                                CardImported.STATUS_DELETE_BY_DECK,
+                                CardImported.STATUS_DELETE_BY_FILE
+                        }, card.getOrdinal());
+            }
         }
+        for (int i=deckDb.cardImportedDao().countByDeleteByDeck(); i>0; i--) {
+            sheet.removeRow(sheet.getRow(rowNum++));
+        }
+
+        if (isImportedFile != null) this.isImportedFile.close();
+        this.workbook.write(os);
+        this.workbook.close();
+        os.close();
     }
 
     protected void updateExcelCell(@NonNull Row row, @NonNull Card card) {

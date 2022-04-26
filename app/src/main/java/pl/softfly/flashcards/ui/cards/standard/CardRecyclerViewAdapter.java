@@ -31,7 +31,7 @@ import pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity;
 public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder> {
 
     private final ListCardsActivity activity;
-    private final String deckName;
+    private final String deckDbPath;
     private final List<Card> cards = new LinkedList<>();
     @Nullable
     protected DeckDatabase deckDb;
@@ -40,9 +40,9 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     private CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
     private HtmlUtil htmlUtil = HtmlUtil.getInstance();
 
-    public CardRecyclerViewAdapter(ListCardsActivity activity, String deckName) {
+    public CardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
         this.activity = activity;
-        this.deckName = deckName;
+        this.deckDbPath = deckDbPath;
         this.deckDb = getDeckDatabase();
         loadCards();
     }
@@ -148,14 +148,14 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
 
     protected void startEditCardActivity(int position) {
         Intent intent = new Intent(activity, EditCardActivity.class);
-        intent.putExtra(EditCardActivity.DECK_NAME, deckName);
+        intent.putExtra(EditCardActivity.DECK_DB_PATH, deckDbPath);
         intent.putExtra(EditCardActivity.CARD_ID, getItem(position).getId());
         activity.startActivity(intent);
     }
 
     protected void startNewCardActivity(int position) {
         Intent intent = new Intent(activity, NewCardAfterOrdinalActivity.class);
-        intent.putExtra(NewCardActivity.DECK_NAME, deckName);
+        intent.putExtra(NewCardActivity.DECK_DB_PATH, deckDbPath);
         intent.putExtra(AFTER_ORDINAL, getItem(position).getOrdinal());
         activity.startActivity(intent);
     }
@@ -164,7 +164,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     protected DeckDatabase getDeckDatabase() {
         return AppDatabaseUtil
                 .getInstance(activity.getApplicationContext())
-                .getDeckDatabase(deckName);
+                .getDeckDatabase(deckDbPath);
     }
 
     @Override

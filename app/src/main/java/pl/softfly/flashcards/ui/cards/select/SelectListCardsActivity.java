@@ -20,7 +20,7 @@ public class SelectListCardsActivity extends DragSwipeListCardsActivity {
 
     @Override
     protected SelectCardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new SelectCardRecyclerViewAdapter(this, getDeckName());
+        adapter = new SelectCardRecyclerViewAdapter(this, deckDbPath);
         setAdapter(adapter);
         return adapter;
     }

@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import io.reactivex.rxjava3.functions.Consumer;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 
@@ -69,6 +70,21 @@ public class ExceptionHandler {
             r.run();
         } catch (Exception e) {
             handleException(e, manager, tag, message, callback);
+        }
+    }
+
+    public void tryHandleException(
+            @NonNull Runnable r,
+            @NonNull Consumer<? super Throwable> onError
+    ) {
+        try {
+            r.run();
+        } catch (Exception e) {
+            try {
+                onError.accept(e);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
         }
     }
 

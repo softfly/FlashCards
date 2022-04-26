@@ -19,50 +19,48 @@ import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.db.storage.StorageDb;
-import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
+import pl.softfly.flashcards.ui.deck.folder.CreateFolderDialog;
+import pl.softfly.flashcards.ui.deck.folder.FolderDeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
 public class ListDecksActivity extends IconWithTextInTopbarActivity {
 
-    private final ArrayList<String> deckNames = new ArrayList<>();
-
     private ListDecksActivity listDecksActivity;
 
-    private DeckRecyclerViewAdapter deckRecyclerViewAdapter;
+    private DeckRecyclerViewAdapter adapter;
+
+    protected File currentFolder;
 
     private final ActivityResultLauncher<String[]> importExcel =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
                     importedExcelUri -> {
                         if (importedExcelUri != null)
-                            FileSync.getInstance().importFile(importedExcelUri, listDecksActivity);
+                            FileSync.getInstance().importFile(
+                                    currentFolder.getPath(),
+                                    importedExcelUri,
+                                    listDecksActivity);
                     }
             );
 
@@ -71,7 +69,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                     new ActivityResultContracts.OpenDocument(),
                     importedDbUri -> {
                         if (importedDbUri != null)
-                            importDbDeck(importedDbUri);
+                            importDbDeck(currentFolder.getPath(), importedDbUri);
                     }
             );
 
@@ -80,11 +78,15 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
         super.onCreate(savedInstanceState);
         this.listDecksActivity = this;
         setContentView(R.layout.activity_list_decks);
+        initCurrentFolder();
         initRecyclerView();
-        loadDecks();
+        adapter.loadItems(currentFolder);
         askPermissionManageExternalStorage();
         try {
-            (new CreateSampleDeck()).create(getApplicationContext(), this::loadDecks);
+            (new CreateSampleDeck()).create(
+                    getApplicationContext(),
+                    () -> adapter.loadItems(currentFolder)
+            );
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog dialog = new ExceptionDialog(e);
@@ -99,19 +101,18 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                         recyclerView.getContext(), DividerItemDecoration.VERTICAL
                 )
         );
-        deckRecyclerViewAdapter = new DeckRecyclerViewAdapter(this, deckNames);
-        recyclerView.setAdapter(deckRecyclerViewAdapter);
+        adapter = new FolderDeckRecyclerViewAdapter(this, currentFolder);
+        recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    public void loadDecks() {
-        deckNames.clear();
-        deckNames.addAll(AppDatabaseUtil
-                .getInstance(getApplicationContext())
-                .getStorageDb()
-                .listDatabases()
+    protected void initCurrentFolder() {
+        currentFolder = new File(
+                AppDatabaseUtil
+                        .getInstance(getApplicationContext())
+                        .getStorageDb()
+                        .getDbFolder()
         );
-        deckRecyclerViewAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -121,12 +122,17 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                         getDrawableHelper(R.drawable.ic_outline_add_24),
                         "New deck"
                 ));
-        menu.add(0, R.id.import_excel, 2,
+        menu.add(0, R.id.new_folder, 2,
+                menuIconWithText(
+                        getDrawableHelper(R.drawable.ic_baseline_create_new_folder_24),
+                        "New folder"
+                ));
+        menu.add(0, R.id.import_excel, 3,
                 menuIconWithText(
                         getDrawableHelper(R.drawable.ic_round_file_download_24),
                         "Import Excel"
                 ));
-        menu.add(0, R.id.import_db, 3,
+        menu.add(0, R.id.import_db, 4,
                 menuIconWithText(
                         getDrawableHelper(R.drawable.ic_round_file_download_24),
                         "Import DB"
@@ -138,10 +144,11 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.new_deck:
-                DialogFragment dialog = new CreateDeckDialog();
+            case R.id.new_deck: {
+                DialogFragment dialog = new CreateDeckDialog(currentFolder);
                 dialog.show(this.getSupportFragmentManager(), "CreateDeck");
                 return true;
+            }
             case R.id.import_excel:
                 importExcel.launch(new String[]{TYPE_XLS, TYPE_XLSX});
                 return true;
@@ -171,7 +178,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
     }
 
     @SuppressLint("Range")
-    protected void importDbDeck(Uri importedDbUri) {
+    protected void importDbDeck(String importToFolder, Uri importedDbUri) {
         StorageDb storageDb = AppDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getStorageDb();
@@ -181,11 +188,11 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                     .query(importedDbUri, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     deckName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    deckName = storageDb.findFreeDeckName(deckName);
+                    deckName = storageDb.findFreeName(importToFolder, deckName);
                 }
             }
             InputStream in = getContentResolver().openInputStream(importedDbUri);
-            FileOutputStream out = new FileOutputStream(storageDb.getDbPath(deckName));
+            FileOutputStream out = new FileOutputStream(importToFolder + "/" + deckName);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 FileUtils.copy(in, out);
             } else {
@@ -195,11 +202,15 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
             }
             in.close();
             out.close();
-            loadDecks();
+            adapter.loadItems(currentFolder);
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog eDialog = new ExceptionDialog(e);
             eDialog.show(getSupportFragmentManager(), "ImportDbDeck");
         }
+    }
+
+    public void loadDecks() {
+        adapter.loadItems(currentFolder);
     }
 }

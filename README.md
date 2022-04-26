@@ -48,3 +48,6 @@ The inspiration for the application was independence from storing cards in comme
 - FS_S Synchronize the deck with an Excel file.
 - FS_E Export the deck to a new Excel file.
 - FS_A Automatically sync with Excel file when deck is opened or closed.
+
+## TODO
+- Align remove / delete words

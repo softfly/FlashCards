@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,8 @@ import androidx.work.WorkerParameters;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
@@ -33,16 +36,15 @@ import pl.softfly.flashcards.filesync.entity.FileSynced;
  */
 public class SyncExcelToDeckWorker extends Worker {
 
-    public static final String DECK_NAME = "DECK_NAME";
+    public static final String DECK_DB_PATH = "DECK_DB_PATH";
     public static final String FILE_URI = "FILE_URI";
     public static final String AUTO_SYNC = "AUTO_SYNC";
 
     protected Uri fileUri;
     @Nullable
-    protected String deckName;
+    protected String deckDbPath;
     protected String mimeType;
     protected Long fileLastModifiedAt;
-    protected FileSynced fileSynced;
     @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
@@ -59,23 +61,24 @@ public class SyncExcelToDeckWorker extends Worker {
     public Result doWork() {
         try {
             Data inputData = getInputData();
-            deckName = inputData.getString(DECK_NAME);
-            deckDb = getDeckDB(deckName);
+            deckDbPath = inputData.getString(DECK_DB_PATH);
+            Objects.requireNonNull(deckDbPath);
             fileUri = Uri.parse(inputData.getString(FILE_URI));
-            fileSynced = findOrCreateFileSynced(fileUri.toString());
+            Objects.requireNonNull(fileUri);
+
+            deckDb = getDeckDB(deckDbPath);
+            FileSynced fileSynced = findOrCreateFileSynced(fileUri.toString());
             fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
 
             askPermissions(fileUri);
-            InputStream isImportedFile = openExcelFile(fileUri);
 
             SyncExcelToDeck syncExcelToDeck = new SyncExcelToDeck(getApplicationContext());
-            syncExcelToDeck.syncExcelFile(deckName, fileSynced, isImportedFile, mimeType, fileLastModifiedAt);
-            syncExcelToDeck.commitChanges(
-                    fileSynced,
-                    getApplicationContext()
-                            .getContentResolver()
-                            .openOutputStream(fileUri)
-            );
+            try(InputStream isFile = openFileToRead(fileUri)) {
+                syncExcelToDeck.syncExcelFile(deckDbPath, fileSynced, isFile, mimeType, fileLastModifiedAt);
+            }
+            try(OutputStream outFile = openFileToWrite(fileUri)) {
+                syncExcelToDeck.commitChanges(fileSynced, outFile);
+            }
 
             showSuccessNotification();
             return Result.success();
@@ -103,7 +106,7 @@ public class SyncExcelToDeckWorker extends Worker {
      * https://developer.android.com/training/data-storage/shared/documents-files
      */
     @SuppressLint("Range")
-    protected InputStream openExcelFile(Uri uri) throws FileNotFoundException {
+    protected InputStream openFileToRead(Uri uri) throws FileNotFoundException {
         try (Cursor cursor = getApplicationContext().getContentResolver()
                 .query(uri, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
@@ -118,10 +121,14 @@ public class SyncExcelToDeckWorker extends Worker {
         return getApplicationContext().getContentResolver().openInputStream(uri);
     }
 
+    protected OutputStream openFileToWrite(Uri uri) throws FileNotFoundException {
+        return getApplicationContext().getContentResolver().openOutputStream(uri);
+    }
+
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
                 getApplicationContext(),
-                String.format("The deck \"%s\" has been synced with the file.", deckName),
+                String.format("The deck \"%s\" has been synced with the file.", getDeckName()),
                 Toast.LENGTH_LONG
                 ).show()
         );
@@ -137,5 +144,10 @@ public class SyncExcelToDeckWorker extends Worker {
     @Nullable
     protected FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
+    }
+
+    @NonNull
+    private String getDeckName() {
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
     }
 }

@@ -10,13 +10,23 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import java.io.File;
+
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
-import pl.softfly.flashcards.ui.ExceptionDialog;
+import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
 
 public class CreateDeckDialog extends DialogFragment {
+
+    private File currentFolder;
+
+    public CreateDeckDialog(File currentFolder) {
+        this.currentFolder = currentFolder;
+    }
 
     @NonNull
     @Override
@@ -28,31 +38,43 @@ public class CreateDeckDialog extends DialogFragment {
                 .setTitle("Create a new deck")
                 .setMessage("Please enter the name:")
                 .setView(view)
-                .setPositiveButton("OK", (dialog, which) -> {
-                    EditText deckNameEditText = view.findViewById(R.id.deckName);
-                    String deckName = deckNameEditText.getText().toString();
-                    try {
-                        DeckDatabase room = AppDatabaseUtil.getInstance(getContext()).getDeckDatabase(deckName);
-                        // This is used to force the creation of a DB.
-                        room.cardDaoAsync().deleteAll()
-                                .subscribeOn(Schedulers.io())
-                                .doOnComplete(() -> activity.runOnUiThread(() -> {
-                                    activity.loadDecks();
-                                    Toast.makeText(
-                                            activity,
-                                            "\"" + deckName + "\" deck created.",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }))
-                                .subscribe();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        ExceptionDialog eDialog = new ExceptionDialog(e);
-                        eDialog.show(getActivity().getSupportFragmentManager(), this.getTag());
-                    }
-                })
+                .setPositiveButton("OK",
+                        (dialog, which) -> getExceptionHandler().tryHandleException(() -> {
+                            EditText deckNameEditText = view.findViewById(R.id.deckName);
+                            String deckName = deckNameEditText.getText().toString();
+                            DeckDatabase deckDb = AppDatabaseUtil
+                                    .getInstance(getContext())
+                                    .getDeckDatabase(currentFolder.getPath() + "/" + deckName);
+
+                            // This is used to force the creation of a DB.
+                            deckDb.cardDaoAsync().deleteAll()
+                                    .subscribeOn(Schedulers.io())
+                                    .doOnComplete(() -> activity.runOnUiThread(() -> {
+                                        activity.loadDecks();
+                                        Toast.makeText(
+                                                activity,
+                                                "\"" + deckName + "\" deck created.",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+                                    }))
+                                    .subscribe(() -> {
+                                    }, getOnError());
+                        }, getOnError()))
                 .setNegativeButton("Cancel", (dialog, which) -> {
                 })
                 .create();
+    }
+
+    @NonNull
+    protected Consumer<? super Throwable> getOnError() {
+        return e -> getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                CreateDeckDialog.class.getSimpleName(),
+                "Error while read the deck view settings."
+        );
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 }

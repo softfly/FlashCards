@@ -48,7 +48,7 @@ public class ExceptionDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Error")
-                .setMessage(nonEmpty(message) ? message : e.getMessage())
+                .setMessage(getMessage())
                 .setPositiveButton(android.R.string.ok, positiveListener)
                 .setNegativeButton("Show Exception", (dialog, which) -> {
                 })
@@ -71,10 +71,20 @@ public class ExceptionDialog extends DialogFragment {
 
     protected void hideException(View view) {
         TextView messageTextView = alertDialog.findViewById(android.R.id.message);
-        messageTextView.setText(nonEmpty(message) ? message : e.getMessage());
+        messageTextView.setText(getMessage());
         Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         negativeButton.setText("Show Exception");
         negativeButton.setOnClickListener(this::showException);
+    }
+
+    /**
+     * The message cannot be empty,
+     * otherwise android.R.id.message will not be created
+     * and an exception will not be displayed.
+     */
+    @Nullable
+    protected String getMessage() {
+        return nonEmpty(message) ? message : nonEmpty(e.getMessage()) ? e.getMessage() : "Unrecognized error.";
     }
 
     protected boolean nonEmpty(@Nullable String str) {

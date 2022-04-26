@@ -97,12 +97,12 @@ public class ImportExcelToDeckStepDefs {
     @When("Import the Excel file into the deck.")
     public void import_the_excel_file_into_the_deck() throws Exception {
         importExcelToDeck = Mockito.spy(ImportExcelToDeck.class);
-        doReturn(null).when(importExcelToDeck).getDeckDatabase(any());
-        doReturn(scenario.getName()).when(importExcelToDeck).findFreeDeckName(any());
+        doReturn(null).when(importExcelToDeck).getDeckDatabase2(any());
+        doReturn(scenario.getName()).when(importExcelToDeck).findFreeDeckName(any(), any());
         doNothing().when(importExcelToDeck).insertAll(any());
 
         InputStream is = new FileInputStream(PATH + "/" + scenario.getName() + ".xlsx");
-        importExcelToDeck.importExcelFile(scenario.getName(), is, FileSync.TYPE_XLSX, 0l);
+        importExcelToDeck.importExcelFile("", scenario.getName(), is, FileSync.TYPE_XLSX, 0l);
     }
 
     @Then("A new deck with the following cards imported.")

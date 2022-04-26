@@ -54,12 +54,13 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     }
 
     public void importExcelFile(
+            String importToFolderPath,
             String deckName,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
             Long lastModifiedAtFile
     ) throws IOException {
-        deckName = findFreeDeckName(deckName);
+        deckName = findFreeDeckName(importToFolderPath, deckName);
         Workbook workbook = typeFile.equals(TYPE_XLS)
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
@@ -77,7 +78,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     protected void importCards(
             @NonNull Sheet datatypeSheet,
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             int termPosition,
             int definitionPosition,
             int skipFirstRows,
@@ -117,7 +118,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
                 if (empty(card.getDefinition())) {
                     card.setDefinition(null);
                 }
-                if (deckDb == null) deckDb = getDeckDatabase(deckName);
+                if (deckDb == null) deckDb = getDeckDatabase(deckDbPath);
                 cardsList.add(card);
                 if (rowNum > 0 && (rowNum % ENTITIES_TO_UPDATE_POOL_MAX == 0)) {
                     insertAll(new ArrayList<>(cardsList));
@@ -134,11 +135,11 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     //@todo Public for mocking
     //@todo try DI instead of ServiceLocator
-    public String findFreeDeckName(@NonNull String deckName) {
+    public String findFreeDeckName(String folderPath, @NonNull String deckName) {
         return AppDatabaseUtil
                 .getInstance(appContext)
                 .getStorageDb()
-                .findFreeDeckName(deckName.substring(0, deckName.lastIndexOf('.')));
+                .findFreeName(folderPath + "/" + deckName.substring(0, deckName.lastIndexOf('.')));
     }
 
     //@todo Public for mocking
@@ -148,7 +149,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
     //@todo Public for mocking
     @Nullable
-    public DeckDatabase getDeckDatabase(@NonNull String deckName) {
-        return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
+    public DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
+        return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckDbPath);
     }
 }

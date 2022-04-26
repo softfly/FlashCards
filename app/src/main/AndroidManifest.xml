@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlashCards">
         <activity
-            android:name=".ui.deck.ListDecksActivity"
+            android:name=".ui.deck.folder.ListFoldersDecksActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

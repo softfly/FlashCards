@@ -24,19 +24,15 @@ import pl.softfly.flashcards.entity.Card;
 
 public class NewCardActivity extends AppCompatActivity {
 
-    public static final String DECK_NAME = "deckName";
-
-    protected String deckName;
+    public static final String DECK_DB_PATH = "deckDbPath";
 
     @Nullable
     protected DeckDatabase deckDb;
 
     protected EditText termEditText;
-
     protected EditText definitionEditText;
 
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-
     protected CardUtil cardUtil = CardUtil.getInstance();
 
     @Override
@@ -51,8 +47,8 @@ public class NewCardActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Intent intent = getIntent();
-        deckName = intent.getStringExtra(DECK_NAME);
-        deckDb = getDeckDatabase();
+        String deckDbPath = intent.getStringExtra(DECK_DB_PATH);
+        deckDb = initDeckDatabase(deckDbPath);
     }
 
     @Override
@@ -104,9 +100,9 @@ public class NewCardActivity extends AppCompatActivity {
     }
 
     @Nullable
-    protected DeckDatabase getDeckDatabase() {
+    protected DeckDatabase initDeckDatabase(@NonNull String deckDbPath) {
         return AppDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getDeckDatabase(deckName);
+                .getDeckDatabase(deckDbPath);
     }
 }

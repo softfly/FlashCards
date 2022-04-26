@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -67,7 +71,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                     new ActivityResultContracts.OpenDocument(),
                     syncedExcelUri -> {
                         if (syncedExcelUri != null)
-                            fileSync.syncFile(getDeckName(), syncedExcelUri, this);
+                            fileSync.syncFile(deckDbPath, syncedExcelUri, this);
                     }
             );
 
@@ -83,7 +87,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                     },
                     exportedExcelUri -> {
                         if (exportedExcelUri != null)
-                            fileSync.exportFile(getDeckName(), exportedExcelUri, this);
+                            fileSync.exportFile(deckDbPath, exportedExcelUri, this);
                     }
             );
 
@@ -92,11 +96,25 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
         super.onCreate(savedInstanceState);
         this.deckDb = getDeckDatabase();
         checkIfEditingIsLocked();
+
+        getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                Log.e("Lifecycle", "Background" + this.toString());
+            } else if (event == Lifecycle.Event.ON_RESUME) {
+                Log.e("Lifecycle", "Foreground" + this.toString());
+            }
+        });
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.e("Lifecycle", "Resume" + this.toString());
     }
 
     @Override
     protected FileSyncCardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new FileSyncCardRecyclerViewAdapter(this, getDeckName());
+        adapter = new FileSyncCardRecyclerViewAdapter(this, deckDbPath);
         setAdapter(adapter);
         return adapter;
     }
@@ -219,7 +237,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                 syncExcel.launch(new String[] {TYPE_XLS, TYPE_XLSX});
                 return true;
             case R.id.export_excel:
-                exportExcel.launch(getDeckName());
+                exportExcel.launch(getDeckName() + ".xlsx");
                 return true;
             case R.id.show_recently_synced:
                 adapter.showRecentlySynced();
@@ -231,11 +249,16 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @NonNull
+    private String getDeckName() {
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
+    }
+
     @Nullable
     protected DeckDatabase getDeckDatabase() {
         return AppDatabaseUtil
                 .getInstance(getBaseContext())
-                .getDeckDatabase(getDeckName());
+                .getDeckDatabase(deckDbPath);
     }
 
     public boolean isEditingUnlocked() {

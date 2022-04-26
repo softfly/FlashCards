@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.color.MaterialColors;
 
+import java.util.Objects;
+
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
@@ -32,7 +34,9 @@ import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
  */
 public class ListCardsActivity extends IconWithTextInTopbarActivity {
 
-    private String deckName;
+    public static final String DECK_DB_PATH = "deckDbPath";
+
+    protected String deckDbPath;
 
     private CardRecyclerViewAdapter adapter;
 
@@ -40,22 +44,17 @@ public class ListCardsActivity extends IconWithTextInTopbarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_list_cards);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_cards);
+        idHeader = findViewById(R.id.idHeader);
 
-            idHeader = findViewById(R.id.idHeader);
+        Intent intent = getIntent();
+        deckDbPath = intent.getStringExtra(DECK_DB_PATH);
+        Objects.requireNonNull(deckDbPath);
 
-            Intent intent = getIntent();
-            deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
-            initRecyclerView();
+        initRecyclerView();
 
-            getSupportActionBar().setElevation(0); // Remove shadow under
-        } catch (Exception e) {
-            e.printStackTrace();
-            ExceptionDialog dialog = new ExceptionDialog(e);
-            dialog.show(getSupportFragmentManager(), "ListCardsActivity");
-        }
+        getSupportActionBar().setElevation(0); // Remove shadow under
     }
 
     protected void initRecyclerView() {
@@ -74,7 +73,7 @@ public class ListCardsActivity extends IconWithTextInTopbarActivity {
     }
 
     protected CardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        this.adapter = new CardRecyclerViewAdapter(this, deckName);
+        this.adapter = new CardRecyclerViewAdapter(this, deckDbPath);
         return this.adapter;
     }
 
@@ -116,16 +115,12 @@ public class ListCardsActivity extends IconWithTextInTopbarActivity {
 
     protected void startNewCardActivity() {
         Intent intent = new Intent(this, NewCardActivity.class);
-        intent.putExtra(NewCardActivity.DECK_NAME, deckName);
+        intent.putExtra(NewCardActivity.DECK_DB_PATH, deckDbPath);
         this.startActivity(intent);
     }
 
     protected RecyclerView getRecyclerView() {
         return findViewById(R.id.card_list_view);
-    }
-
-    protected String getDeckName() {
-        return deckName;
     }
 
     private CalcCardIdWidth getCalcCardIdWidth() {

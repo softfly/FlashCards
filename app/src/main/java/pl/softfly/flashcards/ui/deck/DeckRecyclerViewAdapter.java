@@ -8,18 +8,18 @@ import android.os.FileUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -30,31 +30,152 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
-import pl.softfly.flashcards.ui.card.study.DraggableStudyCardActivity;
 import pl.softfly.flashcards.ui.card.study.ExceptionStudyCardActivity;
+import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
 import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
+import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckViewHolder> {
+public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int VIEW_TYPE_DECK = 1;
 
     public static final String DECK_NAME = "deckName";
 
     @NonNull
-    private final AppCompatActivity activity;
+    protected final AppCompatActivity activity;
 
-    private final ArrayList<String> deckNames;
+    protected final ArrayList<String> deckNames = new ArrayList<>();
 
-    private String deckName;
+    protected File currentFolder;
 
     @NonNull
-    private final ActivityResultLauncher<String> exportDbDeck;
+    private ActivityResultLauncher<String> exportDbDeck;
 
-    public DeckRecyclerViewAdapter(@NonNull AppCompatActivity activity, ArrayList<String> deckNames) {
+    public DeckRecyclerViewAdapter(@NonNull AppCompatActivity activity, File currentFolder) {
         this.activity = activity;
-        this.deckNames = deckNames;
+        this.currentFolder = currentFolder;
+    }
+
+    public void loadItems(@NonNull File path) {
+        deckNames.clear();
+        deckNames.addAll(AppDatabaseUtil
+                .getInstance(activity.getApplicationContext())
+                .getStorageDb()
+                .listDatabases(path)
+        );
+        notifyDataSetChanged();
+    }
+
+    protected void exportDb(Uri exportToUri, @NonNull String dbPath) {
+        try {
+            try(OutputStream out = activity
+                    .getContentResolver()
+                    .openOutputStream(exportToUri)) {
+
+                AppDatabaseUtil
+                        .getInstance(activity.getApplicationContext())
+                        .closeDeckDatabase(dbPath);
+
+                try (FileInputStream in = new FileInputStream(dbPath)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        FileUtils.copy(in, out);
+                    } else {
+                        copyFile(in, out);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog eDialog = new ExceptionDialog(e);
+            eDialog.show(activity.getSupportFragmentManager(), "ExportDbDeck");
+        }
+    }
+
+    protected void copyFile(FileInputStream in, OutputStream out) throws IOException {
+        FileChannel inChannel = in.getChannel();
+        FileChannel outChannel = ((FileOutputStream) out).getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return VIEW_TYPE_DECK;
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (VIEW_TYPE_DECK == viewType ) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
+            return new DeckViewHolder(view, this);
+        } else {
+            throw new IllegalStateException("Unexpected value: " + viewType);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int itemPosition) {
+        DeckViewHolder deckViewHolder = (DeckViewHolder) holder;
+        String deckName = deckNames.get(getDeckPosition(itemPosition));
+        deckViewHolder.nameTextView.setText(deckName);
+        deckViewHolder.nameTextView.setSelected(true);
+        try {
+            DeckDatabase deckDb = getDeckDatabase(deckNames.get(getDeckPosition(itemPosition)));
+            deckDb.cardDaoAsync().count().subscribeOn(Schedulers.io())
+                    .doOnError(Throwable::printStackTrace)
+                    .doOnSuccess(count -> activity.runOnUiThread(() ->
+                            deckViewHolder.totalTextView.setText("Total: " + count)))
+                    .subscribe(integer -> {}, throwable -> {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionDialog dialog = new ExceptionDialog(e);
+            dialog.show(activity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
+        }
+    }
+
+    public void onItemClick(int position) {
+        newStudyCardActivity(position);
+    }
+
+    protected void newStudyCardActivity(int itemPosition) {
+        Intent intent = new Intent(activity, ExceptionStudyCardActivity.class);
+        intent.putExtra(
+                ExceptionStudyCardActivity.DECK_DB_PATH,
+                currentFolder.getPath() + "/" + deckNames.get(getDeckPosition(itemPosition))
+        );
+        activity.startActivity(intent);
+    }
+
+    public void newListCardsActivity(int itemPosition) {
+        Intent intent = new Intent(activity, ExceptionListCardsActivity.class);
+        intent.putExtra(
+                ExceptionListCardsActivity.DECK_DB_PATH,
+                currentFolder.getPath() + "/" + deckNames.get(getDeckPosition(itemPosition))
+        );
+        activity.startActivity(intent);
+    }
+
+    public void newNewCardActivity(int itemPosition) {
+        Intent intent = new Intent(activity, NewCardActivity.class);
+        intent.putExtra(
+                NewCardActivity.DECK_DB_PATH,
+                currentFolder.getPath() + "/" + deckNames.get(getDeckPosition(itemPosition)));
+        activity.startActivity(intent);
+    }
+
+    public void showDeleteDeckDialog(int itemPosition) {
+        RemoveDeckDialog dialog = new RemoveDeckDialog(
+                currentFolder.getPath() + "/" + deckNames.get(getDeckPosition(itemPosition))
+        );
+        dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
+    }
+
+    public void exportDbDeck(int position) {
+        String deckName = deckNames.get(position);
+
         this.exportDbDeck = activity.registerForActivityResult(
                 new ActivityResultContracts.CreateDocument() {
                     @NonNull
@@ -66,103 +187,26 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<DeckViewHolder
                 },
                 exportedDbUri -> {
                     if (exportedDbUri != null)
-                        exportDbDeck(exportedDbUri, deckName);
+                        exportDb(exportedDbUri, deckName);
                 }
         );
-    }
 
-    protected void exportDbDeck(Uri exportedDbUri, @NonNull String deckName) {
-        try {
-            OutputStream out = activity
-                    .getContentResolver()
-                    .openOutputStream(exportedDbUri);
-
-            AppDatabaseUtil
-                    .getInstance(activity.getApplicationContext())
-                    .closeDeckDatabase(deckName);
-
-            String dbPath = AppDatabaseUtil
-                    .getInstance(activity.getApplicationContext())
-                    .getStorageDb()
-                    .getDbPath(deckName);
-
-            FileInputStream in = new FileInputStream(dbPath);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                FileUtils.copy(in, out);
-            } else {
-                FileChannel inChannel = in.getChannel();
-                FileChannel outChannel = ((FileOutputStream) out).getChannel();
-                inChannel.transferTo(0, inChannel.size(), outChannel);
-            }
-            in.close();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            ExceptionDialog eDialog = new ExceptionDialog(e);
-            eDialog.show(activity.getSupportFragmentManager(), "ExportDbDeck");
-        }
-    }
-
-    @NonNull
-    @Override
-    public DeckViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
-        return new DeckViewHolder(view, this);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull DeckViewHolder holder, int position) {
-        String deckName = deckNames.get(position);
-        holder.nameTextView.setText(deckName);
-        holder.nameTextView.setSelected(true);
-
-        try {
-            DeckDatabase deckDb = AppDatabaseUtil
-                    .getInstance(activity.getApplicationContext())
-                    .getDeckDatabase(deckName);
-            deckDb.cardDaoAsync().count().subscribeOn(Schedulers.io())
-                    .doOnError(Throwable::printStackTrace)
-                    .doOnSuccess(count -> activity.runOnUiThread(() -> {
-                        holder.totalTextView.setText("Total: " + count);
-                    }))
-                    .subscribe(integer -> {}, throwable -> {});
-        } catch (Exception e) {
-            e.printStackTrace();
-            ExceptionDialog dialog = new ExceptionDialog(e);
-            dialog.show(activity.getSupportFragmentManager(), "DeckRecyclerViewAdapter");
-        }
-    }
-
-    public void newListCardsActivity(int position) {
-        Intent intent = new Intent(activity, ExceptionListCardsActivity.class);
-        intent.putExtra(DECK_NAME, deckNames.get(position));
-        activity.startActivity(intent);
-    }
-
-    public void newNewCardActivity(int position) {
-        Intent intent = new Intent(activity, NewCardActivity.class);
-        intent.putExtra(DECK_NAME, deckNames.get(position));
-        activity.startActivity(intent);
-    }
-
-    public void showDeleteDeckDialog(int position) {
-        RemoveDeckDialog dialog = new RemoveDeckDialog(deckNames.get(position));
-        dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
-    }
-
-    public void exportDbDeck(int position) {
-        deckName = deckNames.get(position);
         exportDbDeck.launch(deckName);
-    }
-
-    public void mewStudyCardActivity(int position) {
-        Intent intent = new Intent(activity, ExceptionStudyCardActivity.class);
-        intent.putExtra(DECK_NAME, deckNames.get(position));
-        activity.startActivity(intent);
     }
 
     @Override
     public int getItemCount() {
         return deckNames.size();
+    }
+
+    protected int getDeckPosition(int itemPosition) {
+        return itemPosition;
+    }
+
+    @Nullable
+    protected DeckDatabase getDeckDatabase(String deckName) {
+        return AppDatabaseUtil
+                .getInstance(activity.getApplicationContext())
+                .getDeckDatabase(currentFolder, deckName);
     }
 }

@@ -34,8 +34,8 @@ public class SelectCardRecyclerViewAdapter
 
     private SelectListCardsActivity activity;
 
-    public SelectCardRecyclerViewAdapter(SelectListCardsActivity activity, String deckName) {
-        super(activity, deckName);
+    public SelectCardRecyclerViewAdapter(SelectListCardsActivity activity, String deckDbPath) {
+        super(activity, deckDbPath);
         this.activity = activity;
     }
 

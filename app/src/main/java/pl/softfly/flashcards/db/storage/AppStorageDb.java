@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import java.io.File;
+
 /**
  * Database files are stored in app-specific storage.
  *
@@ -13,25 +15,13 @@ import androidx.room.RoomDatabase;
  */
 public abstract class AppStorageDb<DB extends RoomDatabase> extends StorageDb {
 
-    protected Context appContext;
-
     public AppStorageDb(Context appContext) {
-        this.appContext = appContext;
+        super(appContext);
     }
 
     @NonNull
     @Override
-    public DB getDatabase(@NonNull String deckName) {
-        return Room.databaseBuilder(
-                appContext,
-                getTClass(),
-                getDbPath(deckName)
-        ).build();
-    }
-
-    @NonNull
-    @Override
-    protected String getDbFolder() {
+    public String getDbFolder() {
         return appContext.getFilesDir().getParentFile().getPath() + "/databases/decks";
     }
 

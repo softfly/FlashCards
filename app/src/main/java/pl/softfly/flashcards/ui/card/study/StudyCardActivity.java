@@ -20,6 +20,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Objects;
+
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
@@ -32,23 +34,24 @@ import pl.softfly.flashcards.entity.CardLearningProgress;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
+    public static final String DECK_DB_PATH = "deckDbPath";
     private final static int DEFAULT_TERM_FONT_SIZE = 24;
     private final static int DEFAULT_DEFINITION_FONT_SIZE = 24;
+
     private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
     protected DeckDatabase deckDb;
+    private String deckDbPath;
     private StudyCardViewModel model;
-    private String deckName;
     private ZoomTextView termView;
     private ZoomTextView definitionView;
     private TextView showDefinitionView;
+    private View gradeButtonsLayout;
     private Button againButton;
     private Button easyButton;
     private Button hardButton;
-    private View gradeButtonsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +59,9 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         setContentView(R.layout.activity_study_card);
 
         Intent intent = getIntent();
-        deckName = intent.getStringExtra(DeckRecyclerViewAdapter.DECK_NAME);
-        deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
+        deckDbPath = intent.getStringExtra(DECK_DB_PATH);
+        Objects.nonNull(deckDbPath);
+        deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckDbPath);
 
         model = new ViewModelProvider(this).get(StudyCardViewModel.class);
         model.setDeckDb(deckDb);
@@ -204,11 +208,6 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
                         getDrawableHelper(R.drawable.ic_empty),
                         "Reset view"
                 ));
-        menu.add(0, R.id.rememberedForever, 4,
-                menuIconWithText(
-                        getDrawableHelper(R.drawable.ic_baseline_done_24),
-                        "Remembered forever"
-                ));
         return true;
     }
 
@@ -227,7 +226,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
     private void startEditCardActivity() {
         Intent intent = new Intent(this, EditCardActivity.class);
-        intent.putExtra(EditCardActivity.DECK_NAME, deckName);
+        intent.putExtra(EditCardActivity.DECK_DB_PATH, deckDbPath);
         intent.putExtra(EditCardActivity.CARD_ID, model.getCard().getValue().getId());
         this.startActivity(intent);
     }

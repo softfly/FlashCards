@@ -11,8 +11,10 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
+import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
  * This class separates the Android API from the algorithm.
@@ -33,24 +35,18 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
     public Result doWork() {
         try {
             Data inputData = getInputData();
-            deckName = inputData.getString(DECK_NAME);
-            deckDb = getDeckDB(deckName);
+            deckDbPath = inputData.getString(DECK_DB_PATH);
+            deckDb = getDeckDB(deckDbPath);
             fileUri = Uri.parse(inputData.getString(FILE_URI));
-            fileSynced = findOrCreateFileSynced(fileUri.toString());
+            FileSynced fileSynced = findOrCreateFileSynced(fileUri.toString());
             fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
 
             askPermissions(fileUri);
-            InputStream isImportedFile = openExcelFile(fileUri);
-
             ExportExcelToDeck exportExcelToDeck = new ExportExcelToDeck(getApplicationContext());
-            exportExcelToDeck.syncExcelFile(deckName, fileSynced, isImportedFile, mimeType, fileLastModifiedAt);
-            exportExcelToDeck.commitChanges(
-                    fileSynced,
-                    getApplicationContext()
-                            .getContentResolver()
-                            .openOutputStream(fileUri)
-            );
-
+            exportExcelToDeck.syncExcelFile(deckDbPath, fileSynced, null, mimeType, fileLastModifiedAt);
+            try(OutputStream outFile = openFileToWrite(fileUri)) {
+                exportExcelToDeck.commitChanges(fileSynced, outFile);
+            }
 
             showSuccessNotification();
             return Result.success();
@@ -64,9 +60,14 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
                 getApplicationContext(),
-                String.format("The deck \"%s\" has been exported to the file.", deckName),
+                String.format("The deck \"%s\" has been exported to the file.", getDeckName()),
                 Toast.LENGTH_LONG
                 ).show()
         );
+    }
+
+    @NonNull
+    private String getDeckName() {
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
     }
 }

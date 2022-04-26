@@ -2,11 +2,13 @@ package pl.softfly.flashcards.filesync;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -16,9 +18,11 @@ import androidx.work.WorkRequest;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.Observable;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
+import pl.softfly.flashcards.FlashCardsApp;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
@@ -88,38 +92,39 @@ public class FileSyncBean implements FileSync {
     }
 
     protected void syncWorkRequest(
-            String deckName,
+            String deckDbPath,
             @NonNull FileSynced fileSynced,
             @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(SyncExcelToDeckWorker.class)
-                        .setInputData(createInputData(deckName, fileSynced))
+                        .setInputData(createInputData(deckDbPath, fileSynced))
                         .addTag(TAG)
                         .build();
 
-        WorkManager workManager = WorkManager.getInstance(listCardsActivity.getApplicationContext());
-        workManager.enqueue(syncWorkRequest);
-
-        workManager.getWorkInfoByIdLiveData(syncWorkRequest.getId())
-                .observe(listCardsActivity, workInfo -> {
-                    if (workInfo.getState() != null
-                            && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        if (listCardsActivity
-                                .getLifecycle()
-                                .getCurrentState()
-                                .isAtLeast(Lifecycle.State.RESUMED)
-                        ) {
-                            listCardsActivity.onRestart();
+        listCardsActivity.runOnUiThread(() -> {
+            WorkManager workManager = WorkManager.getInstance(listCardsActivity.getApplicationContext());
+            workManager.enqueue(syncWorkRequest);
+            workManager.getWorkInfoByIdLiveData(syncWorkRequest.getId())
+                    .observe(listCardsActivity, workInfo -> {
+                        if (workInfo.getState() != null
+                                && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                            if (listCardsActivity
+                                    .getLifecycle()
+                                    .getCurrentState()
+                                    .isAtLeast(Lifecycle.State.RESUMED)
+                            ) {
+                                listCardsActivity.onRestart();
+                            }
                         }
-                    }
-                });
+                    });
+        });
     }
 
     @NonNull
-    protected Data createInputData(String deckName, @NonNull FileSynced fileSynced) {
+    protected Data createInputData(String deckDbPath, @NonNull FileSynced fileSynced) {
         return new Data.Builder()
-                .putString(SyncExcelToDeckWorker.DECK_NAME, deckName)
+                .putString(SyncExcelToDeckWorker.DECK_DB_PATH, deckDbPath)
                 .putString(SyncExcelToDeckWorker.FILE_URI, fileSynced.getUri())
                 .putBoolean(SyncExcelToDeckWorker.AUTO_SYNC, fileSynced.isAutoSync())
                 .build();
@@ -129,17 +134,22 @@ public class FileSyncBean implements FileSync {
      * IE Create a deck from an imported Excel file.
      */
     @Override
-    public void importFile(@NonNull Uri uri, @NonNull ListDecksActivity listDecksActivity) {
+    public void importFile(
+            @NonNull String importToFolderPath,
+            @NonNull Uri uri,
+            @NonNull ListDecksActivity listDecksActivity
+    ) {
         FileSynced fileSynced = new FileSynced();
         fileSynced.setUri(uri.toString());
         setUpAutoSync(
                 fileSynced,
                 listDecksActivity,
-                () -> importWorkRequest(fileSynced, listDecksActivity)
+                () -> importWorkRequest(importToFolderPath, fileSynced, listDecksActivity)
         );
     }
 
     protected void importWorkRequest(
+            @NonNull String importToFolderPath,
             @NonNull FileSynced fileSynced,
             @NonNull ListDecksActivity listDecksActivity
     ) {
@@ -147,6 +157,7 @@ public class FileSyncBean implements FileSync {
                 new OneTimeWorkRequest.Builder(ImportExcelToDeckWorker.class)
                         .setInputData(
                                 new Data.Builder()
+                                        .putString(ImportExcelToDeckWorker.IMPORT_TO_FOLDER_PATH, importToFolderPath)
                                         .putString(ImportExcelToDeckWorker.FILE_URI, fileSynced.getUri())
                                         .putBoolean(ImportExcelToDeckWorker.AUTO_SYNC, fileSynced.isAutoSync())
                                         .build())
@@ -175,14 +186,14 @@ public class FileSyncBean implements FileSync {
      */
     @Override
     public void exportFile(
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             @NonNull Uri uri,
             @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
         if (deckDb == null) {
             deckDb = FileSyncDatabaseUtil
                     .getInstance(listCardsActivity.getApplicationContext())
-                    .getDeckDatabase(deckName);
+                    .getDeckDatabase(deckDbPath);
         }
         checkIfEditingIsLocked(listCardsActivity, () -> {
             FileSynced fileSynced = new FileSynced();
@@ -190,15 +201,19 @@ public class FileSyncBean implements FileSync {
             setUpAutoSync(
                     fileSynced,
                     listCardsActivity,
-                    () -> exportWorkRequest(deckName, fileSynced, listCardsActivity.getApplicationContext())
+                    () -> exportWorkRequest(deckDbPath, fileSynced, listCardsActivity.getApplicationContext())
             );
         });
     }
 
-    protected void exportWorkRequest(String deckName, @NonNull FileSynced fileSynced, @NonNull Context context) {
+    protected void exportWorkRequest(
+            String deckDbPath,
+            @NonNull FileSynced fileSynced,
+            @NonNull Context context
+    ) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(ExportExcelFromDeckWorker.class)
-                        .setInputData(createInputData(deckName, fileSynced))
+                        .setInputData(createInputData(deckDbPath, fileSynced))
                         .addTag(TAG)
                         .build();
         WorkManager

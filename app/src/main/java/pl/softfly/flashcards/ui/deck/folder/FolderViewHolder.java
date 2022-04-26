@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.deck;
+package pl.softfly.flashcards.ui.deck.folder;
 
 import android.os.Build;
 import android.view.View;
@@ -10,24 +10,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class FolderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public TextView nameTextView;
     TextView moreTextView;
-    TextView totalTextView;
     RelativeLayout deckLayoutListItem;
-    DeckRecyclerViewAdapter adapter;
+    FolderDeckRecyclerViewAdapter adapter;
 
-    public DeckViewHolder(@NonNull View itemView, DeckRecyclerViewAdapter adapter) {
+    public FolderViewHolder(@NonNull View itemView, FolderDeckRecyclerViewAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
         nameTextView = itemView.findViewById(R.id.nameTextView);
         deckLayoutListItem = itemView.findViewById(R.id.deckListItem);
-        totalTextView = itemView.findViewById(R.id.totalTextView);
         initMoreTextView();
         itemView.setOnClickListener(this);
     }
@@ -36,21 +35,11 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         moreTextView = itemView.findViewById(R.id.moreTextView);
         moreTextView.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
-            popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
+            popup.getMenuInflater().inflate(R.menu.popup_menu_folder, popup.getMenu());
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
-                    case R.id.listCards: {
-                        adapter.newListCardsActivity(getBindingAdapterPosition());
-                        return true;
-                    }
-                    case R.id.addCard:
-                        adapter.newNewCardActivity(getBindingAdapterPosition());
-                        return true;
-                    case R.id.removeDeck:
-                        adapter.showDeleteDeckDialog(getBindingAdapterPosition());
-                        return true;
-                    case R.id.exportDbDeck:
-                        adapter.exportDbDeck(getBindingAdapterPosition());
+                    case R.id.remove:
+                        adapter.showDeleteFolderDialog(getBindingAdapterPosition());
                         return true;
                 }
                 return false;

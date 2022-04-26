@@ -8,15 +8,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import java.io.File;
+
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.storage.StorageDb;
 
 public class RemoveDeckDialog extends DialogFragment {
 
-    private final String deckName;
+    private final String path;
 
-    public RemoveDeckDialog(String deckName) {
-        this.deckName = deckName;
+    public RemoveDeckDialog(String path) {
+        this.path = path;
     }
 
     @NonNull
@@ -32,7 +34,7 @@ public class RemoveDeckDialog extends DialogFragment {
                             .getInstance(activity.getApplicationContext())
                             .getStorageDb();
 
-                    if (storageDb.removeDatabase(deckName)) {
+                    if (storageDb.removeDatabase(path)) {
                         activity.loadDecks();
                         Toast.makeText(
                                 getContext(),

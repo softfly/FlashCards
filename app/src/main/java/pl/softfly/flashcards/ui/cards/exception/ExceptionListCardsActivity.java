@@ -22,13 +22,13 @@ public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
                 () -> super.onCreate(savedInstanceState),
                 getSupportFragmentManager(),
                 ExceptionListCardsActivity.class.getName(),
-                (dialog, which) -> onBackPressed()
+                (dialog, which) -> onBackPressed() //TODO show error
         );
     }
 
     @Override
     protected ExceptionCardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new ExceptionCardRecyclerViewAdapter(this, getDeckName());
+        adapter = new ExceptionCardRecyclerViewAdapter(this, deckDbPath);
         setAdapter(adapter);
         return adapter;
     }

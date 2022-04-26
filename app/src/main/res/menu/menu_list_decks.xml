@@ -7,6 +7,12 @@
         android:title="New deck">
     </item>
     <item
+        android:id="@+id/new_folder"
+        android:icon="@drawable/ic_baseline_create_new_folder_24"
+        app:showAsAction="ifRoom"
+        android:title="New folder">
+    </item>
+    <item
         android:id="@+id/import_excel"
         android:icon="@drawable/ic_round_file_download_24"
         app:showAsAction="never"
