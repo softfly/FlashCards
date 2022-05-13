@@ -32,7 +32,7 @@ public class SelectCardRecyclerViewAdapter
 
     protected final Set<Card> selectedCards = new HashSet<>();
 
-    private SelectListCardsActivity activity;
+    private final SelectListCardsActivity activity;
 
     public SelectCardRecyclerViewAdapter(SelectListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);
@@ -120,10 +120,10 @@ public class SelectCardRecyclerViewAdapter
 
     public void onClickDeleteSelected() {
         Completable.fromAction(
-                () -> {
-                    getCurrentList().removeAll(selectedCards);
-                    deckDb.cardDao().delete(selectedCards);
-                })
+                        () -> {
+                            getCurrentList().removeAll(selectedCards);
+                            deckDb.cardDao().delete(selectedCards);
+                        })
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> {
                     List cardsToRevert = new ArrayList(selectedCards);
@@ -139,22 +139,23 @@ public class SelectCardRecyclerViewAdapter
                     activity.runOnUiThread(
                             () -> {
                                 stream.forEach(card -> notifyItemRemoved(card.getOrdinal() - 1));
-                                loadCards(first-1, getItemCount()-first+1);
+                                loadCards(first - 1, getItemCount() - first + 1);
                                 selectedCards.clear();
                             }
                     );
 
                     activity.runOnUiThread(
                             () -> Snackbar.make(getActivity().findViewById(R.id.listCards),
-                                    "The card has been deleted.",
-                                    Snackbar.LENGTH_LONG)
+                                            "The card has been deleted.",
+                                            Snackbar.LENGTH_LONG)
                                     .setAction("Undo", v -> revertCards(cardsToRevert))
                                     .show());
 
                     // Disable the pop-up menu in selection mode.
                     activity.refreshMenuOnAppBar();
                 })
-                .subscribe(() -> { }, e -> exceptionHandler.handleException(
+                .subscribe(() -> {
+                }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
                         SelectCardRecyclerViewAdapter.class.getSimpleName()
                                 + "OnClickDeleteSelectedCards",
@@ -171,7 +172,8 @@ public class SelectCardRecyclerViewAdapter
                     // Enable the pop-up menu in selection mode.
                     activity.refreshMenuOnAppBar();
                 })
-                .subscribe(() -> {}, e -> exceptionHandler.handleException(
+                .subscribe(() -> {
+                }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
                         SelectCardRecyclerViewAdapter.class.getSimpleName()
                                 + "OnClickRevertSelectedCards",
@@ -194,30 +196,30 @@ public class SelectCardRecyclerViewAdapter
                 .getAsInt());
 
         Completable.fromAction(
-                () -> {
-                    int currentOrdinal = pasteAfterOrdinal;
-                    List<Card> sorted = selectedCards.stream()
-                            .sorted(Comparator.comparing(Card::getOrdinal))
-                            .collect(Collectors.toList());
-                    for (Card cutCard : sorted) {
-                        // Refresh as the ordinal might have changed in previous iteration
-                        cutCard = deckDb.cardDao().findById(cutCard.getId());
-                        int previousOrdinal = cutCard.getOrdinal();
-                        // Paste after the clicked card.
-                        if (previousOrdinal > currentOrdinal) {
-                            currentOrdinal++;
-                        }
-                        if (previousOrdinal == currentOrdinal) {
-                            continue;
-                        }
-                        deckDb.cardDao().changeCardOrdinal(cutCard, currentOrdinal);
-                    }
+                        () -> {
+                            int currentOrdinal = pasteAfterOrdinal;
+                            List<Card> sorted = selectedCards.stream()
+                                    .sorted(Comparator.comparing(Card::getOrdinal))
+                                    .collect(Collectors.toList());
+                            for (Card cutCard : sorted) {
+                                // Refresh as the ordinal might have changed in previous iteration
+                                cutCard = deckDb.cardDao().findById(cutCard.getId());
+                                int previousOrdinal = cutCard.getOrdinal();
+                                // Paste after the clicked card.
+                                if (previousOrdinal > currentOrdinal) {
+                                    currentOrdinal++;
+                                }
+                                if (previousOrdinal == currentOrdinal) {
+                                    continue;
+                                }
+                                deckDb.cardDao().changeCardOrdinal(cutCard, currentOrdinal);
+                            }
 
-                    // Refresh ordinal numbers.
-                    int[] selectedIds = selectedCards.stream().mapToInt(Card::getId).toArray();
-                    selectedCards.clear();
-                    selectedCards.addAll(deckDb.cardDao().findByIds(selectedIds));
-                })
+                            // Refresh ordinal numbers.
+                            int[] selectedIds = selectedCards.stream().mapToInt(Card::getId).toArray();
+                            selectedCards.clear();
+                            selectedCards.addAll(deckDb.cardDao().findByIds(selectedIds));
+                        })
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> loadCards(
                         minPosition, maxPosition - minPosition

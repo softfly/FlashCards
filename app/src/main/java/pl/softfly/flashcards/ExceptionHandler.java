@@ -1,6 +1,5 @@
 package pl.softfly.flashcards;
 
-import android.content.Context;
 import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
@@ -11,7 +10,6 @@ import androidx.lifecycle.Lifecycle;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import io.reactivex.rxjava3.functions.Consumer;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 
 /**
@@ -22,7 +20,10 @@ public class ExceptionHandler {
     private static ExceptionHandler INSTANCE;
 
     @NonNull
-    private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+    private final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+
+    private ExceptionHandler() {
+    }
 
     public static synchronized ExceptionHandler getInstance() {
         if (INSTANCE == null) {
@@ -30,8 +31,6 @@ public class ExceptionHandler {
         }
         return INSTANCE;
     }
-
-    private ExceptionHandler() { }
 
     public void tryHandleException(
             @NonNull Runnable r,

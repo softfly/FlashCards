@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity(
         tableName = "FileSync_FileSynced",
         indices = {
-                @Index(value="uri", unique = true)
+                @Index(value = "uri", unique = true)
         }
 )
 public class FileSynced {

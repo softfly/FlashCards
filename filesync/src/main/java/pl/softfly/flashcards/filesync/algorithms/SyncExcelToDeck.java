@@ -44,13 +44,12 @@ import pl.softfly.flashcards.filesync.entity.FileSynced;
  */
 public class SyncExcelToDeck extends AbstractReadExcel {
 
-    private static final int THREAD_TIMEOUT_SECONDS = 60;
-
     public static final int MULTIPLE_ORDINAL = 1;
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
     protected static final int PAGE_LIMIT = 100;
-
+    private static final int THREAD_TIMEOUT_SECONDS = 60;
     protected final Context appContext;
+    private final CardUtil cardUtil = CardUtil.getInstance();
     @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
@@ -60,7 +59,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected InputStream isImportedFile;
     protected Workbook workbook;
     protected Sheet sheet;
-    private final CardUtil cardUtil = CardUtil.getInstance();
 
     //Only for tests
     public SyncExcelToDeck(Context appContext, DetermineNewOrderCards determineNewOrderCards) {
@@ -223,7 +221,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 if (id - 1 > 0) cardImported.setPreviousId(id - 1);
                 if (rowIt.hasNext()) cardImported.setNextId(id + 1);
                 cardImported.setOrdinal(ordinal);
-                ordinal+=MULTIPLE_ORDINAL;
+                ordinal += MULTIPLE_ORDINAL;
                 id++;
                 cardsToSaveList.add(cardImported);
                 if (cardsToSaveList.size() % ENTITIES_TO_UPDATE_POOL_MAX == 0) {
@@ -665,7 +663,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         }, card.getOrdinal());
             }
         }
-        for (int i=deckDb.cardImportedDao().countByDeleteByDeck(); i>0; i--) {
+        for (int i = deckDb.cardImportedDao().countByDeleteByDeck(); i > 0; i--) {
             sheet.removeRow(sheet.getRow(rowNum++));
         }
 

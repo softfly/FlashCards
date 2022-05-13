@@ -21,14 +21,14 @@
         android:layout_weight="1"
         android:ems="10"
         android:gravity="center"
+        android:hint="Term"
+        android:importantForAutofill="no"
         android:inputType="textMultiLine"
         android:lines="6"
         android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/termLabel"
-        android:importantForAutofill="no"
-        android:hint="Term"/>
+        app:layout_constraintTop_toBottomOf="@+id/termLabel" />
 
     <TextView
         android:id="@+id/definitionLabel"
@@ -46,12 +46,12 @@
         android:layout_height="0dp"
         android:ems="10"
         android:gravity="center"
+        android:importantForAutofill="no"
         android:inputType="textMultiLine"
         android:lines="6"
         android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/definitionLabel"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/definitionLabel" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

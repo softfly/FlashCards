@@ -3,27 +3,27 @@
     <item
         android:id="@+id/edit"
         android:icon="@drawable/ic_round_edit_24"
-        app:showAsAction="never"
+        android:title="Edit"
         android:visible="false"
-        android:title="Edit" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/delete"
         android:icon="@drawable/ic_round_delete_24"
-        app:showAsAction="never"
+        android:title="Delete"
         android:visible="false"
-        android:title="Delete" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/resetView"
         android:icon="@drawable/ic_round_delete_24"
-        app:showAsAction="never"
+        android:title="Reset view"
         android:visible="false"
-        android:title="Reset view" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/rememberedForever"
         android:icon="@drawable/ic_round_delete_24"
-        app:showAsAction="never"
+        android:title="Remembered forever"
         android:visible="false"
-        android:title="Remembered forever" />
+        app:showAsAction="never" />
 
 </menu>

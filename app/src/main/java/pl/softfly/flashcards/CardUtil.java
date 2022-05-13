@@ -11,7 +11,7 @@ public class CardUtil {
 
     private static CardUtil INSTANCE;
 
-    private HtmlUtil htmlUtil = HtmlUtil.getInstance();
+    private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
 
     public static synchronized CardUtil getInstance() {
         if (INSTANCE == null) {

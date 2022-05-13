@@ -82,7 +82,7 @@ public class NewCardActivity extends AppCompatActivity {
 
     protected void onClickSaveCard() {
         Completable.fromAction(() ->
-                deckDb.cardDao().insertAtEnd(createCard()))
+                        deckDb.cardDao().insertAtEnd(createCard()))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
                             Toast.makeText(this,
@@ -92,7 +92,8 @@ public class NewCardActivity extends AppCompatActivity {
                             super.finish();
                         })
                 )
-                .subscribe(() -> {}, e -> exceptionHandler.handleException(
+                .subscribe(() -> {
+                }, e -> exceptionHandler.handleException(
                         e, getSupportFragmentManager(),
                         NewCardActivity.class.getSimpleName() + "_OnClickSaveCard",
                         (dialog, which) -> onBackPressed()

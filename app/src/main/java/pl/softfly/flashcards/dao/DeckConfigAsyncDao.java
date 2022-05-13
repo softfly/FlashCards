@@ -48,7 +48,8 @@ public abstract class DeckConfigAsyncDao {
                     deckConfig.setValue(newValue);
                     update(deckConfig)
                             .subscribeOn(Schedulers.io())
-                            .subscribe(() -> {}, onError);
+                            .subscribe(() -> {
+                            }, onError);
                 })
                 .doOnEvent((value, error) -> {
                     if (value == null && error == null) {
@@ -57,7 +58,8 @@ public abstract class DeckConfigAsyncDao {
                         deckConfig.setValue(newValue);
                         insert(deckConfig)
                                 .subscribeOn(Schedulers.io())
-                                .subscribe(() -> {}, onError);
+                                .subscribe(() -> {
+                                }, onError);
                     }
                 })
                 .subscribe(deckConfig -> {

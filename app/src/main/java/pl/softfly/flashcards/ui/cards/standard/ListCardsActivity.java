@@ -1,33 +1,20 @@
 package pl.softfly.flashcards.ui.cards.standard;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ImageSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.color.MaterialColors;
 
 import java.util.Objects;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
@@ -35,12 +22,9 @@ import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 public class ListCardsActivity extends IconWithTextInTopbarActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
-
-    protected String deckDbPath;
-
-    private CardRecyclerViewAdapter adapter;
-
     public TextView idHeader;
+    protected String deckDbPath;
+    private CardRecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

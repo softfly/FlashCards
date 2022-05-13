@@ -3,10 +3,7 @@ package pl.softfly.flashcards.db.storage;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.room.Room;
 import androidx.room.RoomDatabase;
-
-import java.io.File;
 
 /**
  * Database files are stored in app-specific storage.

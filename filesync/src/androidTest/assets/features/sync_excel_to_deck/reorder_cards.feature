@@ -36,7 +36,6 @@ Feature: Sync the Excel file with the Deck. Reorder the cards in the deck.
     Then Check the Excel file.
 
 
-
   Scenario: SE_RO_03 The deck is newer.
     Given Add the following cards into the deck:
       | Sample Term 3 | Sample Definition 3 | 2 |

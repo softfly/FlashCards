@@ -1,10 +1,6 @@
 package pl.softfly.flashcards.ui.deck.folder;
 
-import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
-import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
-
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -13,8 +9,6 @@ import androidx.fragment.app.DialogFragment;
 import java.io.File;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.ui.deck.CreateDeckDialog;
 import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 /**

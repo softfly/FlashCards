@@ -4,10 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 
 import androidx.annotation.NonNull;
-import androidx.room.Room;
 import androidx.room.RoomDatabase;
-
-import java.io.File;
 
 import pl.softfly.flashcards.R;
 

@@ -2,13 +2,11 @@ package pl.softfly.flashcards.filesync;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -18,11 +16,9 @@ import androidx.work.WorkRequest;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.Observable;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.FlashCardsApp;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
@@ -48,10 +44,9 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
  */
 public class FileSyncBean implements FileSync {
 
+    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     @Nullable
     private FileSyncDeckDatabase deckDb;
-
-    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     /**
      * SE Synchronize deck with excel file.
@@ -244,7 +239,8 @@ public class FileSyncBean implements FileSync {
                         andThen.run();
                     }
                 })
-                .subscribe(blockedAt -> {}, e -> exceptionHandler.handleException(
+                .subscribe(blockedAt -> {
+                }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
                         FileSyncBean.class.getSimpleName(),
                         "Error while exporting or syncing cards.",

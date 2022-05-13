@@ -31,19 +31,15 @@ import pl.softfly.flashcards.db.deck.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.study.ExceptionStudyCardActivity;
-import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
 import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
-import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
  */
 public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int VIEW_TYPE_DECK = 1;
-
     public static final String DECK_NAME = "deckName";
-
+    private static final int VIEW_TYPE_DECK = 1;
     @NonNull
     protected final AppCompatActivity activity;
 
@@ -71,7 +67,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     protected void exportDb(Uri exportToUri, @NonNull String dbPath) {
         try {
-            try(OutputStream out = activity
+            try (OutputStream out = activity
                     .getContentResolver()
                     .openOutputStream(exportToUri)) {
 
@@ -94,7 +90,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    protected void copyFile(FileInputStream in, OutputStream out) throws IOException {
+    protected void copyFile(@NonNull FileInputStream in, @NonNull OutputStream out) throws IOException {
         FileChannel inChannel = in.getChannel();
         FileChannel outChannel = ((FileOutputStream) out).getChannel();
         inChannel.transferTo(0, inChannel.size(), outChannel);
@@ -108,7 +104,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (VIEW_TYPE_DECK == viewType ) {
+        if (VIEW_TYPE_DECK == viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
             return new DeckViewHolder(view, this);
         } else {
@@ -128,7 +124,9 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                     .doOnError(Throwable::printStackTrace)
                     .doOnSuccess(count -> activity.runOnUiThread(() ->
                             deckViewHolder.totalTextView.setText("Total: " + count)))
-                    .subscribe(integer -> {}, throwable -> {});
+                    .subscribe(integer -> {
+                    }, throwable -> {
+                    });
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionDialog dialog = new ExceptionDialog(e);
@@ -204,7 +202,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     @Nullable
-    protected DeckDatabase getDeckDatabase(String deckName) {
+    protected DeckDatabase getDeckDatabase(@NonNull String deckName) {
         return AppDatabaseUtil
                 .getInstance(activity.getApplicationContext())
                 .getDeckDatabase(currentFolder, deckName);

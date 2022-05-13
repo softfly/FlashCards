@@ -3,34 +3,29 @@
     <item
         android:id="@+id/new_card"
         android:icon="@drawable/ic_outline_add_24"
-        app:showAsAction="ifRoom"
-        android:title="Add a new card">
-    </item>
+        android:title="Add a new card"
+        app:showAsAction="ifRoom"></item>
     <item
         android:id="@+id/sync_excel"
         android:icon="@drawable/ic_sharp_sync_24"
-        app:showAsAction="ifRoom"
-        android:title="Sync with Excel file">
-    </item>
+        android:title="Sync with Excel file"
+        app:showAsAction="ifRoom"></item>
     <item
         android:id="@+id/export_excel"
         android:icon="@drawable/ic_round_file_upload_24"
-        app:showAsAction="never"
+        android:title="Export to new Excel"
         android:visible="false"
-        android:title="Export to new Excel">
-    </item>
+        app:showAsAction="never"></item>
     <item
         android:id="@+id/show_recently_synced"
         android:icon="@drawable/ic_round_file_upload_24"
-        app:showAsAction="never"
+        android:title="Show recently synced"
         android:visible="false"
-        android:title="Show recently synced">
-    </item>
+        app:showAsAction="never"></item>
     <item
         android:id="@+id/hide_recently_synced"
         android:icon="@drawable/ic_round_file_upload_24"
-        app:showAsAction="never"
+        android:title="Hide recently synced"
         android:visible="false"
-        android:title="Hide recently synced">
-    </item>
+        app:showAsAction="never"></item>
 </menu>

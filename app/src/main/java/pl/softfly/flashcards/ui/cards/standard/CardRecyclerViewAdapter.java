@@ -33,12 +33,12 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     private final ListCardsActivity activity;
     private final String deckDbPath;
     private final List<Card> cards = new LinkedList<>();
+    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private final CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
+    private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
+    public int idTextViewWidth = 0;
     @Nullable
     protected DeckDatabase deckDb;
-    public int idTextViewWidth = 0;
-    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-    private CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
-    private HtmlUtil htmlUtil = HtmlUtil.getInstance();
 
     public CardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
         this.activity = activity;
@@ -64,7 +64,7 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         Card card = getItem(position);
         holder.getIdTextView().setText(card.getOrdinal().toString());
         // ID.WIDTH.2. Use the id width if calculated. Use case end.
-        if (idTextViewWidth!=0) {
+        if (idTextViewWidth != 0) {
             calcCardIdWidth.setIdWidth(holder, idTextViewWidth);
         }
 
@@ -117,16 +117,17 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                     //Refresh ordinal numbers.
                     loadCards(position, getItemCount() - position);
                     Snackbar.make(getActivity().findViewById(R.id.listCards),
-                            "The card has been deleted.",
-                            Snackbar.LENGTH_LONG)
+                                    "The card has been deleted.",
+                                    Snackbar.LENGTH_LONG)
                             .setAction("Undo", v -> revertCard(card))
                             .show();
                 }))
-                .subscribe(() -> {}, e -> exceptionHandler.handleException(
-                                e, activity.getSupportFragmentManager(),
-                                CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard",
-                                "Error while removing the card."
-                        ));
+                .subscribe(() -> {
+                }, e -> exceptionHandler.handleException(
+                        e, activity.getSupportFragmentManager(),
+                        CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard",
+                        "Error while removing the card."
+                ));
     }
 
     private void revertCard(@NonNull Card card) {

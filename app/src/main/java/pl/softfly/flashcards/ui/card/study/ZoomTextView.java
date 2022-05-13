@@ -14,14 +14,10 @@ import androidx.annotation.NonNull;
 @SuppressLint("AppCompatCustomView")
 public class ZoomTextView extends TextView {
 
-    private boolean modeZoom;
-
     @NonNull
     private final ScaleGestureDetector scaleDetector;
-
     @NonNull
     private final ZoomTextView view;
-
     private final SimpleOnScaleGestureListener onScaleGestureListener =
             new SimpleOnScaleGestureListener() {
                 @Override
@@ -33,6 +29,7 @@ public class ZoomTextView extends TextView {
                     return true;
                 }
             };
+    private boolean modeZoom;
 
     public ZoomTextView(Context context) {
         super(context);

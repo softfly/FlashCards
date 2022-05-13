@@ -3,7 +3,6 @@ package pl.softfly.flashcards.filesync.algorithms;
 import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.ENTITIES_TO_UPDATE_POOL_MAX;
 import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.MULTIPLE_ORDINAL;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -96,6 +95,7 @@ public class DetermineNewOrderCards {
 
     /**
      * 5.1. Create an edge between adjacent cards in the deck.
+     *
      * @return True if any edge has been created.
      */
     protected boolean createCardEdgesForDeckCards() {
@@ -175,6 +175,7 @@ public class DetermineNewOrderCards {
 
     /**
      * 5.2. Create an edge between adjacent cards from the imported file.
+     *
      * @return True if any edge has been created.
      */
     protected boolean createCardEdgesForImportedFile() {

@@ -81,7 +81,7 @@ public abstract class CardDao {
     protected abstract void decreaseOrdinalByGreaterThan(int decrease, int greaterThan);
 
     protected void increaseOrdinalByBetween(int greaterThanEqual, int lessThan) {
-        increaseOrdinalByBetween(1, greaterThanEqual,lessThan);
+        increaseOrdinalByBetween(1, greaterThanEqual, lessThan);
     }
 
     @Query("UPDATE Core_Card SET ordinal=ordinal+:increase " +

@@ -1,11 +1,7 @@
 package pl.softfly.flashcards.filesync.dao;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
 import androidx.room.Query;
-
-import pl.softfly.flashcards.filesync.entity.CardImported;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
  * Naming convention:

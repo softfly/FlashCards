@@ -13,6 +13,18 @@ public interface FileSync {
     String TYPE_XLS = "application/vnd.ms-excel";
     String TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    @Nullable
+    static FileSync getInstance() {
+        try {
+            return (FileSync) Class.forName("pl.softfly.flashcards.filesync.FileSyncBean")
+                    .getConstructor()
+                    .newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * SE Synchronize deck with excel file.
      */
@@ -35,16 +47,4 @@ public interface FileSync {
             Uri uri,
             FileSyncListCardsActivity listCardsActivity
     );
-
-    @Nullable
-    static FileSync getInstance() {
-        try {
-            return (FileSync) Class.forName("pl.softfly.flashcards.filesync.FileSyncBean")
-                    .getConstructor()
-                    .newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }

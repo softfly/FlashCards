@@ -8,13 +8,11 @@ import androidx.annotation.Nullable;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
 import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.filesync.entity.CardImported;
 import pl.softfly.flashcards.filesync.entity.FileSynced;

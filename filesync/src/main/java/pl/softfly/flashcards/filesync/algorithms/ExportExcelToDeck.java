@@ -21,11 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Objects;
 
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -103,8 +101,8 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
     }
 
     protected void createHeader() {
-        sheet.setColumnWidth(0,10000);
-        sheet.setColumnWidth(1,10000);
+        sheet.setColumnWidth(0, 10000);
+        sheet.setColumnWidth(1, 10000);
 
         Font font = workbook.createFont();
         font.setColor(IndexedColors.WHITE.getIndex());
@@ -140,6 +138,6 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
 
     @NonNull
     protected String getDeckName(@NonNull String deckDbPath) {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 }

@@ -19,9 +19,8 @@ import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 public class DragSwipeCardRecyclerViewAdapter
         extends CardRecyclerViewAdapter {
 
-    private ItemTouchHelper touchHelper;
-
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private ItemTouchHelper touchHelper;
 
     public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);
@@ -43,7 +42,7 @@ public class DragSwipeCardRecyclerViewAdapter
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void moveCard(@NonNull Card cutCard, int toPosition) {
         Completable.fromAction(
-                () -> deckDb.cardDao().changeCardOrdinal(cutCard, toPosition))
+                        () -> deckDb.cardDao().changeCardOrdinal(cutCard, toPosition))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(this::loadCards)
                 .subscribe(() -> {

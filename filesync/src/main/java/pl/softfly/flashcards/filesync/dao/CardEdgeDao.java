@@ -49,12 +49,12 @@ public interface CardEdgeDao {
     @Query("UPDATE FileSync_CardEdge SET deleted=1 " +
             "WHERE " +
             "id IN (" +
-                "SELECT " +
-                "e.id " +
-                "FROM FileSync_CardEdge e " +
-                "LEFT JOIN FileSync_CardImported f ON e.fromCardImportedId = f.id " +
-                "LEFT JOIN FileSync_CardImported t ON e.toCardImportedId = t.id " +
-                "WHERE deleted=0 AND f.graph = :graph AND t.graph = :graph" +
+            "SELECT " +
+            "e.id " +
+            "FROM FileSync_CardEdge e " +
+            "LEFT JOIN FileSync_CardImported f ON e.fromCardImportedId = f.id " +
+            "LEFT JOIN FileSync_CardImported t ON e.toCardImportedId = t.id " +
+            "WHERE deleted=0 AND f.graph = :graph AND t.graph = :graph" +
             ")"
     )
     void deleteInsideTheSameGraph(int graph);
@@ -62,25 +62,25 @@ public interface CardEdgeDao {
     @Query("UPDATE FileSync_CardEdge SET deleted=1 " +
             "WHERE " +
             "id IN (" +
-                "SELECT " +
-                "e.id " +
-                "FROM FileSync_CardEdge e " +
-                "LEFT JOIN FileSync_CardImported f ON e.fromCardImportedId = f.id " +
-                "LEFT JOIN FileSync_CardImported t ON e.toCardImportedId = t.id " +
-                "WHERE " +
-                "deleted=0 " +
-                "AND (" +
-                    "(" +
-                        "f.newPreviousCardImportedId IS NOT NULL " +
-                        "AND f.newNextCardImportedId IS NOT NULL " +
-                        "AND f.graph = :graph" +
-                    ") " +
-                    "OR (" +
-                        "t.newPreviousCardImportedId IS NOT NULL " +
-                        "AND t.newNextCardImportedId IS NOT NULL " +
-                        "AND t.graph = :graph" +
-                    ")" +
-                ")" +
+            "SELECT " +
+            "e.id " +
+            "FROM FileSync_CardEdge e " +
+            "LEFT JOIN FileSync_CardImported f ON e.fromCardImportedId = f.id " +
+            "LEFT JOIN FileSync_CardImported t ON e.toCardImportedId = t.id " +
+            "WHERE " +
+            "deleted=0 " +
+            "AND (" +
+            "(" +
+            "f.newPreviousCardImportedId IS NOT NULL " +
+            "AND f.newNextCardImportedId IS NOT NULL " +
+            "AND f.graph = :graph" +
+            ") " +
+            "OR (" +
+            "t.newPreviousCardImportedId IS NOT NULL " +
+            "AND t.newNextCardImportedId IS NOT NULL " +
+            "AND t.graph = :graph" +
+            ")" +
+            ")" +
             ")"
     )
     void deleteToMiddleGraph(int graph);

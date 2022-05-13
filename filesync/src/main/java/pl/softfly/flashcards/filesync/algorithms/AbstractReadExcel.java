@@ -16,17 +16,24 @@ import java.util.Iterator;
  */
 public abstract class AbstractReadExcel {
 
-    /** The column index of term. */
+    /**
+     * The column index of term.
+     */
     private int termIndex = -1;
 
-    /** The column index of definition. */
+    /**
+     * The column index of definition.
+     */
     private int definitionIndex = -1;
 
-    /** The row where cards data begins. */
+    /**
+     * The row where cards data begins.
+     */
     private int skipHeaderRows = -1;
 
     // @todo Only for testing
-    public AbstractReadExcel() {}
+    public AbstractReadExcel() {
+    }
 
     /**
      * Determines the column indexes for terms and definitions.

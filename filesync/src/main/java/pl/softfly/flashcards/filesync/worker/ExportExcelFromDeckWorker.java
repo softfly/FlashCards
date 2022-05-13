@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
@@ -44,7 +43,7 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
             askPermissions(fileUri);
             ExportExcelToDeck exportExcelToDeck = new ExportExcelToDeck(getApplicationContext());
             exportExcelToDeck.syncExcelFile(deckDbPath, fileSynced, null, mimeType, fileLastModifiedAt);
-            try(OutputStream outFile = openFileToWrite(fileUri)) {
+            try (OutputStream outFile = openFileToWrite(fileUri)) {
                 exportExcelToDeck.commitChanges(fileSynced, outFile);
             }
 
@@ -59,15 +58,15 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
     @Override
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
-                getApplicationContext(),
-                String.format("The deck \"%s\" has been exported to the file.", getDeckName()),
-                Toast.LENGTH_LONG
+                        getApplicationContext(),
+                        String.format("The deck \"%s\" has been exported to the file.", getDeckName()),
+                        Toast.LENGTH_LONG
                 ).show()
         );
     }
 
     @NonNull
     private String getDeckName() {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 }

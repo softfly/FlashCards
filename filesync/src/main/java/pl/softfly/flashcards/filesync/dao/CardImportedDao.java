@@ -3,7 +3,6 @@ package pl.softfly.flashcards.filesync.dao;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -29,8 +28,8 @@ public interface CardImportedDao {
             "WHERE " +
             "newOrdinal IS NULL " +
             "AND contentStatus NOT IN (" +
-                "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
-                "'" + CardImported.STATUS_DELETE_BY_FILE + "'" +
+            "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
+            "'" + CardImported.STATUS_DELETE_BY_FILE + "'" +
             ") AND id != 0")
     int countByNewOrdinalNull();
 
@@ -103,8 +102,8 @@ public interface CardImportedDao {
             "WHERE " +
             "newPreviousCardImportedId IS NULL " +
             "AND contentStatus NOT IN (" +
-                "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
-                "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
+            "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
+            "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
             "LIMIT 3")
     List<CardImported> findByStatusNotDeletedAndNewPreviousCardImportedIdIsNull();
 
@@ -113,8 +112,8 @@ public interface CardImportedDao {
             "WHERE " +
             "newPreviousCardImportedId IS NULL " +
             "AND contentStatus NOT IN (" +
-                "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
-                "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
+            "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
+            "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
             "LIMIT 3")
     List<CardImported> findByStatusNotDeletedAndNewNextCardImportedIdIsNull();
 
@@ -132,13 +131,13 @@ public interface CardImportedDao {
             "WHERE " +
             "i.graph IS NULL " +
             "AND e.status IN (" +
-                "'" + CardEdge.STATUS_DECK_FIRST_NEW + "'," +
-                "'" + CardEdge.STATUS_DECK_SECOND_NEW + "'," +
-                "'" + CardEdge.STATUS_IMPORTED_FIRST_NEW + "'," +
-                "'" + CardEdge.STATUS_IMPORTED_SECOND_NEW + "')" +
+            "'" + CardEdge.STATUS_DECK_FIRST_NEW + "'," +
+            "'" + CardEdge.STATUS_DECK_SECOND_NEW + "'," +
+            "'" + CardEdge.STATUS_IMPORTED_FIRST_NEW + "'," +
+            "'" + CardEdge.STATUS_IMPORTED_SECOND_NEW + "')" +
             "AND i.contentStatus NOT IN (" +
-                "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
-                "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
+            "'" + CardImported.STATUS_DELETE_BY_DECK + "'," +
+            "'" + CardImported.STATUS_DELETE_BY_FILE + "') " +
             "GROUP BY i.id " +
             "ORDER BY i.id")
     List<Integer> findByCardEdgeStatusNew();
@@ -181,12 +180,12 @@ public interface CardImportedDao {
     void updateNewNextCardImportedIdById(int id, int newNextCardImportedId);
 
     @Query("UPDATE FileSync_CardImported " +
-            "SET contentStatus='" + CardImported.STATUS_DELETE_BY_DECK +  "' " +
+            "SET contentStatus='" + CardImported.STATUS_DELETE_BY_DECK + "' " +
             "WHERE id IN (" +
-                "SELECT i.id " +
-                "FROM FileSync_CardImported i " +
-                "JOIN Core_Card c ON c.id=i.cardId " +
-                "WHERE c.deletedAt IS NOT null" +
+            "SELECT i.id " +
+            "FROM FileSync_CardImported i " +
+            "JOIN Core_Card c ON c.id=i.cardId " +
+            "WHERE c.deletedAt IS NOT null" +
             ")")
     void updateStatusDeleteByDeck();
 

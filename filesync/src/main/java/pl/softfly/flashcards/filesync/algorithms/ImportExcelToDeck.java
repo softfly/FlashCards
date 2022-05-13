@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.CardUtil;
-import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
@@ -38,16 +37,14 @@ import pl.softfly.flashcards.entity.Card;
 public class ImportExcelToDeck extends AbstractReadExcel {
 
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
-
+    private final CardUtil cardUtil = CardUtil.getInstance();
     private Context appContext;
-
     @Nullable
     private DeckDatabase deckDb;
 
-    private final CardUtil cardUtil = CardUtil.getInstance();
-
     //For testing, mocking
-    public ImportExcelToDeck() {}
+    public ImportExcelToDeck() {
+    }
 
     public ImportExcelToDeck(Context appContext) {
         this.appContext = appContext;
@@ -97,7 +94,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             }
             Card card = new Card();
             card.setOrdinal(ordinal);
-            ordinal+=SyncExcelToDeck.MULTIPLE_ORDINAL;
+            ordinal += SyncExcelToDeck.MULTIPLE_ORDINAL;
             card.setModifiedAt(createdAt);
 
             if (termPosition > -1) {

@@ -38,7 +38,6 @@ import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
-import pl.softfly.flashcards.ui.deck.folder.CreateFolderDialog;
 import pl.softfly.flashcards.ui.deck.folder.FolderDeckRecyclerViewAdapter;
 
 /**
@@ -46,12 +45,8 @@ import pl.softfly.flashcards.ui.deck.folder.FolderDeckRecyclerViewAdapter;
  */
 public class ListDecksActivity extends IconWithTextInTopbarActivity {
 
-    private ListDecksActivity listDecksActivity;
-
-    private DeckRecyclerViewAdapter adapter;
-
     protected File currentFolder;
-
+    private ListDecksActivity listDecksActivity;
     private final ActivityResultLauncher<String[]> importExcel =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
@@ -63,7 +58,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                                     listDecksActivity);
                     }
             );
-
+    private DeckRecyclerViewAdapter adapter;
     private final ActivityResultLauncher<String[]> importDbDeck =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
@@ -178,7 +173,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
     }
 
     @SuppressLint("Range")
-    protected void importDbDeck(String importToFolder, Uri importedDbUri) {
+    protected void importDbDeck(@NonNull String importToFolder, Uri importedDbUri) {
         StorageDb storageDb = AppDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getStorageDb();

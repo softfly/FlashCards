@@ -24,7 +24,7 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
 
     private final Set<Card> recentlySyncedCards = new HashSet<>();
 
-    private FileSyncListCardsActivity activity;
+    private final FileSyncListCardsActivity activity;
 
     public FileSyncCardRecyclerViewAdapter(FileSyncListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);

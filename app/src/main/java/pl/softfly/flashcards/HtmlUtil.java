@@ -13,11 +13,9 @@ import java.util.regex.Pattern;
  */
 public class HtmlUtil {
 
-    private static HtmlUtil INSTANCE;
-
     private final static String DETECT_HTML_PATTERN = "\\<.*?\\>";
-
     private final static Pattern HTML_PATTERN = Pattern.compile(DETECT_HTML_PATTERN);
+    private static HtmlUtil INSTANCE;
 
     public static synchronized HtmlUtil getInstance() {
         if (INSTANCE == null) {

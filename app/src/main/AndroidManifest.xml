@@ -22,32 +22,30 @@
         </activity>
         <activity
             android:name=".ui.card.study.ExceptionStudyCardActivity"
-            android:parentActivityName=".ui.deck.ListDecksActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />
         </activity>
         <activity
             android:name=".ui.card.NewCardActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity
             android:name=".ui.card.NewCardAfterOrdinalActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
         <activity
             android:name=".ui.card.EditCardActivity"
-            android:parentActivityName=".ui.cards.exception.ExceptionListCardsActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".ui.cards.exception.ExceptionListCardsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.cards.exception.ExceptionListCardsActivity" />
         </activity>
         <activity
             android:name=".ui.cards.exception.ExceptionListCardsActivity"
-            android:parentActivityName=".ui.deck.ListDecksActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".ui.deck.ListDecksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />

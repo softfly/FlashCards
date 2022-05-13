@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -73,10 +72,10 @@ public class SyncExcelToDeckWorker extends Worker {
             askPermissions(fileUri);
 
             SyncExcelToDeck syncExcelToDeck = new SyncExcelToDeck(getApplicationContext());
-            try(InputStream isFile = openFileToRead(fileUri)) {
+            try (InputStream isFile = openFileToRead(fileUri)) {
                 syncExcelToDeck.syncExcelFile(deckDbPath, fileSynced, isFile, mimeType, fileLastModifiedAt);
             }
-            try(OutputStream outFile = openFileToWrite(fileUri)) {
+            try (OutputStream outFile = openFileToWrite(fileUri)) {
                 syncExcelToDeck.commitChanges(fileSynced, outFile);
             }
 
@@ -127,9 +126,9 @@ public class SyncExcelToDeckWorker extends Worker {
 
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
-                getApplicationContext(),
-                String.format("The deck \"%s\" has been synced with the file.", getDeckName()),
-                Toast.LENGTH_LONG
+                        getApplicationContext(),
+                        String.format("The deck \"%s\" has been synced with the file.", getDeckName()),
+                        Toast.LENGTH_LONG
                 ).show()
         );
     }
@@ -148,6 +147,6 @@ public class SyncExcelToDeckWorker extends Worker {
 
     @NonNull
     private String getDeckName() {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 }

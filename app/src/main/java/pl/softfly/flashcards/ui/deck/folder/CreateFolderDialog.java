@@ -19,7 +19,7 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 
 public class CreateFolderDialog extends DialogFragment {
 
-    private File currentFolder;
+    private final File currentFolder;
 
     public CreateFolderDialog(File currentFolder) {
         this.currentFolder = currentFolder;

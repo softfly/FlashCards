@@ -18,12 +18,10 @@ public class ExceptionDialog extends DialogFragment {
 
     private final Throwable e;
 
-    private String message;
-
-    private AlertDialog alertDialog;
-
+    private final String message;
     @Nullable
-    private DialogInterface.OnClickListener positiveListener;
+    private final DialogInterface.OnClickListener positiveListener;
+    private AlertDialog alertDialog;
 
     public ExceptionDialog(Throwable e) {
         this(e, null, null);
@@ -40,7 +38,8 @@ public class ExceptionDialog extends DialogFragment {
     public ExceptionDialog(Throwable e, String message, @Nullable DialogInterface.OnClickListener positiveListener) {
         this.e = e;
         this.message = message;
-        this.positiveListener = positiveListener != null ? positiveListener : (dialog, which) -> {} ;
+        this.positiveListener = positiveListener != null ? positiveListener : (dialog, which) -> {
+        };
     }
 
     @NonNull

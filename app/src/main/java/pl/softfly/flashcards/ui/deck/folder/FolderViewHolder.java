@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski

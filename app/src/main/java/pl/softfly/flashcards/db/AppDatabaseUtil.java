@@ -3,7 +3,6 @@ package pl.softfly.flashcards.db;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.util.Map;
@@ -86,7 +85,6 @@ public class AppDatabaseUtil {
         }
         return db;
     }
-
 
 
     public synchronized void closeDeckDatabase(String dbName) {

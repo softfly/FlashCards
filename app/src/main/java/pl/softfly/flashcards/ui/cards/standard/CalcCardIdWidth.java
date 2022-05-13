@@ -14,7 +14,7 @@ import pl.softfly.flashcards.entity.Card;
 
 /**
  * This sets the width of the ID column and the width of the header columns.
- *
+ * <p>
  * What problem does this solve?
  * I was unable to use the SDK to set the relative width of the ID column
  * to match with the length of the text.

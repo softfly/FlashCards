@@ -1,7 +1,6 @@
 package pl.softfly.flashcards.filesync.view;
 
 import androidx.room.DatabaseView;
-import androidx.room.PrimaryKey;
 
 import pl.softfly.flashcards.filesync.entity.CardImported;
 

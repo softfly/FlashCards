@@ -14,7 +14,8 @@ public class Config {
 
     private static Config INSTANCE;
 
-    private Context appContext ;
+    @NonNull
+    private final Context appContext;
 
     private boolean databaseExternalStorage;
 

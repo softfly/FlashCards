@@ -11,12 +11,12 @@
         android:id="@+id/select"
         android:icon="@drawable/ic_round_content_cut_24"
         android:title="Select / Cut"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/paste"
         android:icon="@drawable/ic_round_content_paste_24"
         android:title="Paste"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/add"
         android:icon="@drawable/ic_round_add_card_24"

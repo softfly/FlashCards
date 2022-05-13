@@ -35,11 +35,10 @@ public class ImportExcelToDeckWorker extends Worker {
     public static final String IMPORT_TO_FOLDER_PATH = "IMPORT_TO_FOLDER_PATH";
     public static final String FILE_URI = "FILE_URI";
     public static final String AUTO_SYNC = "AUTO_SYNC";
-
+    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     private String fileName;
     private String mimeType;
     private Long fileLastModifiedAt;
-    private ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public ImportExcelToDeckWorker(
             @NonNull Context context,
@@ -113,9 +112,9 @@ public class ImportExcelToDeckWorker extends Worker {
 
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
-                getApplicationContext(),
-                String.format("The new deck \"%s\" has been imported from an Excel file.", fileName),
-                Toast.LENGTH_LONG
+                        getApplicationContext(),
+                        String.format("The new deck \"%s\" has been imported from an Excel file.", fileName),
+                        Toast.LENGTH_LONG
                 ).show()
         );
     }

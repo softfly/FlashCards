@@ -8,15 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeCardTouchHelper;
 
 /**
- * @todo desc algoritm
- *
  * @author Grzegorz Ziemski
+ * @todo desc algoritm
  */
 public class SelectCardTouchHelper extends DragSwipeCardTouchHelper {
 
+    private final SelectCardRecyclerViewAdapter adapter;
     private boolean isLongPress;
-
-    private SelectCardRecyclerViewAdapter adapter;
 
     public SelectCardTouchHelper(SelectCardRecyclerViewAdapter adapter) {
         super(adapter);
@@ -58,6 +56,6 @@ public class SelectCardTouchHelper extends DragSwipeCardTouchHelper {
             @NonNull RecyclerView.ViewHolder target
     ) {
         isLongPress = false;
-        return super.onMove(recyclerView,viewHolder,target);
+        return super.onMove(recyclerView, viewHolder, target);
     }
 }

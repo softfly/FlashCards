@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
-import pl.softfly.flashcards.ui.deck.DeckViewHolder;
-import pl.softfly.flashcards.ui.deck.RemoveDeckDialog;
 
 /**
  * @author Grzegorz Ziemski

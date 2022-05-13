@@ -66,17 +66,14 @@ public class SyncExcelToDeckStepDefs {
     private static final int COLUMN_TEST_INDEX_MODIFIED_AT = 2;
 
     private final Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-
+    private final long excelLastModifiedAt = 1 * 60 * 60;
     /* -----------------------------------------------------------------------------------------
      * Database Properties
      * ----------------------------------------------------------------------------------------- */
     private String deckName;
-
     @Nullable
     private FileSyncDeckDatabase deckDb;
-
     private int currentCardId = 1;
-
     /* -----------------------------------------------------------------------------------------
      * Excel Properties
      * ----------------------------------------------------------------------------------------- */
@@ -85,7 +82,6 @@ public class SyncExcelToDeckStepDefs {
     private Workbook excelWorkbook;
     private Sheet excelSheet;
     private CreationHelper creationHelper;
-    private final long excelLastModifiedAt = 1*60*60;
     private int currentRowNum;
 
     /* -----------------------------------------------------------------------------------------
@@ -312,7 +308,7 @@ public class SyncExcelToDeckStepDefs {
             List<Card> cardList = deckDb.cardDao().getCardsOrderByOrdinalAsc();
             Iterator<Card> it = cardList.iterator();
             int ordinal = 1;
-            for (List<String> row: expectedDeck.asLists()) {
+            for (List<String> row : expectedDeck.asLists()) {
                 Card card = it.next();
                 org.junit.Assert.assertEquals(ordinal++, card.getOrdinal().intValue());
                 assertThat(

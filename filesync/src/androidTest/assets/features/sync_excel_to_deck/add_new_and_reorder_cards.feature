@@ -146,7 +146,6 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
     Then Check the Excel file.
 
 
-
   Scenario: SE_RO_AD_F_02 The order from the deck. 2 new cards were added from the deck at the beginning.
     Given Add the following cards into the deck:
       | Sample Term 1 | Sample Definition 1 | 2 |
@@ -255,8 +254,8 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
 
   Scenario: SE_RO_AD_01 The order from the file. 2 new cards were added at the beginning.
-    A new card from the deck was added.
-    A new card from the imported file was added.
+  A new card from the deck was added.
+  A new card from the imported file was added.
     Given Add the following cards into the deck:
       | Deck 1        | Deck 1              | 2 |
       | Sample Term 3 | Sample Definition 3 | 0 |
@@ -278,10 +277,9 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
     Then Check the Excel file.
 
 
-
   Scenario: SE_RO_AD_02 The order from the file. 4 new cards were added at the beginning.
-    At the beginning, 2 new card from the deck were added.
-    At the beginning, 2 new card from the imported file were added.
+  At the beginning, 2 new card from the deck were added.
+  At the beginning, 2 new card from the imported file were added.
     Given Add the following cards into the deck:
       | Deck 1        | Deck 1              | 2 |
       | Deck 2        | Deck 2              | 2 |
@@ -308,8 +306,8 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
 
   Scenario: SE_RO_AD_03 The order from the file. 2 new cards was added in the middle.
-    In the middle, a new card from the deck was added.
-    In the middle, a new card from the imported file was added.
+  In the middle, a new card from the deck was added.
+  In the middle, a new card from the imported file was added.
     Given Add the following cards into the deck:
       | Sample Term 3 | Sample Definition 3 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
@@ -332,8 +330,8 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
 
   Scenario: SE_RO_AD_04 The order from the file. 4 new cards were added in the middle.
-    In the middle, 2 new card from the deck were added.
-    In the middle, 2 new card from the imported file were added.
+  In the middle, 2 new card from the deck were added.
+  In the middle, 2 new card from the imported file were added.
     Given Add the following cards into the deck:
       | Sample Term 3 | Sample Definition 3 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
@@ -360,13 +358,13 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
 
   Scenario: SE_RO_AD_05 The order from the file. 2 new card were added at the end.
-    At the end, a new card from the deck was added.
-    At the end, a new card from the imported file was added.
+  At the end, a new card from the deck was added.
+  At the end, a new card from the imported file was added.
     Given Add the following cards into the deck:
       | Sample Term 3 | Sample Definition 3 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
       | Sample Term 1 | Sample Definition 1 | 0 |
-      | Deck 1            | Deck 1          | 2 |
+      | Deck 1        | Deck 1              | 2 |
     Given Add the following cards into the file:
       | Sample Term 1 | Sample Definition 1 |
       | File 1        | File 1              |
@@ -384,8 +382,8 @@ Feature: Sync the Excel file with the Deck. Add new cards and reorder.
 
 
   Scenario: SE_RO_AD_06 The order from the file. 4 new cards were added in the end.
-    At the end, 2 new card from the deck were added.
-    At the end, 2 new card from the imported file were added.
+  At the end, 2 new card from the deck were added.
+  At the end, 2 new card from the imported file were added.
     Given Add the following cards into the deck:
       | Sample Term 3 | Sample Definition 3 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |

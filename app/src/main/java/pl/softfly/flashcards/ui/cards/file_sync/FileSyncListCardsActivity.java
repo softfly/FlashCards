@@ -6,7 +6,6 @@ import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,10 +18,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -49,23 +46,10 @@ import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
  */
 public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
-    private FileSyncCardRecyclerViewAdapter adapter;
-
-    @Nullable
-    private DeckDatabase deckDb;
-
-    private boolean editingLocked = false;
-
-    private ItemTouchHelper itemTouchHelper;
-
-    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-
     @NonNull
-    private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
-
+    private final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
     @Nullable
-    private FileSync fileSync = FileSync.getInstance();
-
+    private final FileSync fileSync = FileSync.getInstance();
     private final ActivityResultLauncher<String[]> syncExcel =
             registerForActivityResult(
                     new ActivityResultContracts.OpenDocument(),
@@ -74,7 +58,6 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                             fileSync.syncFile(deckDbPath, syncedExcelUri, this);
                     }
             );
-
     private final ActivityResultLauncher<String> exportExcel =
             registerForActivityResult(
                     new ActivityResultContracts.CreateDocument() {
@@ -90,6 +73,12 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                             fileSync.exportFile(deckDbPath, exportedExcelUri, this);
                     }
             );
+    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private FileSyncCardRecyclerViewAdapter adapter;
+    @Nullable
+    private DeckDatabase deckDb;
+    private boolean editingLocked = false;
+    private ItemTouchHelper itemTouchHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,17 +88,17 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
         getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
             if (event == Lifecycle.Event.ON_PAUSE) {
-                Log.e("Lifecycle", "Background" + this.toString());
+                Log.e("Lifecycle", "Background" + this);
             } else if (event == Lifecycle.Event.ON_RESUME) {
-                Log.e("Lifecycle", "Foreground" + this.toString());
+                Log.e("Lifecycle", "Foreground" + this);
             }
         });
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        Log.e("Lifecycle", "Resume" + this.toString());
+        Log.e("Lifecycle", "Resume" + this);
     }
 
     @Override
@@ -169,7 +158,8 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                                 }
                             }
                         })
-                        .subscribe(deckConfig -> {}, e -> exceptionHandler.handleException(
+                        .subscribe(deckConfig -> {
+                        }, e -> exceptionHandler.handleException(
                                 e, getSupportFragmentManager(),
                                 FileSyncListCardsActivity.class.getSimpleName() + "_CheckIfEditingIsLocked",
                                 (dialog, which) -> onBackPressed()
@@ -234,7 +224,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sync_excel:
-                syncExcel.launch(new String[] {TYPE_XLS, TYPE_XLSX});
+                syncExcel.launch(new String[]{TYPE_XLS, TYPE_XLSX});
                 return true;
             case R.id.export_excel:
                 exportExcel.launch(getDeckName() + ".xlsx");
@@ -251,7 +241,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     @NonNull
     private String getDeckName() {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/")+1);
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
     @Nullable

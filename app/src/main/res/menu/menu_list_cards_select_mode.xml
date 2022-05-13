@@ -3,13 +3,11 @@
     <item
         android:id="@+id/deselect_all"
         android:icon="@drawable/ic_baseline_deselect_24"
-        app:showAsAction="ifRoom"
-        android:title="Deselect all">
-    </item>
+        android:title="Deselect all"
+        app:showAsAction="ifRoom"></item>
     <item
         android:id="@+id/delete_selected"
         android:icon="@drawable/ic_baseline_delete_sweep_24"
-        app:showAsAction="ifRoom"
-        android:title="Delete cards">
-    </item>
+        android:title="Delete cards"
+        app:showAsAction="ifRoom"></item>
 </menu>

@@ -236,8 +236,8 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         Card card = model.getCard().getValue();
         model.deleteCard()
                 .doOnComplete(() -> Snackbar.make(findViewById(android.R.id.content),
-                        "The card has been deleted.",
-                        Snackbar.LENGTH_LONG)
+                                "The card has been deleted.",
+                                Snackbar.LENGTH_LONG)
                         .setAction("Undo", v -> revertCard(card))
                         .show())
                 .subscribe(() -> {

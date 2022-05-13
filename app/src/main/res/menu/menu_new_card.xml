@@ -3,7 +3,6 @@
     <item
         android:id="@+id/saveCard"
         android:icon="@drawable/ic_outline_save_24"
-        app:showAsAction="ifRoom"
-        android:title="Save">
-    </item>
+        android:title="Save"
+        app:showAsAction="ifRoom"></item>
 </menu>

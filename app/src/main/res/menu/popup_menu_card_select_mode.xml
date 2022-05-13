@@ -13,14 +13,14 @@
         android:title="Delete selected" />
     <item
         android:id="@+id/paste_before"
-        android:visible="false"
         android:icon="@drawable/ic_round_content_paste_24"
-        android:title="Paste before" />
+        android:title="Paste before"
+        android:visible="false" />
     <item
         android:id="@+id/paste_after"
-        android:visible="false"
         android:icon="@drawable/ic_round_content_paste_24"
-        android:title="Paste after" />
+        android:title="Paste after"
+        android:visible="false" />
     <item
         android:id="@+id/paste"
         android:icon="@drawable/ic_round_content_paste_24"

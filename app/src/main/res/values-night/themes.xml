@@ -30,8 +30,10 @@
 
     <!-- BEGIN MaterialAlertDialog -->
     <style name="ThemeOverlay.MyApp.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog
+        </item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog
+        </item>
     </style>
 
     <style name="Widget.MyApp.Button.TextButton.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">

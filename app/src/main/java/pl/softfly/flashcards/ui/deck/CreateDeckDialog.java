@@ -18,11 +18,10 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.deck.DeckDatabase;
-import pl.softfly.flashcards.ui.card.study.StudyCardActivity;
 
 public class CreateDeckDialog extends DialogFragment {
 
-    private File currentFolder;
+    private final File currentFolder;
 
     public CreateDeckDialog(File currentFolder) {
         this.currentFolder = currentFolder;

@@ -1,10 +1,5 @@
 package pl.softfly.flashcards.ui.cards.select;
 
-import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ImageSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 

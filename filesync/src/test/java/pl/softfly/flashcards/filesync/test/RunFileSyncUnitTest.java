@@ -11,7 +11,7 @@ import io.cucumber.junit.CucumberOptions;
         //glue = "pl.softfly.flashcards.filesync.test",
         //strict = true,
         //tags="@single"
-        tags="not @disabled"
+        tags = "not @disabled"
 )
 public class RunFileSyncUnitTest {
 }

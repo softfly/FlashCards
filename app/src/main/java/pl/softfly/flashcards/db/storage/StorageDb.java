@@ -9,7 +9,6 @@ import androidx.room.RoomDatabase;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Database file management like delete, open db, close db, check the list of available dbs.
@@ -38,9 +37,8 @@ public abstract class StorageDb<DB extends RoomDatabase> {
     }
 
     /**
-     * @todo Create a separate create method to prevent accidental creation nonexistent DB.
-     *
      * @param path May be with or without .db at the end.
+     * @todo Create a separate create method to prevent accidental creation nonexistent DB.
      */
     @NonNull
     public DB getDatabase(@NonNull String path) {

@@ -1,16 +1,11 @@
 package pl.softfly.flashcards.filesync.ui;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-
-import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
  * 1.1 If Yes, display a message that deck editing is blocked and end use case.

@@ -14,10 +14,10 @@ Feature: Sync the Excel file with the Deck. Remove cards.
 
   Scenario: SE_RE_D_02 Remove cards in the deck file. Do not delete the same card if it has been added to the same file twice.
     Given Add the following cards into the deck:
-      | Sample Term 1 | Sample Definition 1 |  0 |
+      | Sample Term 1 | Sample Definition 1 | 0  |
       | Sample Term 2 | Sample Definition 2 | -1 |
       | Sample Term 3 | Sample Definition 3 | -1 |
-      | Sample Term 4 | Sample Definition 4 |  0 |
+      | Sample Term 4 | Sample Definition 4 | 0  |
     Given Add the following cards into the file:
       | Sample Term 1 | Sample Definition 1 |
       | Sample Term 2 | Sample Definition 2 |
@@ -37,10 +37,10 @@ Feature: Sync the Excel file with the Deck. Remove cards.
 
   Scenario: SE_RE_D_03 Remove cards in the deck file. Delete from each synced file.
     Given Add the following cards into the deck:
-      | Sample Term 1 | Sample Definition 1 |  0 |
+      | Sample Term 1 | Sample Definition 1 | 0  |
       | Sample Term 2 | Sample Definition 2 | -1 |
       | Sample Term 3 | Sample Definition 3 | -1 |
-      | Sample Term 4 | Sample Definition 4 |  0 |
+      | Sample Term 4 | Sample Definition 4 | 0  |
     Given Add the following cards into the file:
       | Sample Term 1 | Sample Definition 1 |
       | Sample Term 2 | Sample Definition 2 |
