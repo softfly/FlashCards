@@ -10,6 +10,13 @@ smartphone.
 - Sheets can be automatically synced with the app when you open and close the deck.
 - Sheets can be stored in cloud storage.
 
+<p float="left">
+<img src="docs/ListDecksActivity.jpg" width="200">
+<img src="docs/ListCardsActivity.jpg" width="200">
+<img src="docs/EditCardActivity.jpg" width="200">
+<img src="docs/StudyCardActivity.jpg" width="200">
+</p>
+
 ## Features
 
 ### Decks
