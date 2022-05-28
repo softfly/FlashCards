@@ -30,10 +30,10 @@
         </activity>
         <activity
             android:name=".ui.card.NewCardActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".ui.card.NewCardAfterOrdinalActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".ui.card.EditCardActivity"
             android:exported="false"
@@ -50,6 +50,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.deck.ListDecksActivity" />
         </activity>
+        <activity
+            android:name=".ui.app.settings.AppSettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_app_settings"
+            android:theme="@style/Theme.FlashCards" />
     </application>
 
 </manifest>

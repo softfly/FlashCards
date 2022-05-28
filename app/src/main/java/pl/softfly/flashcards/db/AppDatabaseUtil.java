@@ -3,6 +3,7 @@ package pl.softfly.flashcards.db;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.room.Room;
 
 import java.io.File;
 import java.util.Map;
@@ -30,7 +31,10 @@ public class AppDatabaseUtil {
     @NonNull
     private final StorageDb<DeckDatabase> storageDb;
 
+    private final Context appContext;
+
     protected AppDatabaseUtil(@NonNull Context appContext) {
+        this.appContext = appContext;
         this.storageDb = Config.getInstance(appContext).isDatabaseExternalStorage() ?
                 new ExternalStorageDb<DeckDatabase>(appContext) {
                     @NonNull
@@ -54,13 +58,6 @@ public class AppDatabaseUtil {
         }
         return INSTANCE;
     }
-
-    /*
-    @NonNull
-    @Deprecated
-    public synchronized DeckDatabase getDeckDatabase(@NonNull String dbName) {
-        return getDeckDatabase(new File(storageDb.getDbFolder()), dbName);
-    }*/
 
     @NonNull
     public synchronized DeckDatabase getDeckDatabase(@NonNull File folder, @NonNull String name) {
@@ -97,8 +94,18 @@ public class AppDatabaseUtil {
         }
     }
 
+    //TODO rename to DeckStorageDB
     @NonNull
     public StorageDb<DeckDatabase> getStorageDb() {
         return storageDb;
+    }
+
+    @NonNull
+    public AppDatabase getAppDatabase() {
+        return Room.databaseBuilder(
+                appContext,
+                AppDatabase.class,
+                "AppCore"
+        ).build();
     }
 }

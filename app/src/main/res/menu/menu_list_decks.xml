@@ -22,4 +22,10 @@
         android:title="Import DB"
         android:visible="false"
         app:showAsAction="never"></item>
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_baseline_settings_24"
+        android:title="Settings"
+        android:visible="false"
+        app:showAsAction="never"></item>
 </menu>

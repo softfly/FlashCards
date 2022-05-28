@@ -19,6 +19,8 @@ import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,14 +32,18 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.db.AppDatabase;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.storage.StorageDb;
+import pl.softfly.flashcards.entity.AppConfig;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
+import pl.softfly.flashcards.ui.app.settings.AppSettingsActivity;
 import pl.softfly.flashcards.ui.deck.folder.FolderDeckRecyclerViewAdapter;
 
 /**
@@ -70,6 +76,7 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        initDarkMode();
         super.onCreate(savedInstanceState);
         this.listDecksActivity = this;
         setContentView(R.layout.activity_list_decks);
@@ -77,6 +84,11 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
         initRecyclerView();
         adapter.loadItems(currentFolder);
         askPermissionManageExternalStorage();
+
+        //UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        //uiModeManager.setNightMode(UiModeManager.MODE_NIGHT_NO);
+
+
         try {
             (new CreateSampleDeck()).create(
                     getApplicationContext(),
@@ -87,6 +99,43 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
             ExceptionDialog dialog = new ExceptionDialog(e);
             dialog.show(this.getSupportFragmentManager(), "CreateDeck");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        initDarkMode();
+        super.onResume();
+    }
+
+    /**
+     * It is not needed elsewhere, because
+     * 1) this is the first activity
+     * 2) after changing the app settings, it comes back to this activity
+     */
+    protected void initDarkMode() {
+        getAppDatabase().appConfigAsync().findByKey(AppConfig.DARK_MODE)
+                .subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .subscribe(appConfig -> {
+                    switch (appConfig.getValue()) {
+                        case AppConfig.DARK_MODE_ON:
+                            runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES));
+                            break;
+                        case AppConfig.DARK_MODE_OFF:
+                            runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO));
+                            break;
+                        default:
+                            runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
+                            break;
+                    }
+                });
+    }
+
+    @Nullable
+    protected AppDatabase getAppDatabase() {
+        return AppDatabaseUtil
+                .getInstance(getApplicationContext())
+                .getAppDatabase();
     }
 
     protected void initRecyclerView() {
@@ -132,6 +181,11 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                         getDrawableHelper(R.drawable.ic_round_file_download_24),
                         "Import DB"
                 ));
+        menu.add(0, R.id.settings, 5,
+                menuIconWithText(
+                        getDrawableHelper(R.drawable.ic_baseline_settings_24),
+                        "Settings"
+                ));
         getMenuInflater().inflate(R.menu.menu_list_decks, menu);
         return true;
     }
@@ -152,6 +206,10 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
                         "application/vnd.sqlite3",
                         "application/octet-stream"
                 });
+                return true;
+            case R.id.settings:
+                Intent intent = new Intent(this, AppSettingsActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
