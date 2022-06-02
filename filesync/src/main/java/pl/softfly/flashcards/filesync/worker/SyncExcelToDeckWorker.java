@@ -79,7 +79,7 @@ public class SyncExcelToDeckWorker extends Worker {
                 syncExcelToDeck.commitChanges(fileSynced, outFile);
             }
 
-            showSuccessNotification();
+            showSuccessNotification(syncExcelToDeck);
             return Result.success();
         } catch (Exception e) {
             showExceptionDialog(e);
@@ -124,10 +124,18 @@ public class SyncExcelToDeckWorker extends Worker {
         return getApplicationContext().getContentResolver().openOutputStream(uri);
     }
 
-    protected void showSuccessNotification() {
+    protected void showSuccessNotification(SyncExcelToDeck syncExcelToDeck) {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
                         getApplicationContext(),
-                        String.format("The deck \"%s\" has been synced with the file.", getDeckName()),
+                        (new SyncSuccessNotificationFactory())
+                                .create(
+                                        syncExcelToDeck.getDeckAdded(),
+                                        syncExcelToDeck.getDeckUpdated(),
+                                        syncExcelToDeck.getDeckDeleted(),
+                                        syncExcelToDeck.getFileAdded(),
+                                        syncExcelToDeck.getFileUpdated(),
+                                        syncExcelToDeck.getFileDeleted()
+                                ),
                         Toast.LENGTH_LONG
                 ).show()
         );
@@ -148,5 +156,93 @@ public class SyncExcelToDeckWorker extends Worker {
     @NonNull
     private String getDeckName() {
         return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
+    }
+
+    public static class SyncSuccessNotificationFactory {
+
+        public String create(
+                int deckAdded,
+                int deckUpdated,
+                int deckDeleted,
+                int fileAdded,
+                int fileUpdated,
+                int fileDeleted
+        ) {
+            StringBuilder sb = new StringBuilder(String.format(
+                    "Deck: |%d added|| and ||%d updated|| and ||%d deleted|\n" +
+                            "File: |%d added|| and ||%d updated|| and ||%d deleted|",
+                    deckAdded, deckUpdated, deckDeleted, fileAdded, fileUpdated, fileDeleted
+            ));
+
+            int fromIndex = processLine(sb, 0, deckAdded, deckUpdated, deckDeleted);
+            processLine(sb, fromIndex, fileAdded, fileUpdated, fileDeleted);
+            return sb.toString();
+        }
+
+        protected int processLine(
+                StringBuilder sb,
+                int fromIndex,
+                int added,
+                int updated,
+                int deleted
+        ) {
+            if (added == 0) {
+                fromIndex = removePos(sb, fromIndex);
+            } else {
+                fromIndex = removeVerticalBar(sb, 0);
+                fromIndex = removeVerticalBar(sb, fromIndex);
+            }
+
+            if (updated == 0 && deleted == 0 || added == 0) {
+                removeAnd(sb, fromIndex);
+            } else {
+                fromIndex = removeVerticalBar(sb, 0);
+                fromIndex = removeVerticalBar(sb, fromIndex);
+            }
+
+            if (updated == 0 && (added != 0 || deleted != 0)) {
+                fromIndex = removePos(sb, fromIndex);
+            } else {
+                fromIndex = removeVerticalBar(sb, fromIndex);
+                fromIndex = removeVerticalBar(sb, fromIndex);
+            }
+
+            if (updated == 0 || deleted == 0) {
+                removeAnd(sb, fromIndex);
+            } else {
+                fromIndex = removeVerticalBar(sb, fromIndex);
+                fromIndex = removeVerticalBar(sb, fromIndex);
+            }
+
+            if (deleted == 0) {
+                fromIndex = removePos(sb, fromIndex);
+            } else {
+                fromIndex = removeVerticalBar(sb, fromIndex);
+                fromIndex = removeVerticalBar(sb, fromIndex);
+            }
+
+            return fromIndex;
+        }
+
+        protected int removePos(StringBuilder sb, int fromIndex) {
+            int start = sb.indexOf("|", fromIndex);
+            int end = sb.indexOf("|", start + 1);
+            sb.replace(start, end + 1, "");
+            return start;
+        }
+
+        protected int removeAnd(StringBuilder sb, int fromIndex) {
+            int start = sb.indexOf("|", fromIndex);
+            int end = sb.indexOf("|", start + 1);
+            sb.replace(start, end + 1, "");
+            return end;
+        }
+
+        protected int removeVerticalBar(StringBuilder sb, int fromIndex) {
+            int start = sb.indexOf("|", fromIndex);
+            sb.replace(start, start + 1, "");
+            return start;
+        }
+
     }
 }
