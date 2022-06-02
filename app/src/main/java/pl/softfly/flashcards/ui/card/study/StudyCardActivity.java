@@ -28,7 +28,7 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.CardLearningProgress;
 import pl.softfly.flashcards.entity.DeckConfig;
@@ -168,7 +168,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
             updateCardLearningProgress(model.getHardLearningProgress().getValue());
             model.nextCard();
         });
-        model.getEasyLearningProgress().observe(this,
+        model.getHardLearningProgress().observe(this,
                 cardLearningProgress ->
                         hardButton.setText("Hard\n" + cardLearningProgress.getIntervalHour()));
     }

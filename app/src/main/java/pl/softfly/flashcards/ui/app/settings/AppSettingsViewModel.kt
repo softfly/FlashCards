@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import pl.softfly.flashcards.db.AppDatabase
+import pl.softfly.flashcards.db.room.AppDatabase
 import pl.softfly.flashcards.entity.AppConfig
 
 /**

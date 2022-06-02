@@ -27,6 +27,10 @@ public abstract class CardDaoAsync {
     public abstract Maybe<Integer> count();
 
     @NonNull
+    @Query("SELECT count(*) FROM Core_Card WHERE deletedAt is NULL")
+    public abstract Maybe<Integer> countByNotDeleted();
+
+    @NonNull
     @Query("SELECT * FROM Core_Card WHERE id=:id")
     public abstract Maybe<Card> getCard(Integer id);
 

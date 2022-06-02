@@ -11,7 +11,8 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 
 import pl.softfly.flashcards.Config;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.AppDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.db.storage.AppStorageDb;
 import pl.softfly.flashcards.db.storage.ExternalStorageDb;
 import pl.softfly.flashcards.db.storage.StorageDb;
@@ -19,6 +20,8 @@ import pl.softfly.flashcards.db.storage.StorageDb;
 /**
  * Service locator to maintain and caching only one connection per database.
  * https://developer.android.com/training/dependency-injection#di-alternatives
+ *
+ * TODO Split into AppDatabaseUtil and DeckDatabaseUtil
  *
  * @author Grzegorz Ziemski
  */
@@ -82,7 +85,6 @@ public class AppDatabaseUtil {
         }
         return db;
     }
-
 
     public synchronized void closeDeckDatabase(String dbName) {
         DeckDatabase db = DECKS.get(dbName);

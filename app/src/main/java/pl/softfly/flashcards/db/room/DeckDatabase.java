@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.db.deck;
+package pl.softfly.flashcards.db.room;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;

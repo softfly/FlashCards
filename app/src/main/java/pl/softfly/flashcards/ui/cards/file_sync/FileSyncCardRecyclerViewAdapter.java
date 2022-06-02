@@ -39,14 +39,11 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        if (selectedCards.contains(getItem(position))) {
-            super.onBindViewHolder(holder, position);
-        } else if (recentlySyncedCards.contains(getItem(position))) {
+        super.onBindViewHolder(holder, position);
+        if (recentlySyncedCards.contains(getItem(position))) {
             holder.itemView.setBackgroundColor(
                     MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlySynced)
             );
-        } else {
-            super.onBindViewHolder(holder, position);
         }
     }
 

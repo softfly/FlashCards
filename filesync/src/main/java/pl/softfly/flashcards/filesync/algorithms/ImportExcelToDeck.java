@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.Converters;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
 /**

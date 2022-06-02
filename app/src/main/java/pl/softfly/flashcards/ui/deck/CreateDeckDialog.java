@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 
 public class CreateDeckDialog extends DialogFragment {
 

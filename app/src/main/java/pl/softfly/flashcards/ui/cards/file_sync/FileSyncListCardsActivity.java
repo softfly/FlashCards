@@ -36,7 +36,7 @@ import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;

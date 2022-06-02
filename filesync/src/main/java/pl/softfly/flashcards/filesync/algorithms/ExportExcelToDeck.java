@@ -122,20 +122,6 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         cell.setCellStyle(cellStyle);
     }
 
-    @Override
-    protected void updateExcelCell(@NonNull Row row, @NonNull Card card) {
-        CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setWrapText(true);
-
-        Cell cell = row.createCell(getTermIndex());
-        cell.setCellValue(card.getTerm());
-        cell.setCellStyle(cellStyle);
-
-        cell = row.createCell(getDefinitionIndex());
-        cell.setCellValue(card.getDefinition());
-        cell.setCellStyle(cellStyle);
-    }
-
     @NonNull
     protected String getDeckName(@NonNull String deckDbPath) {
         return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);

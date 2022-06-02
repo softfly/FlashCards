@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.ui.ExceptionDialog;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.study.ExceptionStudyCardActivity;
@@ -120,7 +120,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         deckViewHolder.nameTextView.setSelected(true);
         try {
             DeckDatabase deckDb = getDeckDatabase(deckNames.get(getDeckPosition(itemPosition)));
-            deckDb.cardDaoAsync().count().subscribeOn(Schedulers.io())
+            deckDb.cardDaoAsync().countByNotDeleted().subscribeOn(Schedulers.io())
                     .doOnError(Throwable::printStackTrace)
                     .doOnSuccess(count -> activity.runOnUiThread(() ->
                             deckViewHolder.totalTextView.setText("Total: " + count)))

@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabase;
+import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.AppConfig;

@@ -40,6 +40,10 @@ public interface CardImportedDao {
             "WHERE contentStatus='" + CardImported.STATUS_DELETE_BY_DECK + "'")
     int countByDeleteByDeck();
 
+    @Query("SELECT count(*) FROM FileSync_CardImported " +
+            "WHERE contentStatus=:status")
+    int countByContentStatus(String status);
+
     @NonNull
     @Query("SELECT * FROM FileSync_CardImported")
     List<CardImported> getCards();

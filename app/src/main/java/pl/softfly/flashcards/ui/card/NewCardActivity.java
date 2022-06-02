@@ -19,7 +19,7 @@ import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
 public class NewCardActivity extends AppCompatActivity {

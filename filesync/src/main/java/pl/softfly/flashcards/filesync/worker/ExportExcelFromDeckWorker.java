@@ -55,7 +55,6 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
         }
     }
 
-    @Override
     protected void showSuccessNotification() {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
                         getApplicationContext(),

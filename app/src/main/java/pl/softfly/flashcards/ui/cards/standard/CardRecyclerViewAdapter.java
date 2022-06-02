@@ -22,7 +22,7 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;

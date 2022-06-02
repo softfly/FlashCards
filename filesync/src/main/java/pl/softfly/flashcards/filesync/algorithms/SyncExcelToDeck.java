@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -59,6 +60,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected InputStream isImportedFile;
     protected Workbook workbook;
     protected Sheet sheet;
+
+    protected int deckAdded;
+    protected int deckUpdated;
+    protected int deckDeleted;
+    protected int fileAdded;
+    protected int fileUpdated;
+    protected int fileDeleted;
 
     //Only for tests
     public SyncExcelToDeck(Context appContext, DetermineNewOrderCards determineNewOrderCards) {
@@ -125,6 +133,14 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
         // 5. Determine the new order of the cards after merging.
         determineNewOrderCards.determineNewOrderCards(deckDb, fileSynced.getLastSyncAt());
+
+        // 6. Count the statistics of how many cards have been changed.
+        deckAdded = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_INSERT_BY_FILE);
+        deckUpdated = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_UPDATE_BY_FILE);
+        deckDeleted = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_DELETE_BY_FILE);
+        fileAdded = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_INSERT_BY_DECK);
+        fileUpdated = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_UPDATE_BY_DECK);
+        fileDeleted = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_DELETE_BY_DECK);
     }
 
     /**
@@ -270,8 +286,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                             CardImported.POSITION_STATUS_BY_DECK
             );
             // @todo remove, only for debugging
-            cardImported.setTerm(term);
-            cardImported.setDefinition(definition);
+            //cardImported.setTerm(term);
+            //cardImported.setDefinition(definition);
             return true;
         }
         return false;
@@ -634,14 +650,14 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     public void updateExcelFile(@NonNull OutputStream os) throws IOException {
-        int skipHeaderRows = getSkipHeaderRows();
         List<CardImported> cardImportedList = deckDb.cardImportedDao()
                 .findByStatusNotOrderByCardOrdinalAsc(new String[]{
                         CardImported.STATUS_DELETE_BY_DECK,
                         CardImported.STATUS_DELETE_BY_FILE
                 }, 0);
 
-        int rowNum = Math.max(skipHeaderRows, 0);
+        int rowNum = Math.max(getSkipHeaderRows()+1, 0);
+        int lastRowNum = sheet.getLastRowNum();
 
         for (; !cardImportedList.isEmpty(); rowNum++) {
             CardImported cardImported = cardImportedList.remove(0);
@@ -649,11 +665,18 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
             if (CardImported.STATUS_UNCHANGED.equals(cardImported.getContentStatus())) {
                 if (cardImported.isOrderChanged()) {
-                    updateExcelCell(sheet.createRow(rowNum), card);
+                    if (rowNum > lastRowNum) {
+                        createExcelCell(rowNum, card);
+                    } else {
+                        updateExcelCell(rowNum, card);
+                    }
                 }
+            } else if (rowNum > lastRowNum) {
+                createExcelCell(rowNum, card);
             } else {
-                updateExcelCell(sheet.createRow(rowNum), card);
+                updateExcelCell(rowNum, card);
             }
+
 
             if (cardImportedList.isEmpty()) {
                 cardImportedList = deckDb.cardImportedDao()
@@ -673,10 +696,26 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         os.close();
     }
 
-    protected void updateExcelCell(@NonNull Row row, @NonNull Card card) {
+    protected void createExcelCell(@NonNull int rowNum, @NonNull Card card) {
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setWrapText(true);
+
+        Row row = sheet.createRow(rowNum);
         Cell cell = row.createCell(getTermIndex());
         cell.setCellValue(card.getTerm());
+        cell.setCellStyle(cellStyle);
+
         cell = row.createCell(getDefinitionIndex());
+        cell.setCellValue(card.getDefinition());
+        cell.setCellStyle(cellStyle);
+    }
+
+    protected void updateExcelCell(@NonNull int rowNum, @NonNull Card card) {
+        Row row = sheet.getRow(rowNum);
+        Cell cell = row.getCell(getTermIndex());
+        cell.setCellValue(card.getTerm());
+
+        cell = row.getCell(getDefinitionIndex());
         cell.setCellValue(card.getDefinition());
     }
 
@@ -688,5 +727,29 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     @Nullable
     public FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
+    }
+
+    public int getDeckAdded() {
+        return deckAdded;
+    }
+
+    public int getDeckUpdated() {
+        return deckUpdated;
+    }
+
+    public int getDeckDeleted() {
+        return deckDeleted;
+    }
+
+    public int getFileAdded() {
+        return fileAdded;
+    }
+
+    public int getFileUpdated() {
+        return fileUpdated;
+    }
+
+    public int getFileDeleted() {
+        return fileDeleted;
     }
 }

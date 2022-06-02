@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.deck.DeckDatabase;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.Card;
 
@@ -99,7 +99,7 @@ public class CreateSampleDeck {
             },
             {
                     "What is always right in front of you, yet you cannot see it?",
-                    "The future. "
+                    "The future."
             },
             {
                     "How did Darth Vader know what Luke Skywalker was getting for Christmas?",
