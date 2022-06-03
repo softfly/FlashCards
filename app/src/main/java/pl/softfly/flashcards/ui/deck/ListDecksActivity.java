@@ -36,8 +36,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.AppConfig;
 import pl.softfly.flashcards.filesync.FileSync;
@@ -105,6 +105,10 @@ public class ListDecksActivity extends IconWithTextInTopbarActivity {
     protected void onResume() {
         initDarkMode();
         super.onResume();
+        (new CreateSampleDeck()).create(
+                getApplicationContext(),
+                () -> adapter.loadItems(currentFolder)
+        );
     }
 
     /**

@@ -4,11 +4,10 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import java.time.LocalDateTime;
-
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.entity.Card;
@@ -156,7 +155,8 @@ public class CreateSampleDeck {
                     .getDeckDatabase(dbDeckPath);
 
             Card[] cards = new Card[SAMPLE_DECK.length];
-            LocalDateTime modifiedAt = LocalDateTime.now();
+            long modifiedAt = TimeUtil.getNowEpochSec();
+
             for (int i = 0; i < SAMPLE_DECK.length; i++) {
                 String[] sampleCard = SAMPLE_DECK[i];
                 Card card = new Card();

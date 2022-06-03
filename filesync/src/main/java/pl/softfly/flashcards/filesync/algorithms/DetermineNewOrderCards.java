@@ -6,7 +6,6 @@ import static pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck.MULTIPLE
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,11 +26,11 @@ public class DetermineNewOrderCards {
 
     private FileSyncDeckDatabase deckDb;
 
-    private LocalDateTime fileLastSyncAt;
+    private long fileLastSyncAt;
 
     public void determineNewOrderCards(
             @NonNull FileSyncDeckDatabase deckDb,
-            @NonNull LocalDateTime fileLastSyncAt
+            @NonNull long fileLastSyncAt
     ) {
         this.deckDb = deckDb;
         this.fileLastSyncAt = fileLastSyncAt;
@@ -621,6 +620,6 @@ public class DetermineNewOrderCards {
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
-        return fileLastSyncAt.isAfter(card.getModifiedAt());
+        return fileLastSyncAt > card.getModifiedAt();
     }
 }

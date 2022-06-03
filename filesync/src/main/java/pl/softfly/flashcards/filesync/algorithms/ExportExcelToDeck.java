@@ -19,10 +19,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.filesync.entity.FileSynced;
 
 /**
@@ -63,11 +61,11 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
                 : new XSSFWorkbook();
         this.sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(getDeckName(deckDbPath)));
         // The file must be very old to get changes only from deck.
-        this.newLastSyncAt = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
+        this.newLastSyncAt = 0;
 
         setTermIndex(0);
         setDefinitionIndex(1);
-        setSkipHeaderRows(1);
+        setSkipHeaderRows(0);
 
         fileSynced.setLastSyncAt(this.newLastSyncAt);
         if (fileSynced.getId() == null) {
@@ -97,6 +95,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
             @NonNull OutputStream os
     ) throws IOException {
         createHeader();
+        newLastSyncAt = TimeUtil.getNowEpochSec();
         super.commitChanges(fileSynced, os);
     }
 

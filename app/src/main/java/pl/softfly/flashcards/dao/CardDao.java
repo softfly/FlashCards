@@ -8,13 +8,13 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Completable;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.entity.Card;
 
 /**
@@ -107,7 +107,7 @@ public abstract class CardDao {
             increaseOrdinalByBetween(newOrdinal, card.getOrdinal());
             card.setOrdinal(newOrdinal);
         }
-        card.setModifiedAt(LocalDateTime.now());
+        card.setModifiedAt(TimeUtil.getNowEpochSec());
         updateAll(card);
     }
 
@@ -115,14 +115,14 @@ public abstract class CardDao {
     public void insertAfterOrdinal(@NonNull Card card, int afterOrdinal) {
         increaseOrdinalByGreaterThanEqual(afterOrdinal);
         card.setOrdinal(afterOrdinal);
-        card.setModifiedAt(LocalDateTime.now());
+        card.setModifiedAt(TimeUtil.getNowEpochSec());
         insertAll(card);
     }
 
     @Transaction
     public void insertAtEnd(@NonNull Card card) {
         card.setOrdinal(lastOrdinal() + 1);
-        card.setModifiedAt(LocalDateTime.now());
+        card.setModifiedAt(TimeUtil.getNowEpochSec());
         insertAll(card);
     }
 

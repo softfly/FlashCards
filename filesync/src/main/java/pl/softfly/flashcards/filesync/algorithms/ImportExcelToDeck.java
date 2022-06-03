@@ -16,16 +16,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
@@ -86,7 +83,6 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         Iterator<Row> rowIt = datatypeSheet.iterator();
         List<Card> cardsList = new LinkedList<>();
         int ordinal = SyncExcelToDeck.MULTIPLE_ORDINAL;
-        LocalDateTime createdAt = Converters.fromTimestampToLocalDateTime(TimeUnit.MILLISECONDS.toSeconds(lastModifiedAtFile));
         for (int rowNum = 0; rowIt.hasNext(); rowNum++) {
             Row currentRow = rowIt.next();
             if (rowNum <= skipFirstRows) {
@@ -95,7 +91,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             Card card = new Card();
             card.setOrdinal(ordinal);
             ordinal += SyncExcelToDeck.MULTIPLE_ORDINAL;
-            card.setModifiedAt(createdAt);
+            card.setModifiedAt(lastModifiedAtFile);
 
             if (termPosition > -1) {
                 Cell currentCell = currentRow.getCell(termPosition);

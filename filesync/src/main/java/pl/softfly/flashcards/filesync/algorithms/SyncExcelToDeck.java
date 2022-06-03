@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.db.Converters;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
@@ -56,7 +57,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
     protected FileSynced fileSynced;
     @Nullable
-    protected LocalDateTime newLastSyncAt;
+    protected long newLastSyncAt = TimeUtil.getNowEpochSec();
     protected InputStream isImportedFile;
     protected Workbook workbook;
     protected Sheet sheet;
@@ -91,9 +92,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
         this.sheet = workbook.getSheetAt(0);
-        this.newLastSyncAt = Converters.fromTimestampToLocalDateTime(
-                TimeUnit.MILLISECONDS.toSeconds(lastModifiedAtFile)
-        );
 
         findColumnIndexes(sheet);
         if (getTermIndex() == -1 && getDefinitionIndex() == -1)
@@ -101,7 +99,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
         // @todo desc lastSync
         if (fileSynced.getLastSyncAt() == null) {
-            fileSynced.setLastSyncAt(this.newLastSyncAt);
+            fileSynced.setLastSyncAt(lastModifiedAtFile);
         }
         if (fileSynced.getId() == null) {
             fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
@@ -720,7 +718,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
-        return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
+        return fileSynced.getLastSyncAt() > card.getModifiedAt();
     }
 
     //@todo public visibility for testing

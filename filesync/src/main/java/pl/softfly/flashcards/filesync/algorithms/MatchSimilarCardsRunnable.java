@@ -128,6 +128,6 @@ public class MatchSimilarCardsRunnable implements Runnable {
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
-        return fileSynced.getLastSyncAt().isAfter(card.getModifiedAt());
+        return fileSynced.getLastSyncAt() > card.getModifiedAt();
     }
 }

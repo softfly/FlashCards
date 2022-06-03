@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +43,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.Converters;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
@@ -66,11 +65,12 @@ public class SyncExcelToDeckStepDefs {
     private static final int COLUMN_TEST_INDEX_MODIFIED_AT = 2;
 
     private final Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-    private final long excelLastModifiedAt = 1 * 60 * 60;
+    private final long excelLastModifiedAt = 1;
     /* -----------------------------------------------------------------------------------------
      * Database Properties
      * ----------------------------------------------------------------------------------------- */
     private String deckName;
+    private String deckDbPath;
     @Nullable
     private FileSyncDeckDatabase deckDb;
     private int currentCardId = 1;
@@ -99,14 +99,19 @@ public class SyncExcelToDeckStepDefs {
 
     protected void initDB() {
         GrantPermissionRule.grant(Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+
+        deckDbPath = FileSyncDatabaseUtil
+                .getInstance(appContext)
+                .getStorageDb().getDbFolder() + "/Tests/" + deckName;
+
         FileSyncDatabaseUtil
                 .getInstance(appContext)
                 .getStorageDb()
-                .removeDatabase(deckName);
+                .removeDatabase(deckDbPath);
 
         deckDb = FileSyncDatabaseUtil
                 .getInstance(appContext)
-                .getDeckDatabase(deckName);
+                .getDeckDatabase(deckDbPath);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -168,10 +173,9 @@ public class SyncExcelToDeckStepDefs {
             card.setOrdinal(currentCardId);
             card.setTerm(rowIn.get(COLUMN_TEST_INDEX_TERM));
             card.setDefinition(rowIn.get(COLUMN_TEST_INDEX_DEFINITION));
-            long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-            card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt * 60 * 60));
-            if (modifiedAt < 0) {
-                card.setDeletedAt(LocalDateTime.now());
+            card.setModifiedAt(Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT)));
+            if (card.getModifiedAt() < 0) {
+                card.setDeletedAt(TimeUtil.getNowEpochSec());
             }
             cardsToInsert.add(card);
             currentCardId++;
@@ -195,10 +199,9 @@ public class SyncExcelToDeckStepDefs {
                         rowIn.get(COLUMN_TEST_INDEX_DEFINITION)
                                 .replace("{i}", Integer.toString(i))
                 );
-                long modifiedAt = Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT));
-                card.setModifiedAt(Converters.fromTimestampToLocalDateTime(modifiedAt * 60 * 60));
-                if (modifiedAt < 0) {
-                    card.setDeletedAt(LocalDateTime.now());
+                card.setModifiedAt(Long.parseLong(rowIn.get(COLUMN_TEST_INDEX_MODIFIED_AT)));
+                if (card.getModifiedAt() < 0) {
+                    card.setDeletedAt(TimeUtil.getNowEpochSec());
                 }
                 cardsToInsert.add(card);
                 if (i % DB_ENTITIES_POOL == 0) {
@@ -262,7 +265,7 @@ public class SyncExcelToDeckStepDefs {
                 BenchmarkDetermineNewOrderCards()
         );
         syncExcelToDeck.syncExcelFile(
-                deckName,
+                deckDbPath,
                 fileSynced,
                 new FileInputStream(excelFilePath),
                 TYPE_XLSX,
@@ -288,7 +291,7 @@ public class SyncExcelToDeckStepDefs {
                 new BenchmarkDetermineNewOrderCards()
         );
         syncExcelToDeck.syncExcelFile(
-                deckName,
+                deckDbPath,
                 fileSynced,
                 new FileInputStream(excelFilePath),
                 TYPE_XLSX,

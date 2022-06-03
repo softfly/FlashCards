@@ -11,14 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.time.LocalDateTime;
-
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
@@ -76,7 +75,7 @@ public class NewCardActivity extends AppCompatActivity {
         Card card = new Card();
         cardUtil.setTerm(card, termEditText.getText().toString());
         cardUtil.setDefinition(card, definitionEditText.getText().toString());
-        card.setModifiedAt(LocalDateTime.now());
+        card.setModifiedAt(TimeUtil.getNowEpochSec());
         return card;
     }
 

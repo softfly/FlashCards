@@ -4,8 +4,6 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import java.time.LocalDateTime;
-
 /**
  * Represents a synchronized file.
  *
@@ -24,7 +22,7 @@ public class FileSynced {
 
     private String uri;
 
-    private LocalDateTime lastSyncAt;
+    private Long lastSyncAt;
 
     /**
      * A deck can only automatically sync with one file.
@@ -47,11 +45,11 @@ public class FileSynced {
         this.uri = uri;
     }
 
-    public LocalDateTime getLastSyncAt() {
+    public Long getLastSyncAt() {
         return lastSyncAt;
     }
 
-    public void setLastSyncAt(LocalDateTime lastSyncAt) {
+    public void setLastSyncAt(Long lastSyncAt) {
         this.lastSyncAt = lastSyncAt;
     }
 

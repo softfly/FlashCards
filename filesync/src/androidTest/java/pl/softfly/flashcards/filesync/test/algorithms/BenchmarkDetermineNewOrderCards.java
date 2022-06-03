@@ -20,7 +20,7 @@ public class BenchmarkDetermineNewOrderCards extends DetermineNewOrderCards {
     public static final String TAG = "BenchmarkDetermineNewOrderCards";
 
     @Override
-    public void determineNewOrderCards(@NonNull FileSyncDeckDatabase deckDb, @NonNull LocalDateTime fileLastSyncAt) {
+    public void determineNewOrderCards(@NonNull FileSyncDeckDatabase deckDb, @NonNull long fileLastSyncAt) {
         long start = Instant.now().toEpochMilli();
         super.determineNewOrderCards(deckDb, fileLastSyncAt);
 

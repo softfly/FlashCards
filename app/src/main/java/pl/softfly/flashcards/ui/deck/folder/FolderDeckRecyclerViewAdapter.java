@@ -43,7 +43,7 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
                 .getStorageDb()
                 .listFolders(path)
         );
-        notifyDataSetChanged();
+        activity.runOnUiThread(() -> notifyDataSetChanged());
     }
 
     @Override

@@ -3,8 +3,6 @@ package pl.softfly.flashcards.entity;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.time.LocalDateTime;
-
 /**
  * The card in the deck.
  *
@@ -22,9 +20,9 @@ public class Card {
 
     private String definition;
 
-    private LocalDateTime modifiedAt;
+    private Long modifiedAt;
 
-    private LocalDateTime deletedAt;
+    private Long deletedAt;
 
     private boolean termHtml;
 
@@ -62,19 +60,19 @@ public class Card {
         this.definition = definition;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public Long getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
+    public void setModifiedAt(Long modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
-    public LocalDateTime getDeletedAt() {
+    public Long getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(LocalDateTime deletedAt) {
+    public void setDeletedAt(Long deletedAt) {
         this.deletedAt = deletedAt;
     }
 

@@ -62,7 +62,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 .getStorageDb()
                 .listDatabases(path)
         );
-        notifyDataSetChanged();
+        activity.runOnUiThread(() -> notifyDataSetChanged());
     }
 
     protected void exportDb(Uri exportToUri, @NonNull String dbPath) {

@@ -5,10 +5,13 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 import pl.softfly.flashcards.Config;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.db.storage.AppStorageDb;
 import pl.softfly.flashcards.db.storage.ExternalStorageDb;
 import pl.softfly.flashcards.db.storage.StorageDb;
@@ -52,16 +55,26 @@ public class FileSyncDatabaseUtil {
         }
         return INSTANCE;
     }
+    @NonNull
+    public synchronized FileSyncDeckDatabase getDeckDatabase(@NonNull File folder, @NonNull String name) {
+        return getDeckDatabase(folder.getPath(), name);
+    }
 
-    @Nullable
-    public synchronized FileSyncDeckDatabase getDeckDatabase(@NonNull String dbName) {
-        FileSyncDeckDatabase db = DECKS.get(dbName);
+    @NonNull
+    public synchronized FileSyncDeckDatabase getDeckDatabase(@NonNull String folder, @NonNull String name) {
+        return getDeckDatabase(folder + "/" + name);
+    }
+
+    @NonNull
+    public synchronized FileSyncDeckDatabase getDeckDatabase(@NonNull String dbPath) {
+        Objects.nonNull(dbPath);
+        FileSyncDeckDatabase db = DECKS.get(dbPath);
         if (db == null) {
-            db = storageDb.getDatabase(dbName);
-            DECKS.put(dbName, db);
+            db = storageDb.getDatabase(dbPath);
+            DECKS.put(dbPath, db);
         } else if (!db.isOpen()) {
-            db = storageDb.getDatabase(dbName);
-            DECKS.put(dbName, db);
+            db = storageDb.getDatabase(dbPath);
+            DECKS.put(dbPath, db);
         }
         return db;
     }
