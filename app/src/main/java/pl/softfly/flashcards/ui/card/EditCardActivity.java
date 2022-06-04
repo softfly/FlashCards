@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.entity.Card;
 
 public class EditCardActivity extends NewCardActivity {
@@ -50,6 +51,7 @@ public class EditCardActivity extends NewCardActivity {
     protected void onClickUpdateCard() {
         cardUtil.setTerm(card, termEditText.getText().toString());
         cardUtil.setDefinition(card, definitionEditText.getText().toString());
+        card.setModifiedAt(TimeUtil.getNowEpochSec());
         deckDb.cardDaoAsync().updateAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {

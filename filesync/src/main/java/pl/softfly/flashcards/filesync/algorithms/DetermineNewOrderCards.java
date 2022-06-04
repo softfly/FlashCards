@@ -422,38 +422,41 @@ public class DetermineNewOrderCards {
     }
 
     protected void createFirstVertexToMergeFirstTwoNewCard() {
-        CardImported firstCardImportedFromDeck = deckDb.cardImportedDao()
-                .findByCardId(deckDb.cardDao().getFirst().getId());
-        CardImported firstCardImported = deckDb.cardImportedDao().getFirst();
+        Card firstCard = deckDb.cardDao().getFirst();
+        if (firstCard != null) {
+            CardImported firstCardImportedFromDeck = deckDb.cardImportedDao()
+                    .findByCardId(firstCard.getId());
+            CardImported firstCardImported = deckDb.cardImportedDao().getFirst();
 
-        if (CardImported.STATUS_INSERT_BY_FILE.equals(firstCardImported.getContentStatus())) {
-            CardImported firstVertex = new CardImported();
-            firstVertex.setId(0);
-            firstVertex.setTerm("The auxiliary first vertex of the graph.");
-            firstVertex.setOrdinal(0);
-            firstVertex.setNextId(firstCardImported.getId());
-            firstVertex.setContentStatus(CardImported.STATUS_UNCHANGED);
-            firstVertex.setPositionStatus(CardImported.STATUS_UNCHANGED);
-            deckDb.cardImportedDao().insertAll(firstVertex);
+            if (CardImported.STATUS_INSERT_BY_FILE.equals(firstCardImported.getContentStatus())) {
+                CardImported firstVertex = new CardImported();
+                firstVertex.setId(0);
+                firstVertex.setTerm("The auxiliary first vertex of the graph.");
+                firstVertex.setOrdinal(0);
+                firstVertex.setNextId(firstCardImported.getId());
+                firstVertex.setContentStatus(CardImported.STATUS_UNCHANGED);
+                firstVertex.setPositionStatus(CardImported.STATUS_UNCHANGED);
+                deckDb.cardImportedDao().insertAll(firstVertex);
 
-            firstCardImported.setPreviousId(0);
-            deckDb.cardImportedDao().updateAll(firstCardImported);
-
-            CardEdge cardEdge = new CardEdge();
-            cardEdge.setFromCardImportedId(0);
-            cardEdge.setToCardImportedId(firstCardImported.getId());
-            setCardEdgeStatusAndWeight(cardEdge, CardEdge.STATUS_IMPORTED_SECOND_NEW);
-            deckDb.cardEdgeDao().insertAll(cardEdge);
-
-            if (CardImported.STATUS_INSERT_BY_DECK.equals(firstCardImportedFromDeck.getContentStatus())) {
-                firstCardImportedFromDeck.setPreviousId(0);
+                firstCardImported.setPreviousId(0);
                 deckDb.cardImportedDao().updateAll(firstCardImported);
 
-                cardEdge = new CardEdge();
+                CardEdge cardEdge = new CardEdge();
                 cardEdge.setFromCardImportedId(0);
-                cardEdge.setToCardImportedId(firstCardImportedFromDeck.getId());
-                setCardEdgeStatusAndWeight(cardEdge, CardEdge.STATUS_DECK_SECOND_NEW);
+                cardEdge.setToCardImportedId(firstCardImported.getId());
+                setCardEdgeStatusAndWeight(cardEdge, CardEdge.STATUS_IMPORTED_SECOND_NEW);
                 deckDb.cardEdgeDao().insertAll(cardEdge);
+
+                if (CardImported.STATUS_INSERT_BY_DECK.equals(firstCardImportedFromDeck.getContentStatus())) {
+                    firstCardImportedFromDeck.setPreviousId(0);
+                    deckDb.cardImportedDao().updateAll(firstCardImported);
+
+                    cardEdge = new CardEdge();
+                    cardEdge.setFromCardImportedId(0);
+                    cardEdge.setToCardImportedId(firstCardImportedFromDeck.getId());
+                    setCardEdgeStatusAndWeight(cardEdge, CardEdge.STATUS_DECK_SECOND_NEW);
+                    deckDb.cardEdgeDao().insertAll(cardEdge);
+                }
             }
         }
     }
@@ -530,7 +533,7 @@ public class DetermineNewOrderCards {
     @Nullable
     protected CardImported findNewestFirstCard() {
         Card firstCard = deckDb.cardDao().getFirst();
-        if (isImportedFileNewer(firstCard)) {
+        if (firstCard == null || isImportedFileNewer(firstCard)) {
             return deckDb.cardImportedDao().getFirst();
         } else {
             return deckDb.cardImportedDao().findByCardId(firstCard.getId());

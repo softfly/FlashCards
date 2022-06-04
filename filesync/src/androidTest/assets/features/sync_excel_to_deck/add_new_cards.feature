@@ -1,6 +1,5 @@
 Feature: Sync the Excel file with the Deck. Add new cards.
 
-
   Scenario: SE_AD_01 2 new cards.
   A new card from the deck was added.
   A new card from the imported file was added.
@@ -153,7 +152,17 @@ Feature: Sync the Excel file with the Deck. Add new cards.
     Then Check the Excel file.
 
 
-  Scenario: SE_AD_F_01 A new card was added from the imported file.
+  Scenario: SE_AD_F_01 Empty deck. A new card was added from the imported file.
+    Given Add the following cards into the file:
+      | File 1 | File 1 |
+    When Synchronize the Excel file with the deck.
+    Then The expected deck with cards:
+      | File 1 | File 1 |
+    Then Check the deck with cards.
+    Then Check the Excel file.
+
+
+  Scenario: SE_AD_F_02 A new card was added from the imported file.
     Given Add the following cards into the deck:
       | Sample Term 1 | Sample Definition 1 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
@@ -176,7 +185,7 @@ Feature: Sync the Excel file with the Deck. Add new cards.
     Then Check the Excel file.
 
 
-  Scenario: SE_AD_F_02 2 new cards were added from the Excel file.
+  Scenario: SE_AD_F_03 2 new cards were added from the Excel file.
     Given Add the following cards into the deck:
       | Sample Term 1 | Sample Definition 1 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
@@ -201,7 +210,7 @@ Feature: Sync the Excel file with the Deck. Add new cards.
     Then Check the Excel file.
 
 
-  Scenario: SE_AD_F_03 3 new cards were added from the Excel file.
+  Scenario: SE_AD_F_04 3 new cards were added from the Excel file.
     Given Add the following cards into the deck:
       | Sample Term 1 | Sample Definition 1 | 0 |
       | Sample Term 2 | Sample Definition 2 | 0 |
