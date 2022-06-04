@@ -298,3 +298,28 @@ Feature: Sync the Excel file with the Deck. Add new cards.
       | Sample Term 2 | Sample Definition 2 |
     Then Check the deck with cards.
     Then Check the Excel file.
+
+
+  Scenario: SE_AD_D_04 Add and remove a card in the deck after the first sync.
+  If the file has not changed since the last synchronization, do not add a card from a file.
+  This means that the card had to be modified or removed in the deck.
+    Given Add the following cards into the file:
+      | Sample Term 1 | Sample Definition 1 |
+      | Sample Term 2 | Sample Definition 2 |
+      | Sample Term 3 | Sample Definition 3 |
+    When Synchronize the Excel file with the deck.
+    Then The expected deck with cards:
+      | Sample Term 1 | Sample Definition 1 |
+      | Sample Term 2 | Sample Definition 2 |
+      | Sample Term 3 | Sample Definition 3 |
+    Then Check the deck with cards.
+    Then Check the Excel file.
+    Given Update the cards in the deck:
+      | New Term 4 | New Updated 4 |
+    When Synchronize the Excel file with the deck.
+    Then The expected deck with cards:
+      | New Term 4    | New Updated 4       |
+      | Sample Term 2 | Sample Definition 2 |
+      | Sample Term 3 | Sample Definition 3 |
+    Then Check the deck with cards.
+    Then Check the Excel file.

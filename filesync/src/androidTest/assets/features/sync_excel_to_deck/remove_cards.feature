@@ -25,7 +25,7 @@ Feature: Sync the Excel file with the Deck. Remove cards.
       | Sample Term 4 | Sample Definition 4 |
     When Synchronize the Excel file with the deck.
     Then 2 cards in the imported file.
-    Given Create a new file.
+    Given Clear file.
     Given Add the following cards into the file:
       | Sample Term 1 | Sample Definition 1 |
       | Sample Term 2 | Sample Definition 2 |

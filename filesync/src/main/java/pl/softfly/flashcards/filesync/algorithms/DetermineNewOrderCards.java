@@ -26,14 +26,14 @@ public class DetermineNewOrderCards {
 
     private FileSyncDeckDatabase deckDb;
 
-    private long fileLastSyncAt;
+    private long fileModifiedAt;
 
     public void determineNewOrderCards(
             @NonNull FileSyncDeckDatabase deckDb,
-            @NonNull long fileLastSyncAt
+            @NonNull long fileModifiedAt
     ) {
         this.deckDb = deckDb;
-        this.fileLastSyncAt = fileLastSyncAt;
+        this.fileModifiedAt = fileModifiedAt;
 
         refreshCardOrdinal();
 
@@ -532,7 +532,7 @@ public class DetermineNewOrderCards {
 
     @Nullable
     protected CardImported findNewestFirstCard() {
-        Card firstCard = deckDb.cardDao().getFirst();
+        Card firstCard = deckDb.cardDao().getFirst();//TODO try to find scenario if deleted during sync
         if (firstCard == null || isImportedFileNewer(firstCard)) {
             return deckDb.cardImportedDao().getFirst();
         } else {
@@ -623,6 +623,6 @@ public class DetermineNewOrderCards {
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
-        return fileLastSyncAt > card.getModifiedAt();
+        return fileModifiedAt > card.getModifiedAt();
     }
 }

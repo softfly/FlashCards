@@ -65,7 +65,7 @@ public class SyncExcelToDeckStepDefs {
     private static final int COLUMN_TEST_INDEX_MODIFIED_AT = 2;
 
     private final Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-    private final long excelLastModifiedAt = 1;
+    private long excelLastModifiedAt = 1;
     /* -----------------------------------------------------------------------------------------
      * Database Properties
      * ----------------------------------------------------------------------------------------- */
@@ -84,10 +84,20 @@ public class SyncExcelToDeckStepDefs {
     private CreationHelper creationHelper;
     private int currentRowNum;
 
+    /**
+     * If true, before the next sync simulation the Time will go +1
+     */
+    private boolean fileUpdatedAfterLastSync;
+
     /* -----------------------------------------------------------------------------------------
      * Others
      * ----------------------------------------------------------------------------------------- */
     private DataTable expectedDeck;
+
+    /**
+     * Helps compare dates more easily while debugging instead of comparing long numbers.
+     */
+    private long simulationTime = 3;
 
     @Before
     public void before(@NonNull Scenario scenario) {
@@ -144,8 +154,8 @@ public class SyncExcelToDeckStepDefs {
         ZipSecureFile.setMinInflateRatio(0.001);
     }
 
-    @Given("Create a new file.")
-    public void create_a_new_file() {
+    @Given("Clear file.")
+    public void clear_file() {
         excelFilePath = testDirPath + deckName + ".xlsx";
         (new File(excelFilePath)).delete();
         excelWorkbook = new XSSFWorkbook();
@@ -219,6 +229,7 @@ public class SyncExcelToDeckStepDefs {
 
     @Given(value = "Add the following cards into the file:", timeout = 2 * 1000)
     public void add_the_following_cards_into_the_file(@NonNull DataTable dataTable) {
+        fileUpdatedAfterLastSync = true;
         for (List<String> rowIn : dataTable.asLists()) {
             Row rowOut = excelSheet.createRow(currentRowNum);
             int colNum = 0;
@@ -234,6 +245,7 @@ public class SyncExcelToDeckStepDefs {
     @Given(value = "Generate cards {int} times into the file:", timeout = 5 * 60 * 1000)
     public void generate_cards_times_into_the_file(
             Integer cardsNum, @NonNull DataTable dataTable) {
+        fileUpdatedAfterLastSync = true;
         for (int i = 1; i <= cardsNum; i++) {
             for (List<String> rowIn : dataTable.asLists()) {
                 Row rowOut = excelSheet.createRow(currentRowNum);
@@ -248,6 +260,26 @@ public class SyncExcelToDeckStepDefs {
         }
     }
 
+    @Given("Update the cards in the deck:")
+    public void update_the_cards_in_the_deck(DataTable dataTable) {
+        long currentTime = TimeUtil.getNowEpochSec();
+        List<Card> cards = deckDb.cardDao().getCards();
+        for (List<String> row : dataTable.asLists()) {
+            Card card = cards.remove(0);
+            String term = row.get(COLUMN_TEST_INDEX_TERM);
+            String definition = row.get(COLUMN_TEST_INDEX_DEFINITION);
+            if (!term.equals(card.getTerm())) {
+                card.setTerm(term);
+                card.setModifiedAt(currentTime);
+            }
+            if (!definition.equals(card.getDefinition())) {
+                card.setDefinition(definition);
+                card.setModifiedAt(currentTime);
+            }
+            deckDb.cardDao().updateAll(card);
+        }
+    }
+
     @When(value = "Synchronize the Excel file with the deck.", timeout = 5 * 60 * 1000)
     public void synchronize_the_Excel_file_with_the_deck() throws Exception {
         OutputStream fileOut = new FileOutputStream(excelFilePath);
@@ -258,11 +290,17 @@ public class SyncExcelToDeckStepDefs {
         if (fileSynced == null) {
             fileSynced = new FileSynced();
             fileSynced.setUri(excelFilePath);
+        } else if (fileUpdatedAfterLastSync) {
+            //excelLastModifiedAt = fileSynced.getLastSyncAt() + 1;
+            excelLastModifiedAt = ++simulationTime;
+            ++simulationTime;
         }
+        fileUpdatedAfterLastSync = false;
 
-        SyncExcelToDeck syncExcelToDeck = new BenchmarkSyncExcelToDeck(
+        SyncExcelToDeck syncExcelToDeck = new MockSyncExcelToDeck(
                 appContext, new
-                BenchmarkDetermineNewOrderCards()
+                BenchmarkDetermineNewOrderCards(),
+                simulationTime
         );
         syncExcelToDeck.syncExcelFile(
                 deckDbPath,

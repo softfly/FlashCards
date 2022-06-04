@@ -48,16 +48,20 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     public static final int MULTIPLE_ORDINAL = 1;
     public static final int ENTITIES_TO_UPDATE_POOL_MAX = 100;
+
     protected static final int PAGE_LIMIT = 100;
     private static final int THREAD_TIMEOUT_SECONDS = 60;
+
     protected final Context appContext;
     private final CardUtil cardUtil = CardUtil.getInstance();
     @Nullable
     protected FileSyncDeckDatabase deckDb;
     protected DetermineNewOrderCards determineNewOrderCards = new DetermineNewOrderCards();
     protected FileSynced fileSynced;
+
     @Nullable
     protected long newLastSyncAt = TimeUtil.getNowEpochSec();
+    protected long fileModifiedAt;
     protected InputStream isImportedFile;
     protected Workbook workbook;
     protected Sheet sheet;
@@ -84,7 +88,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
-            @NonNull Long lastModifiedAtFile
+            @NonNull long fileModifiedAt
     ) throws Exception {
         this.isImportedFile = inputStream;
         this.deckDb = getDeckDB(deckDbPath);
@@ -92,6 +96,10 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
         this.sheet = workbook.getSheetAt(0);
+        this.fileModifiedAt = fileModifiedAt;
+        if (fileModifiedAt > TimeUtil.getNowEpochSec()) {
+            throw new Exception("The synchronized file has been modified in the future.");
+        }
 
         findColumnIndexes(sheet);
         if (getTermIndex() == -1 && getDefinitionIndex() == -1)
@@ -99,7 +107,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
         // @todo desc lastSync
         if (fileSynced.getLastSyncAt() == null) {
-            fileSynced.setLastSyncAt(lastModifiedAtFile);
+            fileSynced.setLastSyncAt(0l);
         }
         if (fileSynced.getId() == null) {
             fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
@@ -130,7 +138,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         processCardFromFile();
 
         // 5. Determine the new order of the cards after merging.
-        determineNewOrderCards.determineNewOrderCards(deckDb, fileSynced.getLastSyncAt());
+        determineNewOrderCards.determineNewOrderCards(deckDb, fileModifiedAt);
 
         // 6. Count the statistics of how many cards have been changed.
         deckAdded = deckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_INSERT_BY_FILE);
@@ -493,8 +501,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             CardImported cardImported = cardImportedList.remove(0);
 
             // Processing
-            cardImported.setContentStatus(CardImported.STATUS_INSERT_BY_FILE);
-            cardImported.setPositionStatus(CardImported.POSITION_STATUS_BY_FILE);
+            if (fileSynced.getLastSyncAt() >= fileModifiedAt) {
+                // SE_AD_D_04 The card must have been added in the past and has been modified in the deck.
+                cardImported.setContentStatus(CardImported.STATUS_DELETE_BY_DECK);
+            } else {
+                cardImported.setContentStatus(CardImported.STATUS_INSERT_BY_FILE);
+                cardImported.setPositionStatus(CardImported.POSITION_STATUS_BY_FILE);
+            }
 
             // Saving
             cardImportedListToUpdate.add(cardImported);
@@ -675,7 +688,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 updateExcelCell(rowNum, card);
             }
 
-
             if (cardImportedList.isEmpty()) {
                 cardImportedList = deckDb.cardImportedDao()
                         .findByStatusNotOrderByCardOrdinalAsc(new String[]{
@@ -684,7 +696,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         }, card.getOrdinal());
             }
         }
-        for (int i = deckDb.cardImportedDao().countByDeleteByDeck(); i > 0; i--) {
+        for (int i = deckDb.cardImportedDao().countByDeleteByDeck() - deckDb.cardImportedDao().countByInsertByDeck(); i > 0; i--) {
             sheet.removeRow(sheet.getRow(rowNum++));
         }
 
@@ -718,13 +730,18 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
-        return fileSynced.getLastSyncAt() > card.getModifiedAt();
+        return fileSynced.getLastSyncAt() < fileModifiedAt
+                && fileModifiedAt > card.getModifiedAt();
     }
 
     //@todo public visibility for testing
     @Nullable
     public FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
+    }
+
+    public void setNewLastSyncAt(long newLastSyncAt) {
+        this.newLastSyncAt = newLastSyncAt;
     }
 
     public int getDeckAdded() {

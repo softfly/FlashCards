@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
@@ -112,9 +113,9 @@ public class SyncExcelToDeckWorker extends Worker {
                 mimeType = cursor.getString(
                         cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
                 ).toLowerCase();
-                fileLastModifiedAt = cursor.getLong(
+                fileLastModifiedAt = TimeUnit.MILLISECONDS.toSeconds(cursor.getLong(
                         cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
-                );
+                ));
             }
         }
         return getApplicationContext().getContentResolver().openInputStream(uri);

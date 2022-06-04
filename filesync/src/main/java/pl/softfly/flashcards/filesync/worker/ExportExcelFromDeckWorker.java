@@ -42,7 +42,7 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
 
             askPermissions(fileUri);
             ExportExcelToDeck exportExcelToDeck = new ExportExcelToDeck(getApplicationContext());
-            exportExcelToDeck.syncExcelFile(deckDbPath, fileSynced, null, mimeType, fileLastModifiedAt);
+            exportExcelToDeck.syncExcelFile(deckDbPath, fileSynced, null, mimeType, 0);
             try (OutputStream outFile = openFileToWrite(fileUri)) {
                 exportExcelToDeck.commitChanges(fileSynced, outFile);
             }

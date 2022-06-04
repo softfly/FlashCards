@@ -17,15 +17,17 @@ import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 /**
  * @author Grzegorz Ziemski
  */
-public class BenchmarkSyncExcelToDeck extends SyncExcelToDeck {
+public class MockSyncExcelToDeck extends SyncExcelToDeck {
 
-    public static final String TAG = "BenchmarkSyncExcelToDeck";
+    public static final String TAG = "MockSyncExcelToDeck";
 
-    public BenchmarkSyncExcelToDeck(
+    public MockSyncExcelToDeck(
             Context appContext,
-            DetermineNewOrderCards determineNewOrderCards
+            DetermineNewOrderCards determineNewOrderCards,
+            long simulationTime
     ) {
         super(appContext, determineNewOrderCards);
+        setNewLastSyncAt(simulationTime);
     }
 
     @Override

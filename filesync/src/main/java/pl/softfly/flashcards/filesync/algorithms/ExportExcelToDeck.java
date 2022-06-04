@@ -43,7 +43,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
             @NonNull InputStream inputStream,
             @NonNull String typeFile
     ) {
-        syncExcelFile(deckDbPath, fileSynced, inputStream, typeFile, null);
+        syncExcelFile(deckDbPath, fileSynced, inputStream, typeFile, 0);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
             @NonNull FileSynced fileSynced,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
-            Long lastModifiedAtFile
+            long lastModifiedAtFile
     ) {
         this.isImportedFile = inputStream;
         this.deckDb = getDeckDB(deckDbPath);
