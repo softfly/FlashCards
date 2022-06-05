@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -38,6 +39,7 @@ import pl.softfly.flashcards.ui.card.EditCardActivity;
 public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
+    private final static float DIVIDE_HOURS_TO_DAYS = 24;
     private final static int DEFAULT_TERM_FONT_SIZE = 24;
     private final static int DEFAULT_DEFINITION_FONT_SIZE = 24;
 
@@ -148,7 +150,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         });
         model.getAgainLearningProgress().observe(this,
                 cardLearningProgress ->
-                        againButton.setText("Again\n" + cardLearningProgress.getIntervalHour()));
+                        againButton.setText("Again\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
     }
 
     private void initEasyButton() {
@@ -159,7 +161,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         });
         model.getEasyLearningProgress().observe(this,
                 cardLearningProgress ->
-                        easyButton.setText("Easy\n" + cardLearningProgress.getIntervalHour()));
+                        easyButton.setText("Easy\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
     }
 
     private void initHardButton() {
@@ -170,7 +172,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         });
         model.getHardLearningProgress().observe(this,
                 cardLearningProgress ->
-                        hardButton.setText("Hard\n" + cardLearningProgress.getIntervalHour()));
+                        hardButton.setText("Hard\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

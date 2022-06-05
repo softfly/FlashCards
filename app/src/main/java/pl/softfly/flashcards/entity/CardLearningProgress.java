@@ -2,31 +2,37 @@ package pl.softfly.flashcards.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
-
-@Entity(tableName = "Core_Card_LearningProgress")
+/**
+ * @author Grzegorz Ziemski
+ */
+@Entity(tableName = "Core_Card_LearningProgress",
+        indices = {
+                @Index(value = "cardId", unique = true)
+        })
 public class CardLearningProgress {
-
-    private final static int DIVIDE_HOURS_TO_DAYS = 24;
 
     @PrimaryKey
     private Integer id;
 
     private int cardId;
 
+    /**
+     * Status if the user currently remembers this card.
+     */
     private Boolean remembered;
 
+    /**
+     * Hours added to the next repeat if the user remembered the card.
+     */
     private Integer interval;
 
     private Date nextReplayAt;
-
-    @NonNull
-    public Float getIntervalHour() {
-        return interval / (float) DIVIDE_HOURS_TO_DAYS;
-    }
 
     public Integer getId() {
         return id;

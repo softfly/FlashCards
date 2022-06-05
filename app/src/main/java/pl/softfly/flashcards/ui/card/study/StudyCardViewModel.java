@@ -28,15 +28,11 @@ public class StudyCardViewModel extends ViewModel {
     protected DeckDatabase deckDb;
     private ListIterator<Card> cardIterator;
 
-    public void setDeckDb(DeckDatabase deckDb) {
-        this.deckDb = deckDb;
-    }
-
     public void nextCard() {
         if (Objects.nonNull(cardIterator) && cardIterator.hasNext()) {
             Card card = cardIterator.next();
             this.card.postValue(card);
-            setLearningProgress(card.getId());
+            setupLearningProgress(card.getId());
         } else {
             deckDb.cardDaoAsync().getNextCards()
                     .subscribeOn(Schedulers.io())
@@ -45,7 +41,7 @@ public class StudyCardViewModel extends ViewModel {
                         if (cardIterator.hasNext()) {
                             Card card = cardIterator.next();
                             this.card.postValue(cardIterator.next());
-                            setLearningProgress(card.getId());
+                            setupLearningProgress(card.getId());
                         } else {
                             card.postValue(null);
                         }
@@ -77,7 +73,7 @@ public class StudyCardViewModel extends ViewModel {
                 );
     }
 
-    private void setLearningProgress(@Nullable Integer cardId) {
+    private void setupLearningProgress(@Nullable Integer cardId) {
         if (cardId == null) {
             againLearningProgress.postValue(null);
             easyLearningProgress.postValue(null);
@@ -87,15 +83,15 @@ public class StudyCardViewModel extends ViewModel {
                 .findByCardId(cardId)
                 .subscribeOn(Schedulers.io())
                 .doOnSuccess(cardLearningProgress -> {
-                    againLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterAgain());
-                    easyLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterEasy(cardLearningProgress));
-                    hardLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterHard(cardLearningProgress));
+                    againLearningProgress.postValue(cardReplayScheduler.scheduleNextReplayAfterAgain(cardLearningProgress));
+                    easyLearningProgress.postValue(cardReplayScheduler.scheduleNextReplayAfterEasy(cardLearningProgress));
+                    hardLearningProgress.postValue(cardReplayScheduler.scheduleNextReplayAfterHard(cardLearningProgress));
                 })
                 .doOnEvent((value, error) -> {
                     if (value == null && error == null) {
-                        againLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterAgain());
-                        easyLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterEasy(null));
-                        hardLearningProgress.postValue(cardReplayScheduler.scheduleReplayAfterHard(null));
+                        againLearningProgress.postValue(cardReplayScheduler.scheduleFirstReplayAfterAgain(cardId));
+                        easyLearningProgress.postValue(cardReplayScheduler.scheduleFirstReplayAfterEasy(cardId));
+                        hardLearningProgress.postValue(cardReplayScheduler.scheduleFirstReplayAfterHard(cardId));
                     }
                 })
                 .subscribe();
@@ -134,5 +130,9 @@ public class StudyCardViewModel extends ViewModel {
     @NonNull
     public MutableLiveData<CardLearningProgress> getHardLearningProgress() {
         return hardLearningProgress;
+    }
+
+    public void setDeckDb(DeckDatabase deckDb) {
+        this.deckDb = deckDb;
     }
 }

@@ -95,13 +95,17 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
             if (termPosition > -1) {
                 Cell currentCell = currentRow.getCell(termPosition);
-                String value = currentCell.getStringCellValue().trim();
-                cardUtil.setTerm(card, value);
+                if (currentCell != null) {
+                    String value = currentCell.getStringCellValue().trim();
+                    cardUtil.setTerm(card, value);
+                }
             }
             if (definitionPosition > -1) {
                 Cell currentCell = currentRow.getCell(definitionPosition);
-                String value = currentCell.getStringCellValue().trim();
-                cardUtil.setDefinition(card, value);
+                if (currentCell != null) {
+                    String value = currentCell.getStringCellValue().trim();
+                    cardUtil.setDefinition(card, value);
+                }
             }
 
             if (nonEmpty(card.getTerm()) || nonEmpty(card.getDefinition())) {

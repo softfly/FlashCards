@@ -8,80 +8,147 @@ import java.util.Objects;
 
 import pl.softfly.flashcards.entity.CardLearningProgress;
 
+/**
+ * @author Grzegorz Ziemski
+ */
 public class CardReplayScheduler {
 
     /**
-     * Hours
-     * 1 day multiply 24 hours
+     * 1 day
      */
-    private static final int DEFAULT_AGAIN_FIRST_INTERVAL = 24;
+    private static final int DEFAULT_AGAIN_FIRST_INTERVAL_HOURS = 24;
 
     /**
-     * Hours
-     * 2.5 day multiply 24 hours
+     * 2 days
      */
-    private static final int DEFAULT_HARD_FIRST_INTERVAL = 48;
+    private static final int DEFAULT_HARD_FIRST_INTERVAL_HOURS = 48;
 
     /**
-     * Hours
-     * 2.5 day multiply 24 hours
+     * 2.5 days
      */
-    private static final int DEFAULT_EASY_FIRST_INTERVAL = 60;
+    private static final int DEFAULT_EASY_FIRST_INTERVAL_HOURS = 60;
 
-    /**
-     * Divide by 100 before use.
-     */
-    private static final int DEFAULT_HARD_FACTOR = 50;
+    private static final int DEFAULT_HARD_FACTOR_PERCENT = 50;
 
-    /**
-     * Divide by 100 before use.
-     */
-    private static final int DEFAULT_EASY_FACTOR = 100;
+    private static final int DEFAULT_EASY_FACTOR_PERCENT = 100;
 
     @NonNull
-    public CardLearningProgress scheduleReplayAfterAgain() {
+    public CardLearningProgress scheduleFirstReplayAfterAgain(int cardId) {
         CardLearningProgress newLearningProgress = new CardLearningProgress();
-        newLearningProgress.setInterval(DEFAULT_AGAIN_FIRST_INTERVAL);
+        newLearningProgress.setCardId(cardId);
+        newLearningProgress.setInterval(DEFAULT_AGAIN_FIRST_INTERVAL_HOURS);
         newLearningProgress.setRemembered(false);
         return newLearningProgress;
     }
 
     @NonNull
-    public CardLearningProgress scheduleReplayAfterHard(@NonNull CardLearningProgress learningProgress) {
-        return scheduleReplayRemembered(learningProgress, DEFAULT_HARD_FIRST_INTERVAL, DEFAULT_HARD_FACTOR);
-    }
-
-    @NonNull
-    public CardLearningProgress scheduleReplayAfterEasy(@NonNull CardLearningProgress learningProgress) {
-        return scheduleReplayRemembered(learningProgress, DEFAULT_EASY_FIRST_INTERVAL, DEFAULT_EASY_FACTOR);
-    }
-
-    @NonNull
-    protected CardLearningProgress scheduleReplayRemembered(@NonNull CardLearningProgress learningProgress, int defaultIntervalStart, int factor) {
-        if (Objects.nonNull(learningProgress) && !learningProgress.getRemembered()) {
-            return this.scheduleReplayForgotten();
-        } else {
-            int lastInterval = Objects.nonNull(learningProgress) && Objects.nonNull(learningProgress.getInterval()) ?
-                    learningProgress.getInterval() : defaultIntervalStart;
-            int newInterval = lastInterval * factor / 100 + lastInterval;
-            Date nextReplayAt = Date.from(ZonedDateTime.now().plusHours(newInterval).toInstant());
-
-            CardLearningProgress newLearningProgress = new CardLearningProgress();
-            newLearningProgress.setInterval(newInterval);
-            newLearningProgress.setNextReplayAt(nextReplayAt);
-            newLearningProgress.setRemembered(true);
-            return newLearningProgress;
-        }
-    }
-
-    @NonNull
-    protected CardLearningProgress scheduleReplayForgotten() {
-        int newInterval = DEFAULT_AGAIN_FIRST_INTERVAL;
-        Date nextReplayAt = Date.from(ZonedDateTime.now().plusHours(newInterval).toInstant());
+    public CardLearningProgress scheduleNextReplayAfterAgain(CardLearningProgress learningProgress) {
         CardLearningProgress newLearningProgress = new CardLearningProgress();
+        newLearningProgress.setId(learningProgress.getId());
+        newLearningProgress.setCardId(learningProgress.getCardId());
+        newLearningProgress.setInterval(DEFAULT_AGAIN_FIRST_INTERVAL_HOURS);
+        newLearningProgress.setRemembered(false);
+        return newLearningProgress;
+    }
+
+    @NonNull
+    public CardLearningProgress scheduleFirstReplayAfterEasy(int cardId) {
+        return scheduleFirstReplayRemembered(
+                cardId,
+                DEFAULT_EASY_FIRST_INTERVAL_HOURS,
+                DEFAULT_EASY_FACTOR_PERCENT
+        );
+    }
+
+    @NonNull
+    public CardLearningProgress scheduleNextReplayAfterEasy(@NonNull CardLearningProgress learningProgress) {
+        return scheduleNextReplay(
+                learningProgress,
+                DEFAULT_EASY_FACTOR_PERCENT
+        );
+    }
+
+    @NonNull
+    public CardLearningProgress scheduleFirstReplayAfterHard(int cardId) {
+        return scheduleFirstReplayRemembered(
+                cardId,
+                DEFAULT_HARD_FIRST_INTERVAL_HOURS,
+                DEFAULT_HARD_FACTOR_PERCENT
+        );
+    }
+
+    @NonNull
+    public CardLearningProgress scheduleNextReplayAfterHard(@NonNull CardLearningProgress learningProgress) {
+        return scheduleNextReplay(
+                learningProgress,
+                DEFAULT_HARD_FACTOR_PERCENT
+        );
+    }
+
+    @NonNull
+    protected CardLearningProgress scheduleNextReplay(
+            @NonNull CardLearningProgress learningProgress,
+            int factor
+    ) {
+        return learningProgress.getRemembered() ?
+                this.scheduleNextReplayAfterRemembered(learningProgress, factor) :
+                this.scheduleNextReplayAfterForgotten(learningProgress);
+    }
+
+    /**
+     * Start repeating from scratch if you forget it.
+     * TODO The interval should be higher when you start over
+     */
+    @NonNull
+    protected CardLearningProgress scheduleNextReplayAfterForgotten(CardLearningProgress learningProgress) {
+        int newInterval = DEFAULT_AGAIN_FIRST_INTERVAL_HOURS;
+
+        CardLearningProgress newLearningProgress = new CardLearningProgress();
+        newLearningProgress.setId(learningProgress.getId());
+        newLearningProgress.setCardId(learningProgress.getCardId());
         newLearningProgress.setInterval(newInterval);
-        newLearningProgress.setNextReplayAt(nextReplayAt);
+        newLearningProgress.setNextReplayAt(calcNewReplayAt(newInterval));
         newLearningProgress.setRemembered(false);
         return newLearningProgress;
+    }
+
+    @NonNull
+    protected CardLearningProgress scheduleNextReplayAfterRemembered(
+            @NonNull CardLearningProgress learningProgress,
+            int factor
+    ) {
+        int newIntervalHours = calcNewIntervalHours(learningProgress.getInterval(), factor);
+
+        CardLearningProgress newLearningProgress = new CardLearningProgress();
+        newLearningProgress.setId(learningProgress.getId());
+        newLearningProgress.setCardId(learningProgress.getCardId());
+        newLearningProgress.setInterval(newIntervalHours);
+        newLearningProgress.setNextReplayAt(calcNewReplayAt(newIntervalHours));
+        newLearningProgress.setRemembered(true);
+        return newLearningProgress;
+    }
+
+    @NonNull
+    protected CardLearningProgress scheduleFirstReplayRemembered(
+            int cardId,
+            int defaultStartIntervalHour,
+            int factor
+    ) {
+        int newIntervalHours = calcNewIntervalHours(defaultStartIntervalHour, factor);
+
+        CardLearningProgress newLearningProgress = new CardLearningProgress();
+        newLearningProgress.setCardId(cardId);
+        newLearningProgress.setInterval(newIntervalHours);
+        newLearningProgress.setNextReplayAt(calcNewReplayAt(newIntervalHours));
+        newLearningProgress.setRemembered(true);
+        return newLearningProgress;
+    }
+
+    protected int calcNewIntervalHours(int previousIntervalHour, int factor) {
+        return previousIntervalHour * (factor / 100) + previousIntervalHour;
+    }
+
+    protected Date calcNewReplayAt(int intervalHour) {
+        return Date.from(ZonedDateTime.now().plusHours(intervalHour).toInstant());
     }
 }
