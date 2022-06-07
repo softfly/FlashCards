@@ -36,12 +36,12 @@ public class ListCardsActivity extends IconWithTextInTopbarActivity {
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         Objects.requireNonNull(deckDbPath);
 
-        initRecyclerView();
+        onCreateRecyclerView();
 
         getSupportActionBar().setElevation(0); // Remove shadow under
     }
 
-    protected void initRecyclerView() {
+    protected void onCreateRecyclerView() {
         RecyclerView recyclerView = getRecyclerView();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         CardRecyclerViewAdapter adapter = onCreateRecyclerViewAdapter();

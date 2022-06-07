@@ -2,7 +2,6 @@ package pl.softfly.flashcards.ui.cards.drag_swipe;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
@@ -11,18 +10,21 @@ public class DragSwipeListCardsActivity extends ListCardsActivity {
 
     private DragSwipeCardRecyclerViewAdapter adapter;
 
+    private boolean dragSwipeEnabled = true;
+
+    private ItemTouchHelper itemTouchHelper;
+
     @Override
-    protected void initRecyclerView() {
-        super.initRecyclerView();
-        RecyclerView recyclerView = getRecyclerView();
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(onCreateTouchHelper());
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+    protected void onCreateRecyclerView() {
+        super.onCreateRecyclerView();
+        itemTouchHelper = new ItemTouchHelper(onCreateTouchHelper());
+        setDragSwipeEnabled(dragSwipeEnabled);
         adapter.setTouchHelper(itemTouchHelper);
     }
 
     @Override
     protected CardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        this.adapter = new DragSwipeCardRecyclerViewAdapter(this, deckDbPath);
+        adapter = new DragSwipeCardRecyclerViewAdapter(this, deckDbPath);
         setAdapter(adapter);
         return adapter;
     }
@@ -30,6 +32,17 @@ public class DragSwipeListCardsActivity extends ListCardsActivity {
     @NonNull
     protected ItemTouchHelper.Callback onCreateTouchHelper() {
         return new DragSwipeCardTouchHelper(adapter);
+    }
+
+    protected void setDragSwipeEnabled(boolean dragSwipeEnabled) {
+        if (itemTouchHelper != null) {
+            if (dragSwipeEnabled) {
+                itemTouchHelper.attachToRecyclerView(getRecyclerView());
+            } else {
+                itemTouchHelper.attachToRecyclerView(null);
+            }
+        }
+        this.dragSwipeEnabled = dragSwipeEnabled;
     }
 
     protected void setAdapter(DragSwipeCardRecyclerViewAdapter adapter) {

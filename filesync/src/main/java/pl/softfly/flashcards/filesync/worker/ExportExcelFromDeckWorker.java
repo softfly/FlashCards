@@ -33,20 +33,17 @@ public class ExportExcelFromDeckWorker extends SyncExcelToDeckWorker {
     @Override
     public Result doWork() {
         try {
-            Data inputData = getInputData();
-            deckDbPath = inputData.getString(DECK_DB_PATH);
-            deckDb = getDeckDB(deckDbPath);
-            fileUri = Uri.parse(inputData.getString(FILE_URI));
-            FileSynced fileSynced = findOrCreateFileSynced(fileUri.toString());
-            fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
-
+            readInputData();
             askPermissions(fileUri);
+            fdDeckDb = getFsDeckDb(deckDbPath);
+            FileSynced fileSynced = prepareFileSynced(fileUri.toString());
+
             ExportExcelToDeck exportExcelToDeck = new ExportExcelToDeck(getApplicationContext());
             exportExcelToDeck.syncExcelFile(deckDbPath, fileSynced, null, mimeType, 0);
             try (OutputStream outFile = openFileToWrite(fileUri)) {
                 exportExcelToDeck.commitChanges(fileSynced, outFile);
             }
-
+            unlockDeckEditing(deckDbPath);
             showSuccessNotification();
             return Result.success();
         } catch (Exception e) {

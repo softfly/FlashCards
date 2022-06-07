@@ -24,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
+import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.room.DeckDatabase;
+import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
@@ -46,7 +49,7 @@ public class SyncExcelToDeckWorker extends Worker {
     protected String mimeType;
     protected Long fileLastModifiedAt;
     @Nullable
-    protected FileSyncDeckDatabase deckDb;
+    protected FileSyncDeckDatabase fdDeckDb;
     protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
 
     public SyncExcelToDeckWorker(
@@ -60,17 +63,10 @@ public class SyncExcelToDeckWorker extends Worker {
     @Override
     public Result doWork() {
         try {
-            Data inputData = getInputData();
-            deckDbPath = inputData.getString(DECK_DB_PATH);
-            Objects.requireNonNull(deckDbPath);
-            fileUri = Uri.parse(inputData.getString(FILE_URI));
-            Objects.requireNonNull(fileUri);
-
-            deckDb = getDeckDB(deckDbPath);
-            FileSynced fileSynced = findOrCreateFileSynced(fileUri.toString());
-            fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
-
+            readInputData();
             askPermissions(fileUri);
+            fdDeckDb = getFsDeckDb(deckDbPath);
+            FileSynced fileSynced = prepareFileSynced(fileUri.toString());
 
             SyncExcelToDeck syncExcelToDeck = new SyncExcelToDeck(getApplicationContext());
             try (InputStream isFile = openFileToRead(fileUri)) {
@@ -79,27 +75,39 @@ public class SyncExcelToDeckWorker extends Worker {
             try (OutputStream outFile = openFileToWrite(fileUri)) {
                 syncExcelToDeck.commitChanges(fileSynced, outFile);
             }
-
+            unlockDeckEditing(deckDbPath);
             showSuccessNotification(syncExcelToDeck);
             return Result.success();
         } catch (Exception e) {
             showExceptionDialog(e);
             return Result.failure();
+        } finally {
+            unlockDeckEditing(deckDbPath);
         }
     }
 
-    protected FileSynced findOrCreateFileSynced(String fileUri) {
-        FileSynced fileSynced = deckDb.fileSyncedDao().findByUri(fileUri);
-        if (fileSynced == null) {
-            fileSynced = new FileSynced();
-            fileSynced.setUri(fileUri);
-        }
-        return fileSynced;
+    protected void readInputData() {
+        Data inputData = getInputData();
+        deckDbPath = inputData.getString(DECK_DB_PATH);
+        Objects.requireNonNull(deckDbPath);
+        fileUri = Uri.parse(inputData.getString(FILE_URI));
+        Objects.requireNonNull(fileUri);
     }
 
     protected void askPermissions(Uri uri) {
         int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         getApplicationContext().getContentResolver().takePersistableUriPermission(uri, takeFlags);
+    }
+
+    protected FileSynced prepareFileSynced(String fileUri) {
+        FileSynced fileSynced = fdDeckDb.fileSyncedDao().findByUri(fileUri);
+        if (fileSynced == null) {
+            fileSynced = new FileSynced();
+            fileSynced.setUri(fileUri);
+        }
+        Data inputData = getInputData();
+        fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
+        return fileSynced;
     }
 
     /**
@@ -128,7 +136,7 @@ public class SyncExcelToDeckWorker extends Worker {
     protected void showSuccessNotification(SyncExcelToDeck syncExcelToDeck) {
         (new Handler(Looper.getMainLooper())).post(() -> Toast.makeText(
                         getApplicationContext(),
-                        (new SyncSuccessNotificationFactory())
+                        (new SyncSuccessNotification())
                                 .create(
                                         syncExcelToDeck.getDeckAdded(),
                                         syncExcelToDeck.getDeckUpdated(),
@@ -142,6 +150,12 @@ public class SyncExcelToDeckWorker extends Worker {
         );
     }
 
+    protected void unlockDeckEditing(String deckDbPath) {
+        // The db connector must be the same as in the UI app,
+        // otherwise LiveData in the UI will not work.
+        getDeckDb(deckDbPath).deckConfigDao().deleteByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
+    }
+
     protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
@@ -150,8 +164,13 @@ public class SyncExcelToDeckWorker extends Worker {
     }
 
     @Nullable
-    protected FileSyncDeckDatabase getDeckDB(@NonNull String deckName) {
+    protected FileSyncDeckDatabase getFsDeckDb(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
+    }
+
+    @Nullable
+    protected DeckDatabase getDeckDb(@NonNull String deckName) {
+        return AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
     }
 
     @NonNull
@@ -159,7 +178,7 @@ public class SyncExcelToDeckWorker extends Worker {
         return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
-    public static class SyncSuccessNotificationFactory {
+    public class SyncSuccessNotification {
 
         public String create(
                 int deckAdded,
@@ -244,6 +263,5 @@ public class SyncExcelToDeckWorker extends Worker {
             sb.replace(start, start + 1, "");
             return start;
         }
-
     }
 }

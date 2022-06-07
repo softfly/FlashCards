@@ -2,10 +2,12 @@ package pl.softfly.flashcards.dao;
 
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import io.reactivex.rxjava3.core.Completable;
 import pl.softfly.flashcards.entity.DeckConfig;
 
 /**
@@ -27,4 +29,13 @@ public interface DeckConfigDao {
     @NonNull
     @Update
     void update(DeckConfig deckConfig);
+
+    @NonNull
+    @Delete
+    void delete(DeckConfig deckConfig);
+
+    @NonNull
+    @Query("DELETE FROM Core_Deck_Config " +
+            "WHERE `key`=:key")
+    void deleteByKey(String key);
 }

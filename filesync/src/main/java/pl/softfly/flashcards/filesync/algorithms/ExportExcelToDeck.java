@@ -55,7 +55,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
             long lastModifiedAtFile
     ) {
         this.isImportedFile = inputStream;
-        this.deckDb = getDeckDB(deckDbPath);
+        this.fsDeckDb = getFsDeckDb(deckDbPath);
         this.workbook = TYPE_XLS.equals(typeFile)
                 ? new HSSFWorkbook()
                 : new XSSFWorkbook();
@@ -69,15 +69,13 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
 
         fileSynced.setLastSyncAt(this.newLastSyncAt);
         if (fileSynced.getId() == null) {
-            fileSynced.setId(Long.valueOf(deckDb.fileSyncedDao().insert(fileSynced)).intValue());
+            fileSynced.setId(Long.valueOf(fsDeckDb.fileSyncedDao().insert(fileSynced)).intValue());
         }
         this.fileSynced = fileSynced;
 
         // 1. Purge sync entities in the database before starting.
-        deckDb.cardEdgeDao().forceDeleteAll();
-        deckDb.cardImportedDao().deleteAll();
-
-        lockDeckEditing();
+        fsDeckDb.cardEdgeDao().forceDeleteAll();
+        fsDeckDb.cardImportedDao().deleteAll();
 
         // 4. Find added/removed cards between deck and imported file.
         // 4.2. Find added/removed cards between deck and imported file.
@@ -86,7 +84,7 @@ public class ExportExcelToDeck extends SyncExcelToDeck {
         processCardFromFile();
 
         // 5. Determine the new order of the cards after merging.
-        determineNewOrderCards.determineNewOrderCards(deckDb, fileSynced.getLastSyncAt());
+        determineNewOrderCards.determineNewOrderCards(fsDeckDb, fileSynced.getLastSyncAt());
     }
 
     @Override

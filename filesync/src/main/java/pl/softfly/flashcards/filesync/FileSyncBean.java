@@ -19,6 +19,9 @@ import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
+import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.TimeUtil;
+import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
@@ -45,32 +48,38 @@ import pl.softfly.flashcards.ui.deck.ListDecksActivity;
 public class FileSyncBean implements FileSync {
 
     private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+
     @Nullable
-    private FileSyncDeckDatabase deckDb;
+    private FileSyncDeckDatabase fsDeckDb;
+
+    @Nullable
+    private DeckDatabase deckDb;
 
     /**
      * SE Synchronize deck with excel file.
      */
     @Override
     public void syncFile(
-            @NonNull String deckName,
+            @NonNull String deckDbPath,
             @NonNull Uri uri,
             @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
-        if (deckDb == null) {
-            deckDb = FileSyncDatabaseUtil
+        if (fsDeckDb == null) {
+            fsDeckDb = FileSyncDatabaseUtil
                     .getInstance(listCardsActivity.getApplicationContext())
-                    .getDeckDatabase(deckName);
+                    .getDeckDatabase(deckDbPath);
         }
         checkIfEditingIsLocked(listCardsActivity, () ->
-                deckDb.fileSyncedDao().findByUriAsync(uri.toString())
+                fsDeckDb.fileSyncedDao().findByUriAsync(uri.toString())
                         .subscribeOn(Schedulers.io())
                         .doOnError(Throwable::printStackTrace)
                         .doOnSuccess(fileSynced -> setUpAutoSync(
                                 fileSynced,
                                 listCardsActivity,
-                                () -> syncWorkRequest(deckName, fileSynced, listCardsActivity)
-
+                                () -> {
+                                    lockDeckEditing(listCardsActivity, deckDbPath);
+                                    syncWorkRequest(deckDbPath, fileSynced, listCardsActivity);
+                                }
                         ))
                         .doOnEvent((value, error) -> {
                             if (value == null && error == null) {
@@ -79,7 +88,10 @@ public class FileSyncBean implements FileSync {
                                 setUpAutoSync(
                                         fileSynced,
                                         listCardsActivity,
-                                        () -> syncWorkRequest(deckName, fileSynced, listCardsActivity)
+                                        () -> {
+                                            lockDeckEditing(listCardsActivity, deckDbPath);
+                                            syncWorkRequest(deckDbPath, fileSynced, listCardsActivity);
+                                        }
                                 );
                             }
                         })
@@ -185,8 +197,8 @@ public class FileSyncBean implements FileSync {
             @NonNull Uri uri,
             @NonNull FileSyncListCardsActivity listCardsActivity
     ) {
-        if (deckDb == null) {
-            deckDb = FileSyncDatabaseUtil
+        if (fsDeckDb == null) {
+            fsDeckDb = FileSyncDatabaseUtil
                     .getInstance(listCardsActivity.getApplicationContext())
                     .getDeckDatabase(deckDbPath);
         }
@@ -196,7 +208,10 @@ public class FileSyncBean implements FileSync {
             setUpAutoSync(
                     fileSynced,
                     listCardsActivity,
-                    () -> exportWorkRequest(deckDbPath, fileSynced, listCardsActivity.getApplicationContext())
+                    () -> {
+                        lockDeckEditing(listCardsActivity, deckDbPath);
+                        exportWorkRequest(deckDbPath, fileSynced, listCardsActivity.getApplicationContext());
+                    }
             );
         });
     }
@@ -220,7 +235,7 @@ public class FileSyncBean implements FileSync {
      * 1. Check that the deck is not being edited by another task.
      */
     protected void checkIfEditingIsLocked(@NonNull AppCompatActivity activity, @NonNull Runnable andThen) {
-        deckDb.deckConfigAsyncDao().getLongByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
+        fsDeckDb.deckConfigAsyncDao().getLongByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(blockedAt -> {
@@ -246,6 +261,33 @@ public class FileSyncBean implements FileSync {
                         "Error while exporting or syncing cards.",
                         (dialog, which) -> activity.onBackPressed()
                 ));
+    }
+
+    protected void lockDeckEditing(Context context, String deckDbPath) {
+        if (deckDb == null) {
+            // The db connector must be the same as in the UI app,
+            // otherwise LiveData in the UI will not work.
+            deckDb = AppDatabaseUtil
+                    .getInstance(context)
+                    .getDeckDatabase(deckDbPath);
+        }
+        deckDb.deckConfigAsyncDao()
+                .getByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
+                .subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .doOnSuccess(deckConfig -> {
+                    deckConfig.setValue(Long.toString(TimeUtil.getNowEpochSec()));
+                    deckDb.deckConfigAsyncDao().update(deckConfig).subscribe();
+                })
+                .doOnEvent((value, error) -> {
+                    if (value == null && error == null) {
+                        DeckConfig deckConfig = new DeckConfig();
+                        deckConfig.setKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT);
+                        deckConfig.setValue(Long.toString(TimeUtil.getNowEpochSec()));
+                        deckDb.deckConfigAsyncDao().insert(deckConfig).subscribe();
+                    }
+                })
+                .subscribe();
     }
 
     protected void setUpAutoSync(

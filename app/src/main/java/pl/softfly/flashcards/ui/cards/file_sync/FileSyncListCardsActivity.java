@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +17,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -46,6 +43,7 @@ import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
  */
 public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
+    protected final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     @NonNull
     private final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
     @Nullable
@@ -73,32 +71,24 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                             fileSync.exportFile(deckDbPath, exportedExcelUri, this);
                     }
             );
-    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-    private FileSyncCardRecyclerViewAdapter adapter;
     @Nullable
     private DeckDatabase deckDb;
+    private FileSyncCardRecyclerViewAdapter adapter;
     private boolean editingLocked = false;
-    private ItemTouchHelper itemTouchHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.deckDb = getDeckDatabase();
-        checkIfEditingIsLocked();
-
-        getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                Log.e("Lifecycle", "Background" + this);
-            } else if (event == Lifecycle.Event.ON_RESUME) {
-                Log.e("Lifecycle", "Foreground" + this);
-            }
-        });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.e("Lifecycle", "Resume" + this);
+        deckDb = getDeckDatabase();
+        deckDb.deckConfigLiveData().findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
+                .observe(this, deckConfig -> {
+                    if (deckConfig != null && deckConfig.getValue() != null) {
+                        lockEditing();
+                        checkIfEditingIsLocked();
+                    } else {
+                        unlockEditing();
+                    }
+                });
     }
 
     @Override
@@ -170,22 +160,19 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     private void lockEditing() {
         editingLocked = true;
-        itemTouchHelper = adapter.getTouchHelper();
         runOnUiThread(() -> {
             findViewById(R.id.editingLocked).setVisibility(View.VISIBLE);
-            itemTouchHelper.attachToRecyclerView(null);
+            setDragSwipeEnabled(false);
         });
         refreshMenuOnAppBar();
-        adapter.setTouchHelper(null);
     }
 
     private void unlockEditing() {
         runOnUiThread(() -> {
             findViewById(R.id.editingLocked).setVisibility(View.INVISIBLE);
-            itemTouchHelper.attachToRecyclerView(getRecyclerView());
+            setDragSwipeEnabled(true);
         });
         refreshMenuOnAppBar();
-        adapter.setTouchHelper(itemTouchHelper);
         editingLocked = false;
     }
 

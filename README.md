@@ -64,4 +64,5 @@ smartphone.
 
 ## TODO
 
-- Align remove / delete words
+- Align remove / delete word
+- Add buttons: Postpone, fast repetition

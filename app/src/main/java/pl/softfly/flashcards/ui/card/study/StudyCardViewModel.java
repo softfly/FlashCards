@@ -40,7 +40,7 @@ public class StudyCardViewModel extends ViewModel {
                         cardIterator = cards.listIterator();
                         if (cardIterator.hasNext()) {
                             Card card = cardIterator.next();
-                            this.card.postValue(cardIterator.next());
+                            this.card.postValue(card);
                             setupLearningProgress(card.getId());
                         } else {
                             card.postValue(null);
