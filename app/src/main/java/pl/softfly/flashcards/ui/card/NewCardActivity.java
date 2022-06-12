@@ -18,6 +18,7 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
+import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 
@@ -25,8 +26,11 @@ public class NewCardActivity extends AppCompatActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
 
+    protected String deckDbPath;
+
     @Nullable
     protected DeckDatabase deckDb;
+    protected AppDatabase appDb;
 
     protected EditText termEditText;
     protected EditText definitionEditText;
@@ -46,8 +50,9 @@ public class NewCardActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Intent intent = getIntent();
-        String deckDbPath = intent.getStringExtra(DECK_DB_PATH);
+        deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         deckDb = initDeckDatabase(deckDbPath);
+        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getAppDatabase();
     }
 
     @Override
@@ -92,10 +97,21 @@ public class NewCardActivity extends AppCompatActivity {
                         })
                 )
                 .subscribe(() -> {
+                    refreshLastUpdatedAt();
                 }, e -> exceptionHandler.handleException(
                         e, getSupportFragmentManager(),
                         NewCardActivity.class.getSimpleName() + "_OnClickSaveCard",
                         (dialog, which) -> onBackPressed()
+                ));
+    }
+
+    protected void refreshLastUpdatedAt() {
+        appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
+                .subscribe(deck -> {
+                }, e -> getExceptionHandler().handleException(
+                        e, getSupportFragmentManager(),
+                        NewCardActivity.class.getSimpleName(),
+                        "Error while creating card."
                 ));
     }
 
@@ -104,5 +120,9 @@ public class NewCardActivity extends AppCompatActivity {
         return AppDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getDeckDatabase(deckDbPath);
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 }

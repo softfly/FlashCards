@@ -16,7 +16,7 @@ import pl.softfly.flashcards.R;
  */
 public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView nameTextView;
+    TextView nameTextView;
     TextView moreTextView;
     TextView totalTextView;
     RelativeLayout deckLayoutListItem;
@@ -50,7 +50,7 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
                         adapter.showDeleteDeckDialog(getBindingAdapterPosition());
                         return true;
                     case R.id.exportDbDeck:
-                        adapter.exportDbDeck(getBindingAdapterPosition());
+                        adapter.exportDbChoosePath(getBindingAdapterPosition());
                         return true;
                 }
                 return false;

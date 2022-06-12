@@ -38,14 +38,29 @@ public abstract class StorageDb<DB extends RoomDatabase> {
 
     /**
      * @param path May be with or without .db at the end.
-     * @todo Create a separate create method to prevent accidental creation nonexistent DB.
      */
     @NonNull
     public DB getDatabase(@NonNull String path) {
+        path = addDbFilenameExtensionIfRequired(path);
+        if (!(new File(path)).isFile()) throw new RuntimeException("The database does not exist.");
+        return getRoomDb(path);
+    }
+
+    /**
+     * @param path May be with or without .db at the end.
+     */
+    @NonNull
+    public DB createDatabase(@NonNull String path) {
+        path = addDbFilenameExtensionIfRequired(path);
+        if ((new File(path)).isFile()) throw new RuntimeException("The database already exist.");
+        return getRoomDb(path);
+    }
+
+    protected DB getRoomDb(@NonNull String path) {
         return Room.databaseBuilder(
                 appContext,
                 getTClass(),
-                addDbFilenameExtensionIfRequired(path)
+                path
         ).build();
     }
 

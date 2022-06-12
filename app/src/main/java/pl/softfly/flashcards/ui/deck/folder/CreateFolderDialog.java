@@ -15,22 +15,23 @@ import java.io.File;
 import io.reactivex.rxjava3.functions.Consumer;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.ListDecksActivity;
+import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public class CreateFolderDialog extends DialogFragment {
 
     private final File currentFolder;
 
-    public CreateFolderDialog(File currentFolder) {
+    private final DeckRecyclerViewAdapter adapter;
+
+    public CreateFolderDialog(File currentFolder, DeckRecyclerViewAdapter adapter) {
+        this.adapter = adapter;
         this.currentFolder = currentFolder;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ListDecksActivity activity = (ListDecksActivity) getActivity();
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_create_folder, null);
-
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Create a new folder")
                 .setMessage("Please enter the name:")
@@ -41,11 +42,18 @@ public class CreateFolderDialog extends DialogFragment {
                             String newFolderName = deckNameEditText.getText().toString();
                             File folder = new File(currentFolder.getPath() + "/" + newFolderName);
                             if (!folder.exists()) {
-                                boolean success = folder.mkdir();
-                                activity.loadDecks();
+                                //noinspection ResultOfMethodCallIgnored
+                                folder.mkdir();
+                                adapter.refreshItems();
                                 Toast.makeText(
-                                        activity,
+                                        requireContext(),
                                         "\"" + newFolderName + "\" folder created.",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            } else {
+                                Toast.makeText(
+                                        requireContext(),
+                                        "\"" + newFolderName + "\" folder already exists.",
                                         Toast.LENGTH_SHORT
                                 ).show();
                             }
@@ -60,7 +68,7 @@ public class CreateFolderDialog extends DialogFragment {
         return e -> getExceptionHandler().handleException(
                 e, getActivity().getSupportFragmentManager(),
                 CreateFolderDialog.class.getSimpleName(),
-                "Error while read the deck view settings."
+                "Error while creating new folder."
         );
     }
 

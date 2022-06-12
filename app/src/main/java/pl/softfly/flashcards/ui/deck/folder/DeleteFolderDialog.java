@@ -15,40 +15,40 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-import pl.softfly.flashcards.ui.ExceptionDialog;
-import pl.softfly.flashcards.ui.deck.ListDecksActivity;
+import pl.softfly.flashcards.ExceptionHandler;
+import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
 
 public class DeleteFolderDialog extends DialogFragment {
 
     private final File currentFolder;
 
-    public DeleteFolderDialog(File currentFolder) {
+    private final DeckRecyclerViewAdapter adapter;
+
+    public DeleteFolderDialog(File currentFolder, DeckRecyclerViewAdapter adapter) {
+        this.adapter = adapter;
         this.currentFolder = currentFolder;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ListDecksActivity activity = (ListDecksActivity) getActivity();
-
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Remove a deck of cards")
                 .setMessage("Are you sure you want to delete the folder with all decks?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     try {
                         removeFolderWithAllFiles(currentFolder);
-                        activity.loadDecks();
+                        adapter.refreshItems();
                         Toast.makeText(
-                                getContext(),
+                                requireContext(),
                                 "The folder has been removed.",
                                 Toast.LENGTH_SHORT
                         ).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        ExceptionDialog exceptionDialog = new ExceptionDialog(e);
-                        exceptionDialog.show(
-                                activity.getSupportFragmentManager(),
-                                DeleteFolderDialog.class.getSimpleName()
+                    } catch (Exception e) {
+                        getExceptionHandler().handleException(
+                                e, getActivity().getSupportFragmentManager(),
+                                DeleteFolderDialog.class.getSimpleName(),
+                                "Error while deleting folder."
                         );
                     }
                 })
@@ -62,5 +62,9 @@ public class DeleteFolderDialog extends DialogFragment {
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .forEach(File::delete);
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 }

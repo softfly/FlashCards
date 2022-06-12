@@ -152,7 +152,7 @@ public class CreateSampleDeck {
         if (!storageDb.exists(dbDeckPath)) {
             DeckDatabase deckDb = AppDatabaseUtil
                     .getInstance(context)
-                    .getDeckDatabase(dbDeckPath);
+                    .createDatabase(dbDeckPath);
 
             Card[] cards = new Card[SAMPLE_DECK.length];
             long modifiedAt = TimeUtil.getNowEpochSec();

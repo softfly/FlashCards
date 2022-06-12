@@ -178,7 +178,7 @@ public class SyncExcelToDeckWorker extends Worker {
         return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
-    public class SyncSuccessNotification {
+    public static class SyncSuccessNotification {
 
         public String create(
                 int deckAdded,

@@ -32,7 +32,7 @@ import pl.softfly.flashcards.filesync.worker.ExportExcelFromDeckWorker;
 import pl.softfly.flashcards.filesync.worker.ImportExcelToDeckWorker;
 import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
-import pl.softfly.flashcards.ui.deck.ListDecksActivity;
+import pl.softfly.flashcards.ui.deck.ListDecksFragment;
 
 /**
  * 1. Check that the deck is not being edited by another task.
@@ -144,13 +144,13 @@ public class FileSyncBean implements FileSync {
     public void importFile(
             @NonNull String importToFolderPath,
             @NonNull Uri uri,
-            @NonNull ListDecksActivity listDecksActivity
+            @NonNull ListDecksFragment listDecksActivity
     ) {
         FileSynced fileSynced = new FileSynced();
         fileSynced.setUri(uri.toString());
         setUpAutoSync(
                 fileSynced,
-                listDecksActivity,
+                (AppCompatActivity) listDecksActivity.getActivity(),
                 () -> importWorkRequest(importToFolderPath, fileSynced, listDecksActivity)
         );
     }
@@ -158,7 +158,7 @@ public class FileSyncBean implements FileSync {
     protected void importWorkRequest(
             @NonNull String importToFolderPath,
             @NonNull FileSynced fileSynced,
-            @NonNull ListDecksActivity listDecksActivity
+            @NonNull ListDecksFragment listDecksFragment
     ) {
         WorkRequest syncWorkRequest =
                 new OneTimeWorkRequest.Builder(ImportExcelToDeckWorker.class)
@@ -171,18 +171,18 @@ public class FileSyncBean implements FileSync {
                         .addTag(TAG)
                         .build();
 
-        WorkManager workManager = WorkManager.getInstance(listDecksActivity.getApplicationContext());
+        WorkManager workManager = WorkManager.getInstance(listDecksFragment.getActivity().getApplicationContext());
         workManager.enqueue(syncWorkRequest);
         workManager.getWorkInfoByIdLiveData(syncWorkRequest.getId())
-                .observe(listDecksActivity, workInfo -> {
+                .observe(listDecksFragment, workInfo -> {
                     if (workInfo.getState() != null
                             && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        if (listDecksActivity
+                        if (listDecksFragment
                                 .getLifecycle()
                                 .getCurrentState()
                                 .isAtLeast(Lifecycle.State.RESUMED)
                         ) {
-                            listDecksActivity.loadDecks();
+                            listDecksFragment.refreshItems();
                         }
                     }
                 });

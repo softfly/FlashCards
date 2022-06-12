@@ -22,6 +22,8 @@
         <item name="colorItemActive">@color/deep_purple_900</item>
 
         <item name="colorIcons">@android:color/white</item>
+
+        <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
     </style>
 
     <style name="AppBarDarkStyle" parent="Widget.MaterialComponents.ActionBar.Primary">
@@ -44,5 +46,13 @@
         <item name="colorPrimary">@android:color/white</item>
     </style>
     <!-- END MaterialAlertDialog -->
+
+    <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomNavigationView" parent="">
+        <item name="colorPrimary">@android:color/white</item>
+    </style>
 
 </resources>

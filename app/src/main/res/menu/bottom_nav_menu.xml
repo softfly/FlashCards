@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/recent_decks"
+        android:icon="@drawable/ic_baseline_access_time_24"
+        android:title="Recent" />
+
+    <item
+        android:id="@+id/list_decks"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="All decks" />
+
+</menu>

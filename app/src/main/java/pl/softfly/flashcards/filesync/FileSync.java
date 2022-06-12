@@ -5,7 +5,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
-import pl.softfly.flashcards.ui.deck.ListDecksActivity;
+import pl.softfly.flashcards.ui.deck.ListDecksFragment;
 
 public interface FileSync {
 
@@ -37,7 +37,7 @@ public interface FileSync {
     /**
      * IE Create a deck from an imported Excel file.
      */
-    void importFile(String importToFolderPath, Uri uri, ListDecksActivity listDecksActivity);
+    void importFile(String importToFolderPath, Uri uri, ListDecksFragment listDecksFragment);
 
     /**
      * EE Create a new Excel file from the exported deck.

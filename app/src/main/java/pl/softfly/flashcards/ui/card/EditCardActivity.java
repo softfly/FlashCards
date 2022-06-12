@@ -58,6 +58,17 @@ public class EditCardActivity extends NewCardActivity {
                     Toast.makeText(this, "The card has been updated.", Toast.LENGTH_SHORT).show();
                     super.finish();
                 }))
-                .subscribe();
+                .subscribe(() -> refreshLastUpdatedAt());
+    }
+
+    @Override
+    protected void refreshLastUpdatedAt() {
+        appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
+                .subscribe(deck -> {
+                }, e -> getExceptionHandler().handleException(
+                        e, getSupportFragmentManager(),
+                        EditCardActivity.class.getSimpleName(),
+                        "Error while updating card."
+                ));
     }
 }

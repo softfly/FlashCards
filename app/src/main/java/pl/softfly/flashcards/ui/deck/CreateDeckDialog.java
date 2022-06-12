@@ -18,21 +18,23 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
+import pl.softfly.flashcards.ui.MainActivity;
 
 public class CreateDeckDialog extends DialogFragment {
 
     private final File currentFolder;
 
-    public CreateDeckDialog(File currentFolder) {
+    private final MainActivity activity;
+
+    public CreateDeckDialog(File currentFolder, MainActivity activity) {
+        this.activity = activity;
         this.currentFolder = currentFolder;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ListDecksActivity activity = (ListDecksActivity) getActivity();
         View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_create_deck, null);
-
         return new AlertDialog.Builder(getActivity())
                 .setTitle("Create a new deck")
                 .setMessage("Please enter the name:")
@@ -43,19 +45,23 @@ public class CreateDeckDialog extends DialogFragment {
                             String deckName = deckNameEditText.getText().toString();
                             DeckDatabase deckDb = AppDatabaseUtil
                                     .getInstance(getContext())
-                                    .getDeckDatabase(currentFolder.getPath() + "/" + deckName);
+                                    .createDatabase(currentFolder.getPath() + "/" + deckName);
 
                             // This is used to force the creation of a DB.
                             deckDb.cardDaoAsync().deleteAll()
                                     .subscribeOn(Schedulers.io())
-                                    .doOnComplete(() -> activity.runOnUiThread(() -> {
-                                        activity.loadDecks();
-                                        Toast.makeText(
-                                                activity,
-                                                "\"" + deckName + "\" deck created.",
-                                                Toast.LENGTH_SHORT
-                                        ).show();
-                                    }))
+                                    .doOnComplete(() -> activity.runOnUiThread(
+                                                    () -> getExceptionHandler().tryHandleException(() -> {
+                                                        activity.getListDecksFragment().getAdapter().refreshItems();
+                                                        Toast.makeText(
+                                                                activity,
+                                                                "\"" + deckName + "\" deck created.",
+                                                                Toast.LENGTH_SHORT
+                                                        ).show();
+                                                    }, getOnError())
+                                            )
+                                    )
+                                    .doOnError(getOnError())
                                     .subscribe(() -> {
                                     }, getOnError());
                         }, getOnError()))
@@ -67,9 +73,9 @@ public class CreateDeckDialog extends DialogFragment {
     @NonNull
     protected Consumer<? super Throwable> getOnError() {
         return e -> getExceptionHandler().handleException(
-                e, getActivity().getSupportFragmentManager(),
+                e, activity.getSupportFragmentManager(),
                 CreateDeckDialog.class.getSimpleName(),
-                "Error while read the deck view settings."
+                "Error while creating new deck."
         );
     }
 

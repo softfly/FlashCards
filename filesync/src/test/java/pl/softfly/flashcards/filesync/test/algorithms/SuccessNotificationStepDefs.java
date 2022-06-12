@@ -10,13 +10,14 @@ import java.util.List;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
 
 /**
  * @author Grzegorz Ziemski
  */
 public class SuccessNotificationStepDefs {
 
-    SyncSuccessNotificationFactory successNotificationFactory = new SyncSuccessNotificationFactory();
+    SyncExcelToDeckWorker.SyncSuccessNotification successNotificationFactory = new SyncExcelToDeckWorker.SyncSuccessNotification();
 
     List<String> results = new LinkedList<>();
 

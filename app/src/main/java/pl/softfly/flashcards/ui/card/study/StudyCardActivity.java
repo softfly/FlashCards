@@ -21,7 +21,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -29,6 +28,7 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.Card;
 import pl.softfly.flashcards.entity.CardLearningProgress;
@@ -45,6 +45,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
 
     private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
     protected DeckDatabase deckDb;
+    protected AppDatabase appDb;
     private String deckDbPath;
     private StudyCardViewModel model;
     private ZoomTextView termView;
@@ -64,6 +65,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         Objects.nonNull(deckDbPath);
         deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckDbPath);
+        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getAppDatabase();
 
         model = new ViewModelProvider(this).get(StudyCardViewModel.class);
         model.setDeckDb(deckDb);
@@ -84,7 +86,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     protected void onChanged(@Nullable Card card) {
         if (card == null) {
             NoStudyCardsDialog dialog = new NoStudyCardsDialog();
-            dialog.show(this.getSupportFragmentManager(), "NoStudyCardsDialog");
+            dialog.show(getSupportFragmentManager(), "NoStudyCardsDialog");
         } else {
             if (htmlUtil.isHtml(card.getTerm())) {
                 termView.setText(htmlUtil.fromHtml(card.getTerm()));
@@ -178,7 +180,17 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void updateCardLearningProgress(@NonNull CardLearningProgress learningProgress) {
         model.updateLearningProgress(learningProgress)
-                .subscribe(() -> {
+                .subscribe(() -> refreshLastUpdatedAt()
+                        , e -> getExceptionHandler().handleException(
+                                e, getSupportFragmentManager(),
+                                StudyCardActivity.class.getSimpleName() + "_UpdateCardLearningProgress",
+                                "Error while updating card learning progress."
+                        ));
+    }
+
+    protected void refreshLastUpdatedAt() {
+        appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
+                .subscribe(deck -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
                         StudyCardActivity.class.getSimpleName() + "_UpdateCardLearningProgress",
@@ -286,6 +298,11 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
                 getOnErrorSavingViewSettings()
         );
         super.onStop();
+    }
+
+    @NonNull
+    protected String getDeckName(@NonNull String deckDbPath) {
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
     @NonNull

@@ -1,12 +1,10 @@
 package pl.softfly.flashcards.ui.deck.folder;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -15,6 +13,7 @@ import java.util.ArrayList;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.MainActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -25,26 +24,15 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
 
     private final ArrayList<File> folders = new ArrayList<>();
 
-    public FolderDeckRecyclerViewAdapter(@NonNull AppCompatActivity activity, File currentFolder) {
-        super(activity, currentFolder);
+    private File currentFolder = getRootFolder();
+
+    public FolderDeckRecyclerViewAdapter(@NonNull MainActivity activity) {
+        super(activity);
     }
 
-    @Override
-    public void loadItems(@NonNull File path) {
-        deckNames.clear();
-        deckNames.addAll(AppDatabaseUtil
-                .getInstance(activity.getApplicationContext())
-                .getStorageDb()
-                .listDatabases(path)
-        );
-        folders.clear();
-        folders.addAll(AppDatabaseUtil
-                .getInstance(activity.getApplicationContext())
-                .getStorageDb()
-                .listFolders(path)
-        );
-        activity.runOnUiThread(() -> notifyDataSetChanged());
-    }
+    /* -----------------------------------------------------------------------------------------
+     * Adapter methods overridden
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public int getItemViewType(int position) {
@@ -74,6 +62,40 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         }
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Items actions
+     * ----------------------------------------------------------------------------------------- */
+
+    @Override
+    public void loadItems(@NonNull File folder) {
+        if (countSeparators(getRootFolder()) > countSeparators(folder)) {
+            throw new RuntimeException("Folders lower than the root folder for the storage databases cannot be opened.");
+        } else {
+            currentFolder = folder;
+            deckNames.clear();
+            deckNames.addAll(AppDatabaseUtil
+                    .getInstance(activity.getApplicationContext())
+                    .getStorageDb()
+                    .listDatabases(folder)
+            );
+            folders.clear();
+            folders.addAll(AppDatabaseUtil
+                    .getInstance(activity.getApplicationContext())
+                    .getStorageDb()
+                    .listFolders(folder)
+            );
+            activity.runOnUiThread(() -> notifyDataSetChanged());
+        }
+    }
+
+    protected long countSeparators(File file) {
+        return file.getPath().chars().filter(ch -> ch == File.separatorChar).count();
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Actions
+     * ----------------------------------------------------------------------------------------- */
+
     @Override
     public void onItemClick(int itemPosition) {
         if (folders.size() > itemPosition) {
@@ -83,23 +105,53 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         }
     }
 
-    private void openFolder(int folderPosition) {
-        Intent intent = new Intent(activity, ListFoldersDecksActivity.class);
-        intent.putExtra(ListFoldersDecksActivity.CURRENT_FOLDER_PATH, folders.get(folderPosition).getPath());
-        activity.startActivity(intent);
+    protected void openFolder(int folderPosition) {
+        loadItems(new File(folders.get(folderPosition).getPath()));
+        if (isRootFolder()) {
+            activity.hideBackArrow();
+        } else {
+            activity.showBackArrow();
+        }
     }
 
     public void showDeleteFolderDialog(int folderPosition) {
-        DeleteFolderDialog dialog = new DeleteFolderDialog(folders.get(folderPosition));
+        DeleteFolderDialog dialog = new DeleteFolderDialog(folders.get(folderPosition), this);
         dialog.show(activity.getSupportFragmentManager(), DeleteFolderDialog.class.getSimpleName());
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Items actions
+     * ----------------------------------------------------------------------------------------- */
+
+    public void goFolderUp() {
+        loadItems(currentFolder.getParentFile());
+        if (isRootFolder()) {
+            activity.hideBackArrow();
+        } else {
+            activity.showBackArrow();
+        }
+    }
+
+    public boolean isRootFolder() {
+        return getRootFolder().equals(currentFolder);
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Gets
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public int getItemCount() {
         return folders.size() + super.getItemCount();
     }
 
+    @Override
     protected int getDeckPosition(int itemPosition) {
         return itemPosition - folders.size();
+    }
+
+    @Override
+    public File getCurrentFolder() {
+        return currentFolder;
     }
 }

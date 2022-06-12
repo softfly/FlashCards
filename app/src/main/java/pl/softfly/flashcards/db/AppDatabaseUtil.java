@@ -86,6 +86,12 @@ public class AppDatabaseUtil {
         return db;
     }
 
+    @NonNull
+    public synchronized DeckDatabase createDatabase(@NonNull String dbPath) {
+        Objects.nonNull(dbPath);
+        return storageDb.createDatabase(dbPath);
+    }
+
     public synchronized void closeDeckDatabase(String dbName) {
         DeckDatabase db = DECKS.get(dbName);
         if (db != null) {

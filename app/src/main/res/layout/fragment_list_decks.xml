@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.deck.ListDecksActivity">
+    tools:context=".ui.deck.ListDecksFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deck_list_view"
