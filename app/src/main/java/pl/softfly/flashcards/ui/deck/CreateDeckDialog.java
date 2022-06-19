@@ -52,7 +52,7 @@ public class CreateDeckDialog extends DialogFragment {
                                     .subscribeOn(Schedulers.io())
                                     .doOnComplete(() -> activity.runOnUiThread(
                                                     () -> getExceptionHandler().tryHandleException(() -> {
-                                                        activity.getListDecksFragment().getAdapter().refreshItems();
+                                                        activity.getListAllDecksFragment().getAdapter().refreshItems();
                                                         Toast.makeText(
                                                                 activity,
                                                                 "\"" + deckName + "\" deck created.",

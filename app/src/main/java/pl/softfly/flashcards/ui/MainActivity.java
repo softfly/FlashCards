@@ -1,16 +1,13 @@
 package pl.softfly.flashcards.ui;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -22,12 +19,19 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.entity.AppConfig;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
+import pl.softfly.flashcards.ui.deck.recent.ListRecentDecksFragment;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
-    private ListFoldersDecksFragment listDecksFragment;
+    private Fragment currentFragment;
+
+    private ListFoldersDecksFragment listFoldersDecksFragment;
+
+    private ListRecentDecksFragment listRecentDecksFragment;
+
+    private int startingPosition = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,21 +40,66 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.recent_decks, R.id.list_decks)
-                .build();
+        BottomNavigationView navView = binding.navView;
+        navView.setOnItemSelectedListener(this::onNavigationItemSelected);
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        getAppDatabase().deckDaoAsync().findByLastUpdatedAt(1)
+                .subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .doOnSuccess(deck -> {
+                    if (deck.size() > 0) {
+                        currentFragment = getListRecentDecksFragment();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.container, currentFragment);
+                        transaction.commit();
+                        binding.navView.setSelectedItemId(R.id.recent_decks);
+                        startingPosition = 1;
+                    } else {
+                        currentFragment = getListAllDecksFragment();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.container, currentFragment);
+                        transaction.commit();
+                        binding.navView.setSelectedItemId(R.id.list_decks);
+                        startingPosition = 2;
+                    }
+                }).subscribe();
+    }
 
-        NavHostFragment nav = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
-        for (Fragment f : nav.getChildFragmentManager().getFragments()) {
-            if (f instanceof ListFoldersDecksFragment) {
-                listDecksFragment = (ListFoldersDecksFragment) f;
-            }
+    private boolean onNavigationItemSelected(MenuItem menuItem) {
+        Fragment fragment = null;
+        int newPosition = 0;
+        switch (menuItem.getItemId()) {
+            case R.id.recent_decks:
+                fragment = getListRecentDecksFragment();
+                newPosition = 1;
+                break;
+            case R.id.list_decks:
+                fragment = getListAllDecksFragment();
+                newPosition = 2;
+                break;
         }
+        loadFragment(fragment, newPosition);
+        return true;
+    }
+
+    /**
+     * Adds a slide animation when switching between tabs.
+     */
+    protected void loadFragment(Fragment fragment, int newPosition) {
+        if(startingPosition > newPosition) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right);
+            transaction.replace(R.id.container, fragment);
+            transaction.commit();
+        }
+        if(startingPosition < newPosition) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left );
+            transaction.replace(R.id.container, fragment);
+            transaction.commit();
+        }
+        startingPosition = newPosition;
+        currentFragment = fragment;
     }
 
     @Override
@@ -87,13 +136,19 @@ public class MainActivity extends AppCompatActivity {
     protected void createSampleDeck() {
         (new CreateSampleDeck()).create(
                 this.getApplicationContext(),
-                () -> listDecksFragment.getAdapter().refreshItems()
+                () -> {
+                    if (isListAllDecksFragment()) {
+                        getListAllDecksFragment().getAdapter().refreshItems();
+                    }
+                }
         );
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        listDecksFragment.onSupportNavigateUp();
+        if (isListAllDecksFragment()) {
+            getListAllDecksFragment().onSupportNavigateUp();
+        }
         return true;
     }
 
@@ -114,7 +169,25 @@ public class MainActivity extends AppCompatActivity {
                 .getAppDatabase();
     }
 
-    public ListFoldersDecksFragment getListDecksFragment() {
-        return listDecksFragment;
+    public ListFoldersDecksFragment getListAllDecksFragment() {
+        if (listFoldersDecksFragment == null) {
+            listFoldersDecksFragment = new ListFoldersDecksFragment();
+        }
+        return listFoldersDecksFragment;
+    }
+
+    public ListRecentDecksFragment getListRecentDecksFragment() {
+        if (listRecentDecksFragment == null) {
+            listRecentDecksFragment = new ListRecentDecksFragment();
+        }
+        return listRecentDecksFragment;
+    }
+
+    protected boolean isListAllDecksFragment() {
+        return currentFragment instanceof ListFoldersDecksFragment;
+    }
+
+    protected boolean isListRecentDecksFragment() {
+        return currentFragment instanceof ListRecentDecksFragment;
     }
 }
