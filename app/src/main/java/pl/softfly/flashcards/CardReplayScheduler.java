@@ -4,9 +4,8 @@ import androidx.annotation.NonNull;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Objects;
 
-import pl.softfly.flashcards.entity.CardLearningProgress;
+import pl.softfly.flashcards.entity.deck.CardLearningProgress;
 
 /**
  * @author Grzegorz Ziemski

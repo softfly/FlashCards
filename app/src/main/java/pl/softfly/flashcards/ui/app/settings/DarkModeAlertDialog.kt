@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pl.softfly.flashcards.entity.AppConfig
+import pl.softfly.flashcards.entity.app.AppConfig
 import pl.softfly.flashcards.ui.kt.theme.FlashCardsTheme
 
 @Preview(showBackground = true)

@@ -1,19 +1,17 @@
 package pl.softfly.flashcards.filesync.worker;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
 import java.io.OutputStream;
 
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * This class separates the Android API from the algorithm.

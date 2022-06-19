@@ -6,7 +6,7 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * Naming convention:
@@ -15,7 +15,7 @@ import pl.softfly.flashcards.entity.Card;
  * @author Grzegorz Ziemski
  */
 @Dao
-public abstract class CardDao extends pl.softfly.flashcards.dao.CardDao {
+public abstract class CardDao extends pl.softfly.flashcards.dao.deck.CardDao {
 
     @Query("SELECT count(c.id) FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported t ON c.id = t.cardId " +

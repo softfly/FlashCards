@@ -1,7 +1,5 @@
 package pl.softfly.flashcards.ui.deck.recent;
 
-import android.content.Intent;
-
 import androidx.annotation.NonNull;
 
 import java.io.File;
@@ -11,10 +9,9 @@ import java.util.stream.Collectors;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
-import pl.softfly.flashcards.entity.Deck;
+import pl.softfly.flashcards.entity.app.Deck;
 import pl.softfly.flashcards.ui.MainActivity;
-import pl.softfly.flashcards.ui.card.study.ExceptionStudyCardActivity;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
@@ -28,7 +25,7 @@ public class RecentDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
     }
 
     public void loadItems(@NonNull File openFolder) {
-        AppDatabase appDb = AppDatabaseUtil.getInstance(activity.getApplicationContext()).getAppDatabase();
+        AppDatabase appDb = AppDatabaseUtil.getInstance(activity.getApplicationContext()).getDatabase();
         appDb.deckDaoAsync()
                 .findByLastUpdatedAt(15)
                 .subscribeOn(Schedulers.io())

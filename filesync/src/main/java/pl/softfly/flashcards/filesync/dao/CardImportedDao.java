@@ -9,8 +9,8 @@ import androidx.room.Update;
 
 import java.util.List;
 
-import pl.softfly.flashcards.filesync.entity.CardEdge;
-import pl.softfly.flashcards.filesync.entity.CardImported;
+import pl.softfly.flashcards.entity.filesync.CardEdge;
+import pl.softfly.flashcards.entity.filesync.CardImported;
 
 /**
  * Naming convention:

@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 public class SetUpAutoSyncFileDialog extends DialogFragment {
 

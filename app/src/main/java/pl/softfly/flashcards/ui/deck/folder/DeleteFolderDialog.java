@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 
 public class DeleteFolderDialog extends DialogFragment {
 

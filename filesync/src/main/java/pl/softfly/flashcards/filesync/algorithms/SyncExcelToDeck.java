@@ -18,7 +18,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,16 +27,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.CardUtil;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.Converters;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.CardImported;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.CardImported;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * Sync changes between the current deck and the file.
@@ -714,7 +711,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     @Nullable
     public DeckDatabase getDeckDb(@NonNull String deckName) {
-        return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
+        return DeckDatabaseUtil.getInstance(appContext).getDatabase(deckName);
     }
 
     public void setNewLastSyncAt(long newLastSyncAt) {

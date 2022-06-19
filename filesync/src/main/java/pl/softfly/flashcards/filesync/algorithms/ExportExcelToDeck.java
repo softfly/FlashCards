@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import pl.softfly.flashcards.db.TimeUtil;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * @author Grzegorz Ziemski

@@ -14,7 +14,7 @@ import androidx.constraintlayout.widget.Guideline;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.DeckConfig;
 
 public class DraggableStudyCardActivity extends StudyCardActivity {
 

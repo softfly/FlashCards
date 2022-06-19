@@ -2,7 +2,7 @@ package pl.softfly.flashcards.ui.card.study;
 
 import android.os.Bundle;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * @author Grzegorz Ziemski

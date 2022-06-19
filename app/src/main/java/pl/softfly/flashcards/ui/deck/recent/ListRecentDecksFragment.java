@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.MainActivity;
-import pl.softfly.flashcards.ui.deck.ListDecksFragment;
+import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
  * @author Grzegorz Ziemski

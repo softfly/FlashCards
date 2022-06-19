@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * This sets the width of the ID column and the width of the header columns.

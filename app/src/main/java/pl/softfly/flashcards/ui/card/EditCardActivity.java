@@ -12,7 +12,7 @@ import java.util.Objects;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.TimeUtil;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 public class EditCardActivity extends NewCardActivity {
 

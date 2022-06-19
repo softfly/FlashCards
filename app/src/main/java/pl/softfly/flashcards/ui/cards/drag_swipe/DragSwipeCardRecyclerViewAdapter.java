@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;

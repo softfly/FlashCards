@@ -7,7 +7,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import io.reactivex.rxjava3.core.Maybe;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * Naming convention:

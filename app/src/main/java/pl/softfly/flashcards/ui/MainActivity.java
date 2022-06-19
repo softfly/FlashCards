@@ -16,8 +16,9 @@ import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.databinding.ActivityMainBinding;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
-import pl.softfly.flashcards.entity.AppConfig;
+import pl.softfly.flashcards.entity.app.AppConfig;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
 import pl.softfly.flashcards.ui.deck.recent.ListRecentDecksFragment;
 
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
     protected AppDatabase getAppDatabase() {
         return AppDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getAppDatabase();
+                .getDatabase();
     }
 
     public ListFoldersDecksFragment getListAllDecksFragment() {

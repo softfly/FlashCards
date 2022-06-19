@@ -12,8 +12,8 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardReplayScheduler;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.entity.CardLearningProgress;
+import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.entity.deck.CardLearningProgress;
 
 /**
  * @author Grzegorz Ziemski

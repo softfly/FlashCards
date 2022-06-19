@@ -7,7 +7,7 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
+import pl.softfly.flashcards.view.filesync.GraphEdgeOnlyNewCards;
 
 /**
  * Naming convention:

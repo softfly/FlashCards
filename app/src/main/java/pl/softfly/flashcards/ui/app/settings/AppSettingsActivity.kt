@@ -27,7 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.softfly.flashcards.R
 import pl.softfly.flashcards.db.AppDatabaseUtil
-import pl.softfly.flashcards.entity.AppConfig
+import pl.softfly.flashcards.db.DeckDatabaseUtil
+import pl.softfly.flashcards.entity.app.AppConfig
 import pl.softfly.flashcards.ui.kt.theme.FlashCardsAppBar
 import pl.softfly.flashcards.ui.kt.theme.FlashCardsTheme
 import pl.softfly.flashcards.ui.kt.theme.Grey900
@@ -37,7 +38,12 @@ import pl.softfly.flashcards.ui.kt.theme.Grey900
 fun PreviewAppSettings() {
     AppSettingsScaffold(
         isDarkTheme = true,
-        darkModeDbS = remember { mutableStateOf(AppConfig(null, AppConfig.DARK_MODE_OPTIONS[1])) },
+        darkModeDbS = remember { mutableStateOf(
+            AppConfig(
+                null,
+                AppConfig.DARK_MODE_OPTIONS[1]
+            )
+        ) },
         darkModeOptionSelectedS = remember { mutableStateOf(AppConfig.DARK_MODE_OPTIONS[1]) },
         showDarkModeDialog = remember { mutableStateOf(true) },
     )
@@ -64,7 +70,7 @@ fun InitViewModelAppSettings(onBack: () -> Unit = {}, window: Window) {
         window = window,
         onBack = onBack,
         viewModel = AppSettingsViewModel(
-            AppDatabaseUtil.getInstance(LocalContext.current).appDatabase,
+            AppDatabaseUtil.getInstance(LocalContext.current).database,
             isSystemInDarkTheme(),
             LocalContext.current.applicationContext as Application
         )

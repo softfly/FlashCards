@@ -12,10 +12,10 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.CardImported;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.CardImported;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * Compare all cards {@link Card} with all imported cards {@link CardImported}.

@@ -19,20 +19,20 @@ import java.util.List;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 import pl.softfly.flashcards.filesync.ui.EditingDeckLockedDialog;
 import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.filesync.worker.ExportExcelFromDeckWorker;
 import pl.softfly.flashcards.filesync.worker.ImportExcelToDeckWorker;
 import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
-import pl.softfly.flashcards.ui.deck.ListDecksFragment;
+import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
  * 1. Check that the deck is not being edited by another task.
@@ -267,9 +267,9 @@ public class FileSyncBean implements FileSync {
         if (deckDb == null) {
             // The db connector must be the same as in the UI app,
             // otherwise LiveData in the UI will not work.
-            deckDb = AppDatabaseUtil
+            deckDb = DeckDatabaseUtil
                     .getInstance(context)
-                    .getDeckDatabase(deckDbPath);
+                    .getDatabase(deckDbPath);
         }
         deckDb.deckConfigAsyncDao()
                 .getByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)

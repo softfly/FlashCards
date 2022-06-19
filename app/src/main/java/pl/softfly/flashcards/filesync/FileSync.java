@@ -5,7 +5,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
-import pl.softfly.flashcards.ui.deck.ListDecksFragment;
+import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 public interface FileSync {
 

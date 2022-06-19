@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 public class NewCardAfterOrdinalActivity extends NewCardActivity {
 

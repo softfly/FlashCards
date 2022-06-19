@@ -15,7 +15,7 @@ import java.io.File;
 import io.reactivex.rxjava3.functions.Consumer;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 
 public class CreateFolderDialog extends DialogFragment {
 

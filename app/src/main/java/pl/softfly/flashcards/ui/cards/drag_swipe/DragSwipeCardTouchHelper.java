@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * @author Grzegorz Ziemski

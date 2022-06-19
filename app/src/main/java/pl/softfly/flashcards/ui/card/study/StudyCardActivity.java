@@ -28,11 +28,12 @@ import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.Card;
-import pl.softfly.flashcards.entity.CardLearningProgress;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.entity.deck.CardLearningProgress;
+import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
 
@@ -64,8 +65,8 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         Intent intent = getIntent();
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         Objects.nonNull(deckDbPath);
-        deckDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckDbPath);
-        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getAppDatabase();
+        deckDb = DeckDatabaseUtil.getInstance(getApplicationContext()).getDatabase(deckDbPath);
+        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDatabase();
 
         model = new ViewModelProvider(this).get(StudyCardViewModel.class);
         model.setDeckDb(deckDb);

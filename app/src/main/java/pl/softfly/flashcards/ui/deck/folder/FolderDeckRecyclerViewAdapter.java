@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.ui.deck.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
+import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.MainActivity;
 
 /**
@@ -73,13 +73,13 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         } else {
             currentFolder = folder;
             deckNames.clear();
-            deckNames.addAll(AppDatabaseUtil
+            deckNames.addAll(DeckDatabaseUtil
                     .getInstance(activity.getApplicationContext())
                     .getStorageDb()
                     .listDatabases(folder)
             );
             folders.clear();
-            folders.addAll(AppDatabaseUtil
+            folders.addAll(DeckDatabaseUtil
                     .getInstance(activity.getApplicationContext())
                     .getStorageDb()
                     .listFolders(folder)

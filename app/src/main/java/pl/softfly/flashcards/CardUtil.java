@@ -2,7 +2,7 @@ package pl.softfly.flashcards;
 
 import androidx.annotation.NonNull;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * @author Grzegorz Ziemski

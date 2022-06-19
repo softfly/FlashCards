@@ -24,13 +24,13 @@ import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * This class separates the Android API from the algorithm.
@@ -170,7 +170,7 @@ public class SyncExcelToDeckWorker extends Worker {
 
     @Nullable
     protected DeckDatabase getDeckDb(@NonNull String deckName) {
-        return AppDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckName);
+        return DeckDatabaseUtil.getInstance(getApplicationContext()).getDatabase(deckName);
     }
 
     @NonNull

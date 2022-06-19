@@ -9,13 +9,13 @@ import androidx.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.filesync.InvalidAlgorithmException;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.CardEdge;
-import pl.softfly.flashcards.filesync.entity.CardImported;
-import pl.softfly.flashcards.filesync.view.GraphEdge;
-import pl.softfly.flashcards.filesync.view.GraphEdgeOnlyNewCards;
+import pl.softfly.flashcards.entity.filesync.CardEdge;
+import pl.softfly.flashcards.entity.filesync.CardImported;
+import pl.softfly.flashcards.view.filesync.GraphEdge;
+import pl.softfly.flashcards.view.filesync.GraphEdgeOnlyNewCards;
 
 /**
  * 5. Determine the new order of the cards after merging.

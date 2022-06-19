@@ -44,12 +44,12 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.TimeUtil;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.filesync.algorithms.ExportExcelToDeck;
 import pl.softfly.flashcards.filesync.algorithms.SyncExcelToDeck;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * @author Grzegorz Ziemski

@@ -23,7 +23,7 @@ import java.util.Objects;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
 import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
-import pl.softfly.flashcards.filesync.entity.FileSynced;
+import pl.softfly.flashcards.entity.filesync.FileSynced;
 
 /**
  * This class separates the Android API from the algorithm.

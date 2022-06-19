@@ -22,9 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import pl.softfly.flashcards.CardUtil;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * Creates a new deck with cards from a file.
@@ -133,7 +133,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     //@todo Public for mocking
     //@todo try DI instead of ServiceLocator
     public String findFreeDeckName(String folderPath, @NonNull String deckName) {
-        return AppDatabaseUtil
+        return DeckDatabaseUtil
                 .getInstance(appContext)
                 .getStorageDb()
                 .findFreeName(folderPath + "/" + deckName.substring(0, deckName.lastIndexOf('.')));
@@ -147,6 +147,6 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     //@todo Public for mocking
     @Nullable
     public DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
-        return AppDatabaseUtil.getInstance(appContext).getDeckDatabase(deckDbPath);
+        return DeckDatabaseUtil.getInstance(appContext).getDatabase(deckDbPath);
     }
 }

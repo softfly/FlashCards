@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import pl.softfly.flashcards.db.room.AppDatabase
-import pl.softfly.flashcards.entity.AppConfig
+import pl.softfly.flashcards.entity.app.AppConfig
 
 /**
  * @author Grzegorz Ziemski
@@ -28,7 +28,8 @@ class AppSettingsViewModel(
     /**
      * Value saved after clicking OK in DB.
      */
-    val darkModeDb: LiveData<AppConfig> = appDb.appConfigLiveData().findByKey(AppConfig.DARK_MODE)
+    val darkModeDb: LiveData<AppConfig> = appDb.appConfigLiveData().findByKey(
+        AppConfig.DARK_MODE)
 
     /**
      * Takes into consideration isSystemInDarkTheme()
@@ -72,7 +73,12 @@ class AppSettingsViewModel(
                     .doOnError(Throwable::printStackTrace)
                     .doOnEvent { value, error ->
                         if (value == null && error == null) {
-                            appDb.appConfigAsync().insertAll(AppConfig(AppConfig.DARK_MODE, darkMode))
+                            appDb.appConfigAsync().insertAll(
+                                AppConfig(
+                                    AppConfig.DARK_MODE,
+                                    darkMode
+                                )
+                            )
                                 .subscribeOn(Schedulers.io())
                                 .doOnError(Throwable::printStackTrace)
                                 .subscribe()

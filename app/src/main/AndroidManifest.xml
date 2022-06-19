@@ -45,10 +45,10 @@
         <activity
             android:name=".ui.cards.exception.ExceptionListCardsActivity"
             android:exported="false"
-            android:parentActivityName=".ui.deck.ListDecksFragment">
+            android:parentActivityName=".ui.deck.standard.ListDecksFragment">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.deck.ListDecksFragment" />
+                android:value=".ui.deck.standard.ListDecksFragment" />
         </activity>
         <activity
             android:name=".ui.app.settings.AppSettingsActivity"

@@ -32,9 +32,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.DeckConfig;
+import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
 
@@ -233,9 +233,9 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
     @Nullable
     protected DeckDatabase getDeckDatabase() {
-        return AppDatabaseUtil
+        return DeckDatabaseUtil
                 .getInstance(getBaseContext())
-                .getDeckDatabase(deckDbPath);
+                .getDatabase(deckDbPath);
     }
 
     public boolean isEditingUnlocked() {

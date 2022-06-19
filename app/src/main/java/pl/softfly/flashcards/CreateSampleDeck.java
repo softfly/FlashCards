@@ -6,11 +6,11 @@ import androidx.annotation.NonNull;
 
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.db.storage.StorageDb;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 /**
  * @author Grzegorz Ziemski
@@ -143,14 +143,14 @@ public class CreateSampleDeck {
     };
 
     public void create(@NonNull Context context, @NonNull Action doOnComplete) {
-        StorageDb storageDb = AppDatabaseUtil
+        StorageDb storageDb = DeckDatabaseUtil
                 .getInstance(context)
                 .getStorageDb();
 
         String dbDeckPath = storageDb.getDbFolder() + "/" + DECK_NAME;
 
         if (!storageDb.exists(dbDeckPath)) {
-            DeckDatabase deckDb = AppDatabaseUtil
+            DeckDatabase deckDb = DeckDatabaseUtil
                     .getInstance(context)
                     .createDatabase(dbDeckPath);
 

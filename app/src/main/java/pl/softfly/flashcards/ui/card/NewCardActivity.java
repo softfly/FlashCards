@@ -17,10 +17,11 @@ import pl.softfly.flashcards.CardUtil;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 
 public class NewCardActivity extends AppCompatActivity {
 
@@ -51,8 +52,8 @@ public class NewCardActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
-        deckDb = initDeckDatabase(deckDbPath);
-        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getAppDatabase();
+        deckDb = getDeckDatabase(deckDbPath);
+        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDatabase();
     }
 
     @Override
@@ -116,10 +117,10 @@ public class NewCardActivity extends AppCompatActivity {
     }
 
     @Nullable
-    protected DeckDatabase initDeckDatabase(@NonNull String deckDbPath) {
-        return AppDatabaseUtil
+    protected DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
+        return DeckDatabaseUtil
                 .getInstance(getApplicationContext())
-                .getDeckDatabase(deckDbPath);
+                .getDatabase(deckDbPath);
     }
 
     protected ExceptionHandler getExceptionHandler() {

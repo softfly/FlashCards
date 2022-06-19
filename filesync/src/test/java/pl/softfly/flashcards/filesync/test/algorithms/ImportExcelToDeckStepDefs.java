@@ -39,7 +39,7 @@ import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import pl.softfly.flashcards.entity.Card;
+import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.filesync.FileSync;
 import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
 
