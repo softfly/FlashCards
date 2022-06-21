@@ -37,7 +37,7 @@ import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
  */
 public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int VIEW_TYPE_DECK = 1;
+    protected static final int VIEW_TYPE_DECK = 1;
 
     @NonNull
     protected final MainActivity activity;
@@ -198,7 +198,7 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     protected String getFullDeckPath(int itemPosition) {
-        return getCurrentFolder().getPath() + "/" + deckNames.get(getDeckPosition(itemPosition));
+        return getCurrentFolder().getPath() + "/" + deckNames.get(getDeckPosition(itemPosition)) + ".db";
     }
 
     /* -----------------------------------------------------------------------------------------

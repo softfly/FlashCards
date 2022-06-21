@@ -40,6 +40,9 @@ public class FolderViewHolder extends RecyclerView.ViewHolder implements View.On
                     case R.id.remove:
                         adapter.showDeleteFolderDialog(getBindingAdapterPosition());
                         return true;
+                    case R.id.cut:
+                        adapter.cut(getBindingAdapterPosition());
+                        return true;
                 }
                 return false;
             });

@@ -15,6 +15,6 @@ import pl.softfly.flashcards.entity.app.AppConfig;
 @Dao
 public abstract class AppConfigLiveData {
 
-    @Query("SELECT * FROM Core_App_Config WHERE `key`=:key")
+    @Query("SELECT * FROM AppConfig WHERE `key`=:key")
     public abstract LiveData<AppConfig> findByKey(String key);
 }

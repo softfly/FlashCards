@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Grzegorz Ziemski
  */
-@Entity(tableName = "Core_App_Config")
+@Entity
 public class AppConfig {
 
     public static final String DARK_MODE = "DarkMode";

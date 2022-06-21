@@ -118,6 +118,10 @@ public class NewCardActivity extends AppCompatActivity {
 
     @Nullable
     protected DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
+        if (!deckDbPath.endsWith(".db")) {
+            throw new RuntimeException("The database does not have the .db extension.");
+        }
+
         return DeckDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getDatabase(deckDbPath);

@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.dao;
+package pl.softfly.flashcards.dao.filesync;
 
 import androidx.annotation.NonNull;
 import androidx.room.Dao;

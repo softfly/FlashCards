@@ -9,7 +9,7 @@ import pl.softfly.flashcards.entity.deck.Card;
 /**
  * @author Grzegorz Ziemski
  */
-@Entity(tableName = "Deck")
+@Entity
 public class Deck {
 
     @PrimaryKey

@@ -1,15 +1,18 @@
 package pl.softfly.flashcards.db;
 
 import android.content.Context;
+import android.database.Cursor;
 
 import androidx.annotation.NonNull;
-import androidx.room.Room;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
@@ -27,24 +30,24 @@ public class DeckDatabaseUtil {
 
     private static DeckDatabaseUtil INSTANCE;
 
-    private final Map<String, DeckDatabase> DECKS = new WeakHashMap<>();
+    private final Map<String, DeckDatabase> decks = new WeakHashMap<>();
 
     @NonNull
     private final StorageDb<DeckDatabase> storageDb;
 
-    private final Context appContext;
+    private final Context context;
 
-    protected DeckDatabaseUtil(@NonNull Context appContext) {
-        this.appContext = appContext;
-        this.storageDb = Config.getInstance(appContext).isDatabaseExternalStorage() ?
-                new ExternalStorageDb<DeckDatabase>(appContext) {
+    protected DeckDatabaseUtil(@NonNull Context context) {
+        this.context = context;
+        this.storageDb = Config.getInstance(context).isDatabaseExternalStorage() ?
+                new ExternalStorageDb<DeckDatabase>(context) {
                     @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
                         return DeckDatabase.class;
                     }
                 } :
-                new AppStorageDb<DeckDatabase>(appContext) {
+                new AppStorageDb<DeckDatabase>(context) {
                     @NonNull
                     @Override
                     protected Class<DeckDatabase> getTClass() {
@@ -71,15 +74,19 @@ public class DeckDatabaseUtil {
     }
 
     @NonNull
-    public synchronized DeckDatabase getDatabase(@NonNull String dbPath) {
-        Objects.nonNull(dbPath);
-        DeckDatabase db = DECKS.get(dbPath);
+    public synchronized DeckDatabase getDatabase(@NonNull String path) {
+        Objects.nonNull(path);
+        if (!path.endsWith(".db")) {
+            throw new RuntimeException("The database does not have the .db extension.");
+        }
+
+        DeckDatabase db = decks.get(path);
         if (db == null) {
-            db = storageDb.getDatabase(dbPath);
-            DECKS.put(dbPath, db);
+            db = storageDb.getDatabase(path);
+            decks.put(path, db);
         } else if (!db.isOpen()) {
-            db = storageDb.getDatabase(dbPath);
-            DECKS.put(dbPath, db);
+            db = storageDb.getDatabase(path);
+            decks.put(path, db);
         }
         return db;
     }
@@ -91,17 +98,73 @@ public class DeckDatabaseUtil {
     }
 
     public synchronized void closeDatabase(String dbName) {
-        DeckDatabase db = DECKS.get(dbName);
-        if (db != null) {
-            if (db.isOpen()) {
-                db.close();
-            }
-            DECKS.remove(dbName);
+        DeckDatabase db = decks.get(dbName);
+        if (db != null && db.isOpen()) {
+            decks.remove(dbName);
+            Cursor c = db.query(new SimpleSQLiteQuery("pragma wal_checkpoint(full)"));
+            if (c.moveToFirst() && c.getInt(0) == 1)
+                throw new RuntimeException("Checkpoint was blocked from completing");
+            db.close();
         }
+    }
+
+    public Completable moveDatabase(String dbPath, String toFolderPath) {
+        File from = new File(dbPath);
+        File to = new File(toFolderPath + "/" + from.getName());
+        return Completable.fromRunnable(() -> closeDatabase(dbPath))
+                .andThen(Completable.fromRunnable(() -> {
+                    if (from.renameTo(to)) {
+                        (new File(from.getPath() + "-shm")).delete();
+                        (new File(from.getPath() + "-wal")).delete();
+                    } else {
+                        throw new RuntimeException();
+                    }
+                }))
+                .andThen(getAppDatabase().deckDaoAsync().updatePathByPath(to.getPath(), from.getPath()))
+                .subscribeOn(Schedulers.io());
+    }
+
+    public Completable moveDatabase(String dbPath, String targetFolderPath, String replacementFolderPath) {
+        String toPath = dbPath.replace(targetFolderPath, replacementFolderPath);
+        File from = new File(dbPath);
+        File to = new File(dbPath.replace(targetFolderPath, replacementFolderPath));
+        return Completable.fromRunnable(() -> closeDatabase(dbPath))
+                .andThen(Completable.fromRunnable(() -> {
+                    if (from.renameTo(to)) {
+                        (new File(from.getPath() + "-shm")).delete();
+                        (new File(from.getPath() + "-wal")).delete();
+                    } else {
+                        throw new RuntimeException();
+                    }
+                }))
+                .andThen(getAppDatabase().deckDaoAsync().updatePathByPath(to.getPath(), from.getPath()))
+                .subscribeOn(Schedulers.io());
+    }
+
+    private String getDbName(String path) {
+        return path.substring(path.lastIndexOf("/") + 1);
+    }
+
+    public Completable removeDatabase(String path) {
+        return Completable.fromRunnable(() -> storageDb.removeDatabase(path))
+                .andThen(removeDeckFromAppDb(path));
+    }
+
+    protected Completable removeDeckFromAppDb(String path) {
+        return getAppDatabase()
+                .deckDaoAsync()
+                .deleteByPath(path)
+                .subscribeOn(Schedulers.io());
     }
 
     @NonNull
     public StorageDb<DeckDatabase> getStorageDb() {
         return storageDb;
+    }
+
+    protected AppDatabase getAppDatabase() {
+        return AppDatabaseUtil
+                .getInstance(context)
+                .getDatabase();
     }
 }

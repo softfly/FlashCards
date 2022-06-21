@@ -11,7 +11,7 @@ import pl.softfly.flashcards.dao.deck.CardLearningProgressAsyncDao;
 import pl.softfly.flashcards.dao.deck.DeckConfigAsyncDao;
 import pl.softfly.flashcards.dao.deck.DeckConfigDao;
 import pl.softfly.flashcards.dao.deck.DeckConfigLiveData;
-import pl.softfly.flashcards.dao.FileSyncedAsyncDao;
+import pl.softfly.flashcards.dao.filesync.FileSyncedAsyncDao;
 import pl.softfly.flashcards.db.Converters;
 import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.entity.deck.CardLearningProgress;

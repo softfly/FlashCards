@@ -12,6 +12,10 @@
         android:icon="@drawable/ic_round_delete_24"
         android:title="Remove deck" />
     <item
+        android:id="@+id/cut"
+        android:icon="@drawable/ic_round_content_cut_24"
+        android:title="Cut" />
+    <item
         android:id="@+id/exportDbDeck"
         android:icon="@drawable/ic_round_file_upload_24"
         android:title="Export DB" />

@@ -11,11 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import io.reactivex.rxjava3.functions.Consumer;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
-import pl.softfly.flashcards.db.storage.StorageDb;
 import pl.softfly.flashcards.ui.deck.folder.CreateFolderDialog;
 
 public class RemoveDeckDialog extends DialogFragment {
@@ -38,33 +35,22 @@ public class RemoveDeckDialog extends DialogFragment {
                 .setTitle("Remove a deck of cards")
                 .setMessage("Are you sure you want to delete the deck with all cards?")
                 .setPositiveButton("Yes", (dialog, which) ->
-                        getExceptionHandler().tryHandleException(() -> {
-                            StorageDb storageDb = DeckDatabaseUtil
-                                    .getInstance(context)
-                                    .getStorageDb();
-
-                            if (storageDb.removeDatabase(path)) {
-                                removeDeckFromAppDb(context);
-                                adapter.refreshItems();
-                                Toast.makeText(
-                                        getContext(),
-                                        "The deck has been removed.",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            }
-                        }, getOnError()))
+                        getExceptionHandler().tryHandleException(() ->
+                                DeckDatabaseUtil
+                                        .getInstance(getContext())
+                                        .removeDatabase(path)
+                                        .subscribe(() -> {
+                                            adapter.refreshItems();
+                                            getActivity().runOnUiThread(() ->
+                                                    Toast.makeText(
+                                                            getContext(),
+                                                            "The deck has been removed.",
+                                                            Toast.LENGTH_SHORT
+                                                    ).show());
+                                        }), getOnError()))
                 .setNegativeButton("No", (dialog, which) -> {
                 })
                 .create();
-    }
-
-    protected void removeDeckFromAppDb(Context context) {
-        AppDatabaseUtil.getInstance(context)
-                .getDatabase()
-                .deckDaoAsync()
-                .deleteByPath(path)
-                .subscribeOn(Schedulers.io())
-                .subscribe();
     }
 
     @NonNull

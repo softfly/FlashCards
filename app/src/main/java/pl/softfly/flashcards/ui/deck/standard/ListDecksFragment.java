@@ -28,7 +28,6 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewbinding.ViewBinding;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -232,7 +231,7 @@ public class ListDecksFragment extends IconWithTextInTopbarFragment {
      * ----------------------------------------------------------------------------------------- */
 
     @Override
-    protected ViewBinding getBinding() {
+    protected FragmentListDecksBinding getBinding() {
         return binding;
     }
 

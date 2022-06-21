@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -12,8 +13,8 @@ import java.util.ArrayList;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
-import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 import pl.softfly.flashcards.ui.MainActivity;
+import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
@@ -25,6 +26,8 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
     private final ArrayList<File> folders = new ArrayList<>();
 
     private File currentFolder = getRootFolder();
+
+    private MutableLiveData<String> cutPathLiveData = new MutableLiveData<>();
 
     public FolderDeckRecyclerViewAdapter(@NonNull MainActivity activity) {
         super(activity);
@@ -43,11 +46,14 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (VIEW_TYPE_FOLDER == viewType) {
+        if (VIEW_TYPE_DECK == viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deck, parent, false);
+            return new FolderDeckViewHolder(view, this);
+        } else if (VIEW_TYPE_FOLDER == viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder, parent, false);
             return new FolderViewHolder(view, this);
         } else {
-            return super.onCreateViewHolder(parent, viewType);
+            throw new IllegalStateException("Unexpected value: " + viewType);
         }
     }
 
@@ -92,6 +98,18 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         return file.getPath().chars().filter(ch -> ch == File.separatorChar).count();
     }
 
+    protected String getFullFolderPath(int itemPosition) {
+        return folders.get(itemPosition).getPath();
+    }
+
+    protected boolean isRootFolder() {
+        return getRootFolder().equals(currentFolder);
+    }
+
+    protected boolean isFolder(int itemPosition) {
+        return folders.size() > itemPosition;
+    }
+
     /* -----------------------------------------------------------------------------------------
      * Actions
      * ----------------------------------------------------------------------------------------- */
@@ -119,9 +137,13 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         dialog.show(activity.getSupportFragmentManager(), DeleteFolderDialog.class.getSimpleName());
     }
 
-    /* -----------------------------------------------------------------------------------------
-     * Items actions
-     * ----------------------------------------------------------------------------------------- */
+    public void cut(int itemPosition) {
+        if (isFolder(itemPosition)) {
+            cutPathLiveData.postValue(getFullFolderPath(itemPosition));
+        } else {
+            cutPathLiveData.postValue(getFullDeckPath(itemPosition));
+        }
+    }
 
     public void goFolderUp() {
         loadItems(currentFolder.getParentFile());
@@ -130,10 +152,6 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
         } else {
             activity.showBackArrow();
         }
-    }
-
-    public boolean isRootFolder() {
-        return getRootFolder().equals(currentFolder);
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -153,5 +171,9 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
     @Override
     public File getCurrentFolder() {
         return currentFolder;
+    }
+
+    public MutableLiveData<String> getCutPathLiveData() {
+        return cutPathLiveData;
     }
 }

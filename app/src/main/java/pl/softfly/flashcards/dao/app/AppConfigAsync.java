@@ -19,10 +19,10 @@ import pl.softfly.flashcards.entity.app.AppConfig;
 @Dao
 public abstract class AppConfigAsync {
 
-    @Query("SELECT * FROM Core_App_Config WHERE `key`=:key")
+    @Query("SELECT * FROM AppConfig WHERE `key`=:key")
     public abstract Maybe<AppConfig> findByKey(String key);
 
-    @Query("DELETE FROM Core_App_Config WHERE `key`=:key")
+    @Query("DELETE FROM AppConfig WHERE `key`=:key")
     public abstract Completable deleteByKey(String key);
 
     @NonNull

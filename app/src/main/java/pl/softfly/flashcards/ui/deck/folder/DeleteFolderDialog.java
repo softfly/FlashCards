@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
@@ -15,7 +16,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
+import pl.softfly.flashcards.db.AppDatabaseUtil;
+import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
 
 public class DeleteFolderDialog extends DialogFragment {
@@ -38,12 +42,20 @@ public class DeleteFolderDialog extends DialogFragment {
                 .setPositiveButton("Yes", (dialog, which) -> {
                     try {
                         removeFolderWithAllFiles(currentFolder);
-                        adapter.refreshItems();
-                        Toast.makeText(
-                                requireContext(),
-                                "The folder has been removed.",
-                                Toast.LENGTH_SHORT
-                        ).show();
+
+                        getAppDatabase().deckDaoAsync()
+                                .deleteByStartWithPath(currentFolder.getPath())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(() -> {
+                                    adapter.refreshItems();
+                                    getActivity().runOnUiThread(() -> {
+                                        Toast.makeText(
+                                                requireContext(),
+                                                "The folder has been removed.",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+                                    });
+                                });
                     } catch (Exception e) {
                         getExceptionHandler().handleException(
                                 e, getActivity().getSupportFragmentManager(),
@@ -66,5 +78,12 @@ public class DeleteFolderDialog extends DialogFragment {
 
     protected ExceptionHandler getExceptionHandler() {
         return ExceptionHandler.getInstance();
+    }
+
+    @Nullable
+    protected AppDatabase getAppDatabase() {
+        return AppDatabaseUtil
+                .getInstance(getContext())
+                .getDatabase();
     }
 }

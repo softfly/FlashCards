@@ -3,4 +3,8 @@
         android:id="@+id/remove"
         android:icon="@drawable/ic_round_delete_24"
         android:title="Remove folder" />
+    <item
+        android:id="@+id/cut"
+        android:icon="@drawable/ic_round_content_cut_24"
+        android:title="Cut" />
 </menu>

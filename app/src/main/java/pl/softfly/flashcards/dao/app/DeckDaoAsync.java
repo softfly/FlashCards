@@ -30,7 +30,14 @@ public abstract class DeckDaoAsync {
     @Query("DELETE FROM Deck WHERE `path`=:path")
     public abstract Completable deleteByPath(String path);
 
+    @Query("DELETE FROM Deck WHERE `path` LIKE '%' || :path || '%'")
+    public abstract Completable deleteByStartWithPath(String path);
+
     public Maybe<Deck> refreshLastUpdatedAt(String path) {
+        if (!path.endsWith(".db")) {
+            throw new RuntimeException("The database does not have the .db extension.");
+        }
+
         return findByKey(path)
                 .subscribeOn(Schedulers.io())
                 .doOnSuccess(deck -> {
@@ -48,6 +55,9 @@ public abstract class DeckDaoAsync {
                 });
     }
 
+    @Query("UPDATE Deck SET path=:newPath WHERE path=:oldPath")
+    public abstract Completable updatePathByPath(String newPath, String oldPath);
+
     @NonNull
     @Insert
     protected abstract long insert(Deck deck);
@@ -58,7 +68,7 @@ public abstract class DeckDaoAsync {
 
     @NonNull
     protected String getDeckName(@NonNull String deckDbPath) {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
+        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1, deckDbPath.length() - 3);
     }
 
 }
