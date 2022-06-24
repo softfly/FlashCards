@@ -112,7 +112,7 @@ public class ListFoldersDecksFragment extends ListDecksFragment {
 
     @Override
     protected FolderDeckRecyclerViewAdapter onCreateAdapter() {
-        adapter = new FolderDeckRecyclerViewAdapter((MainActivity) getActivity());
+        adapter = new FolderDeckRecyclerViewAdapter((MainActivity) getActivity(), this);
         return adapter;
     }
 

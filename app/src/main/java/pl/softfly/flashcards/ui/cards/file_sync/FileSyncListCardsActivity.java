@@ -36,6 +36,7 @@ import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.filesync.FileSync;
+import pl.softfly.flashcards.ui.FileSyncUtil;
 import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
 
 /**
@@ -46,31 +47,9 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
     protected final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     @NonNull
     private final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
-    @Nullable
-    private final FileSync fileSync = FileSync.getInstance();
-    private final ActivityResultLauncher<String[]> syncExcel =
-            registerForActivityResult(
-                    new ActivityResultContracts.OpenDocument(),
-                    syncedExcelUri -> {
-                        if (syncedExcelUri != null)
-                            fileSync.syncFile(deckDbPath, syncedExcelUri, this);
-                    }
-            );
-    private final ActivityResultLauncher<String> exportExcel =
-            registerForActivityResult(
-                    new ActivityResultContracts.CreateDocument() {
-                        @NonNull
-                        @Override
-                        public Intent createIntent(@NonNull Context context, @NonNull String input) {
-                            return super.createIntent(context, input)
-                                    .setType(TYPE_XLSX);
-                        }
-                    },
-                    exportedExcelUri -> {
-                        if (exportedExcelUri != null)
-                            fileSync.exportFile(deckDbPath, exportedExcelUri, this);
-                    }
-            );
+
+    protected FileSyncUtil fileSyncUtil;
+
     @Nullable
     private DeckDatabase deckDb;
     private FileSyncCardRecyclerViewAdapter adapter;
@@ -89,6 +68,7 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                         unlockEditing();
                     }
                 });
+        fileSyncUtil = new FileSyncUtil(this);
     }
 
     @Override
@@ -211,10 +191,10 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sync_excel:
-                syncExcel.launch(new String[]{TYPE_XLS, TYPE_XLSX});
+                fileSyncUtil.launchSyncFile(deckDbPath);
                 return true;
             case R.id.export_excel:
-                exportExcel.launch(getDeckName() + ".xlsx");
+                fileSyncUtil.launchExportToFile(deckDbPath);
                 return true;
             case R.id.show_recently_synced:
                 adapter.showRecentlySynced();
@@ -224,11 +204,6 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @NonNull
-    private String getDeckName() {
-        return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
     @Nullable

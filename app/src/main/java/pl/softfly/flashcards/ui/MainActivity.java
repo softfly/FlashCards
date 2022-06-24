@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int startingPosition = 2;
 
+    protected FileSyncUtil fileSyncUtil = new FileSyncUtil(this);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,5 +192,9 @@ public class MainActivity extends AppCompatActivity {
 
     protected boolean isListRecentDecksFragment() {
         return currentFragment instanceof ListRecentDecksFragment;
+    }
+
+    public FileSyncUtil getFileSyncUtil() {
+        return fileSyncUtil;
     }
 }

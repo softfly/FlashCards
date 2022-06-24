@@ -1,25 +1,15 @@
 package pl.softfly.flashcards.ui.deck.standard;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.FileUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -42,13 +32,13 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     @NonNull
     protected final MainActivity activity;
 
+    protected final ListDecksFragment listDecksFragment;
+
     protected final ArrayList<String> deckNames = new ArrayList<>();
 
-    @NonNull
-    private ActivityResultLauncher<String> exportDbLauncher;
-
-    public DeckRecyclerViewAdapter(@NonNull MainActivity activity) {
+    public DeckRecyclerViewAdapter(@NonNull MainActivity activity, ListDecksFragment listDecksFragment) {
         this.activity = activity;
+        this.listDecksFragment = listDecksFragment;
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -133,50 +123,16 @@ public class DeckRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         dialog.show(activity.getSupportFragmentManager(), "RemoveDeck");
     }
 
-    public void exportDbChoosePath(int position) {
-        String deckName = deckNames.get(position);
-        exportDbLauncher = activity.registerForActivityResult(
-                new ActivityResultContracts.CreateDocument() {
-                    @NonNull
-                    @Override
-                    public Intent createIntent(@NonNull Context context, @NonNull String input) {
-                        return super.createIntent(context, input)
-                                .setType("application/vnd.sqlite3");
-                    }
-                },
-                exportedDbUri -> {
-                    if (exportedDbUri != null)
-                        exportDb(exportedDbUri, deckName);
-                }
-        );
-        exportDbLauncher.launch(deckName);
+    public void launchExportDb(int itemPosition) {
+        activity.getListAllDecksFragment().exportImportDbUtil.launchExportDb(getFullDeckPath(itemPosition));
     }
 
-    protected void exportDb(Uri exportToUri, @NonNull String dbPath) {
-        try {
-            try (OutputStream out = activity
-                    .getContentResolver()
-                    .openOutputStream(exportToUri)) {
+    public void launchExportToFile(int itemPosition) {
+        activity.getFileSyncUtil().launchExportToFile(getFullDeckPath(itemPosition));
+    }
 
-                DeckDatabaseUtil
-                        .getInstance(activity.getApplicationContext())
-                        .closeDatabase(dbPath);
-
-                try (FileInputStream in = new FileInputStream(dbPath)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        FileUtils.copy(in, out);
-                    } else {
-                        FileChannel inChannel = in.getChannel();
-                        FileChannel outChannel = ((FileOutputStream) out).getChannel();
-                        inChannel.transferTo(0, inChannel.size(), outChannel);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            ExceptionDialog eDialog = new ExceptionDialog(e);
-            eDialog.show(activity.getSupportFragmentManager(), "ExportDbDeck");
-        }
+    public void launchSyncFile(int itemPosition) {
+        activity.getFileSyncUtil().launchSyncFile(getFullDeckPath(itemPosition));
     }
 
     /* -----------------------------------------------------------------------------------------

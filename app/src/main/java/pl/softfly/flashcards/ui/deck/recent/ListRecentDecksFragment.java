@@ -16,7 +16,7 @@ public class ListRecentDecksFragment extends ListDecksFragment {
 
     @Override
     protected RecentDeckRecyclerViewAdapter onCreateAdapter() {
-        return new RecentDeckRecyclerViewAdapter((MainActivity) getActivity());
+        return new RecentDeckRecyclerViewAdapter((MainActivity) getActivity(), this);
     }
 
     @Override

@@ -18,7 +18,6 @@ import pl.softfly.flashcards.R;
 public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     TextView nameTextView;
-    TextView moreTextView;
     TextView totalTextView;
     RelativeLayout deckLayoutListItem;
     protected DeckRecyclerViewAdapter adapter;
@@ -34,7 +33,7 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     }
 
     protected void initMoreTextView() {
-        moreTextView = itemView.findViewById(R.id.moreTextView);
+        TextView moreTextView = itemView.findViewById(R.id.moreTextView);
         moreTextView.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(v.getContext(), moreTextView);
             popup.getMenuInflater().inflate(R.menu.popup_menu_deck, popup.getMenu());
@@ -42,7 +41,6 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popup.setForceShowIcon(true);
             popup.show();
         });
-
     }
 
     protected boolean onMenuMoreClick(MenuItem item) {
@@ -57,7 +55,13 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
                 adapter.showDeleteDeckDialog(getBindingAdapterPosition());
                 return true;
             case R.id.exportDbDeck:
-                adapter.exportDbChoosePath(getBindingAdapterPosition());
+                adapter.launchExportDb(getBindingAdapterPosition());
+                return true;
+            case R.id.exportFile:
+                adapter.launchExportToFile(getBindingAdapterPosition());
+                return true;
+            case R.id.sync:
+                adapter.launchSyncFile(getBindingAdapterPosition());
                 return true;
         }
         return false;

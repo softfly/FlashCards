@@ -3,6 +3,7 @@ package pl.softfly.flashcards.filesync;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
@@ -31,13 +32,13 @@ public interface FileSync {
     void syncFile(
             String deckName,
             Uri uri,
-            FileSyncListCardsActivity listCardsActivity
+            AppCompatActivity activity
     );
 
     /**
      * IE Create a deck from an imported Excel file.
      */
-    void importFile(String importToFolderPath, Uri uri, ListDecksFragment listDecksFragment);
+    void importFile(String importToFolderPath, Uri uri, AppCompatActivity activity);
 
     /**
      * EE Create a new Excel file from the exported deck.
@@ -45,6 +46,6 @@ public interface FileSync {
     void exportFile(
             String deckDbPath,
             Uri uri,
-            FileSyncListCardsActivity listCardsActivity
+            AppCompatActivity activity
     );
 }

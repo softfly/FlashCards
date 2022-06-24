@@ -15,6 +15,7 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.ui.MainActivity;
 import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
  * @author Grzegorz Ziemski
@@ -29,8 +30,8 @@ public class FolderDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
 
     private MutableLiveData<String> cutPathLiveData = new MutableLiveData<>();
 
-    public FolderDeckRecyclerViewAdapter(@NonNull MainActivity activity) {
-        super(activity);
+    public FolderDeckRecyclerViewAdapter(@NonNull MainActivity activity, ListDecksFragment listDecksFragment) {
+        super(activity, listDecksFragment);
     }
 
     /* -----------------------------------------------------------------------------------------

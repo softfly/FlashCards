@@ -62,7 +62,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         findColumnIndexes(datatypeSheet);
         importCards(
                 datatypeSheet,
-                deckName,
+                deckName + ".db",
                 getTermIndex(),
                 getDefinitionIndex(),
                 getSkipHeaderRows(),
@@ -136,7 +136,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         return DeckDatabaseUtil
                 .getInstance(appContext)
                 .getStorageDb()
-                .findFreeName(folderPath + "/" + deckName.substring(0, deckName.lastIndexOf('.')));
+                .findFreePath(folderPath + "/" + deckName.substring(0, deckName.lastIndexOf('.')));
     }
 
     //@todo Public for mocking
@@ -147,6 +147,6 @@ public class ImportExcelToDeck extends AbstractReadExcel {
     //@todo Public for mocking
     @Nullable
     public DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
-        return DeckDatabaseUtil.getInstance(appContext).getDatabase(deckDbPath);
+        return DeckDatabaseUtil.getInstance(appContext).createDatabase(deckDbPath);
     }
 }

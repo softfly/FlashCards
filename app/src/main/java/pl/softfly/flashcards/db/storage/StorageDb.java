@@ -126,21 +126,22 @@ public abstract class StorageDb<DB extends RoomDatabase> {
         return false;
     }
 
-    public String findFreeName(@NonNull File folder, @NonNull String name) {
-        return findFreeName(folder.getPath(), name);
+    public String findFreePath(@NonNull File folder, @NonNull String name) {
+        return findFreePath(folder.getPath(), name);
     }
 
-    public String findFreeName(@NonNull String folder, @NonNull String name) {
-        return findFreeName(folder + "/" + name);
+    public String findFreePath(@NonNull String folder, @NonNull String name) {
+        return findFreePath(folder + "/" + name);
     }
 
-    public String findFreeName(String path) {
-        String freeName = path;
+    public String findFreePath(String path) {
+        path = path.replace(".db", "");
+        String free = path + ".db";
         for (int i = 1; i <= 100; i++) {
-            if (!exists(freeName)) {
-                return freeName;
+            if (!exists(free)) {
+                return free;
             }
-            freeName = path + " " + i;
+            free = path + " " + i + ".db";
         }
         throw new RuntimeException("No free deck name found.");
     }
