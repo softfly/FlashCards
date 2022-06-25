@@ -18,7 +18,7 @@ import pl.softfly.flashcards.entity.deck.DeckConfig;
 @Dao
 public interface DeckConfigDao {
 
-    @Query("SELECT * FROM Core_Deck_Config WHERE `key`=:key")
+    @Query("SELECT * FROM Core_DeckConfig WHERE `key`=:key")
     DeckConfig findByKey(String key);
 
     @NonNull
@@ -34,7 +34,7 @@ public interface DeckConfigDao {
     void delete(DeckConfig deckConfig);
 
     @NonNull
-    @Query("DELETE FROM Core_Deck_Config " +
+    @Query("DELETE FROM Core_DeckConfig " +
             "WHERE `key`=:key")
     void deleteByKey(String key);
 }

@@ -151,7 +151,10 @@ public class MainActivity extends AppCompatActivity {
                 this.getApplicationContext(),
                 () -> {
                     if (isListAllDecksFragment()) {
-                        getListAllDecksFragment().getAdapter().refreshItems();
+                        if (getListAllDecksFragment().getAdapter() != null) {
+                            // May be null if the user interface has not yet been created yet.
+                            getListAllDecksFragment().getAdapter().refreshItems();
+                        }
                     }
                 }
         );

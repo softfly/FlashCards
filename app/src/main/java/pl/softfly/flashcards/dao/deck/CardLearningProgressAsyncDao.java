@@ -20,7 +20,7 @@ import pl.softfly.flashcards.entity.deck.CardLearningProgress;
 public abstract class CardLearningProgressAsyncDao {
 
     @NonNull
-    @Query("SELECT * FROM Core_Card_LearningProgress WHERE cardId=:cardId")
+    @Query("SELECT * FROM Core_CardLearningProgress WHERE cardId=:cardId")
     public abstract Maybe<CardLearningProgress> findByCardId(Integer cardId);
 
     @NonNull

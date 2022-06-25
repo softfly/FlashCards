@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Grzegorz Ziemski
  */
-@Entity(tableName = "Core_Card_LearningProgress",
+@Entity(tableName = "Core_CardLearningProgress",
         indices = {
                 @Index(value = "cardId", unique = true)
         })

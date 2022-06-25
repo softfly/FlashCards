@@ -40,7 +40,7 @@ public abstract class CardDaoAsync {
 
     @NonNull
     @Query("SELECT c.* FROM Core_Card c " +
-            "LEFT JOIN Core_Card_LearningProgress l ON l.cardId = c.id " +
+            "LEFT JOIN Core_CardLearningProgress l ON l.cardId = c.id " +
             "WHERE " +
             "c.deletedAt IS NULL " +
             "AND (l.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR l.nextReplayAt IS NULL) " +

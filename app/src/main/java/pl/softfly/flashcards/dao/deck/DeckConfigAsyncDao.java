@@ -30,15 +30,15 @@ public abstract class DeckConfigAsyncDao {
     public abstract Completable update(DeckConfig deckConfig);
 
     @NonNull
-    @Query("SELECT * FROM Core_Deck_Config WHERE `key`=:key")
+    @Query("SELECT * FROM Core_DeckConfig WHERE `key`=:key")
     public abstract Maybe<DeckConfig> getByKey(String key);
 
     @NonNull
-    @Query("SELECT value FROM Core_Deck_Config WHERE `key`=:key")
+    @Query("SELECT value FROM Core_DeckConfig WHERE `key`=:key")
     public abstract Maybe<Long> getLongByKey(String key);
 
     @NonNull
-    @Query("SELECT value FROM Core_Deck_Config WHERE `key`=:key")
+    @Query("SELECT value FROM Core_DeckConfig WHERE `key`=:key")
     public abstract Maybe<Float> getFloatByKey(String key);
 
     public void updateDeckConfig(String key, String newValue, @NonNull Consumer<? super Throwable> onError) {

@@ -28,6 +28,8 @@ public class Card {
 
     private boolean definitionHtml;
 
+    private boolean disabled;
+
     public Integer getId() {
         return id;
     }
@@ -90,6 +92,14 @@ public class Card {
 
     public void setDefinitionHtml(boolean definitionHtml) {
         this.definitionHtml = definitionHtml;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     @Override
