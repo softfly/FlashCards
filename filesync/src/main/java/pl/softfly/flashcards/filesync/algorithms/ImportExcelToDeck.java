@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -103,8 +104,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             if (definitionPosition > -1) {
                 Cell currentCell = currentRow.getCell(definitionPosition);
                 if (currentCell != null) {
-                    String value = currentCell.getStringCellValue().trim();
-                    cardUtil.setDefinition(card, value);
+                    cardUtil.setDefinition(card, getStringCellValue(currentCell));
                 }
             }
 
@@ -127,6 +127,14 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         if (!cardsList.isEmpty()) {
             insertAll(cardsList);
             cardsList.clear();
+        }
+    }
+
+    protected String getStringCellValue(Cell cell) {
+        if (cell.getCellType().equals(CellType.NUMERIC)) {
+            return Double.toString(cell.getNumericCellValue());
+        } else {
+            return cell.getStringCellValue().trim();
         }
     }
 

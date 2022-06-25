@@ -66,3 +66,6 @@ smartphone.
 
 - Align remove / delete word
 - Add buttons: Postpone, fast repetition
+- Add disabling cards
+- Sliding cards
+- 

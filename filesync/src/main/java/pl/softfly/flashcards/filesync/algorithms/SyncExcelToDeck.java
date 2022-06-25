@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -232,12 +233,22 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     protected String getStringCellValue(@NonNull Row currentRow, int position) {
         if (position > -1) {
             Cell currentCell = currentRow.getCell(position);
-            String value = currentCell.getStringCellValue();
-            if (value != null) {
-                return value.trim();
+            if (currentCell != null) {
+                String value = getStringCellValue(currentCell);
+                if (value != null) {
+                    return value.trim();
+                }
             }
         }
         return null;
+    }
+
+    protected String getStringCellValue(Cell cell) {
+        if (cell.getCellType().equals(CellType.NUMERIC)) {
+            return Double.toString(cell.getNumericCellValue());
+        } else {
+            return cell.getStringCellValue().trim();
+        }
     }
 
     protected boolean findSameCardAndConnect(
@@ -691,11 +702,18 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
     protected void updateExcelCell(@NonNull int rowNum, @NonNull Card card) {
         Row row = sheet.getRow(rowNum);
-        Cell cell = row.getCell(getTermIndex());
-        cell.setCellValue(card.getTerm());
+        updateExcelCell(row, getTermIndex(), card.getTerm());
+        updateExcelCell(row, getDefinitionIndex(), card.getDefinition());
+    }
 
-        cell = row.getCell(getDefinitionIndex());
-        cell.setCellValue(card.getDefinition());
+    protected void updateExcelCell(Row row, int index, String value) {
+        Cell cell = row.getCell(index);
+        if (cell == null) {
+            cell = row.createCell(index);
+        } else if (cell.getCellType().equals(CellType.NUMERIC)) {
+            cell = row.createCell(index);
+        }
+        cell.setCellValue(value);
     }
 
     protected boolean isImportedFileNewer(@NonNull Card card) {
@@ -707,11 +725,6 @@ public class SyncExcelToDeck extends AbstractReadExcel {
     @Nullable
     public FileSyncDeckDatabase getFsDeckDb(@NonNull String deckName) {
         return FileSyncDatabaseUtil.getInstance(appContext).getDeckDatabase(deckName);
-    }
-
-    @Nullable
-    public DeckDatabase getDeckDb(@NonNull String deckName) {
-        return DeckDatabaseUtil.getInstance(appContext).getDatabase(deckName);
     }
 
     public void setNewLastSyncAt(long newLastSyncAt) {
