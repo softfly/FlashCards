@@ -1,6 +1,8 @@
 package pl.softfly.flashcards.ui;
 
 import android.annotation.SuppressLint;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
@@ -22,12 +24,13 @@ import pl.softfly.flashcards.R;
  */
 public abstract class IconWithTextInTopbarFragment extends Fragment {
 
+
     @SuppressLint("ResourceAsColor")
     @NonNull
     public CharSequence menuIconWithText(@NonNull Drawable r, String title) {
         r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
         r.setColorFilter(
-                MaterialColors.getColor(getBinding().getRoot().getRootView(), R.attr.colorIcons),
+                MaterialColors.getColor(getView(), R.attr.colorIcons),
                 PorterDuff.Mode.MULTIPLY
         );
         SpannableString sb = new SpannableString("    " + title);

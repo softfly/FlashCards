@@ -11,14 +11,19 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.List;
+
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CreateSampleDeck;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.databinding.ActivityMainBinding;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.entity.app.AppConfig;
+import pl.softfly.flashcards.entity.app.Deck;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
 import pl.softfly.flashcards.ui.deck.recent.ListRecentDecksFragment;
 
@@ -46,9 +51,13 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = binding.navView;
         navView.setOnItemSelectedListener(this::onNavigationItemSelected);
 
-        getAppDatabase().deckDaoAsync().findByLastUpdatedAt(1)
+        loadFirstFragment()
                 .subscribeOn(Schedulers.io())
-                .doOnError(Throwable::printStackTrace)
+                .subscribe();
+    }
+
+    protected @NonNull Maybe<List<Deck>> loadFirstFragment() {
+        return getAppDatabase().deckDaoAsync().findByLastUpdatedAt(1)
                 .doOnSuccess(deck -> {
                     if (deck.size() > 0) {
                         currentFragment = getListRecentDecksFragment();
@@ -65,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.navView.setSelectedItemId(R.id.list_decks);
                         startingPosition = 2;
                     }
-                }).subscribe();
+                });
     }
 
     private boolean onNavigationItemSelected(MenuItem menuItem) {
@@ -107,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        initDarkMode();
+        initDarkMode().subscribe();
         super.onResume();
         createSampleDeck();
     }
@@ -116,12 +125,13 @@ public class MainActivity extends AppCompatActivity {
      * It is not needed elsewhere, because
      * 1) this is the first activity
      * 2) after changing the app settings, it comes back to this activity
+     * @return
      */
-    protected void initDarkMode() {
-        getAppDatabase().appConfigAsync().findByKey(AppConfig.DARK_MODE)
+    protected @NonNull Maybe<AppConfig> initDarkMode() {
+        return getAppDatabase().appConfigAsync().findByKey(AppConfig.DARK_MODE)
                 .subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
-                .subscribe(appConfig -> {
+                .doOnSuccess(appConfig -> {
                     switch (appConfig.getValue()) {
                         case AppConfig.DARK_MODE_ON:
                             runOnUiThread(() -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES));
