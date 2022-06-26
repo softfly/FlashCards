@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
@@ -86,26 +87,40 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
     }
 
     public void loadCards(int positionStart, int itemCount) {
-        deckDb.cardDaoAsync().getCardsByDeletedNotOrderByOrdinal()
+        loadCardsToList()
+                .doOnComplete(() -> refreshDataSet(positionStart, itemCount))
                 .subscribeOn(Schedulers.io())
-                .doOnError(Throwable::printStackTrace)
-                .subscribe(cards -> activity.runOnUiThread(() -> {
-                            getCurrentList().clear();
-                            getCurrentList().addAll(cards);
-                            // ID.WIDTH.1. Check if the id width has been calculated for the currently used max id length.
-                            idTextViewWidth = calcCardIdWidth.getIdWidth(cards);
-                            activity.idHeader.setWidth(idTextViewWidth);
-                            if (positionStart < 0)
-                                this.notifyDataSetChanged();
-                            else
-                                this.notifyItemRangeChanged(positionStart, itemCount);
-                        }),
-                        e -> exceptionHandler.handleException(
-                                e, activity.getSupportFragmentManager(),
-                                CardRecyclerViewAdapter.class.getSimpleName() + "_LoadCards",
-                                "Error while loading cards.",
-                                (dialog, which) -> activity.onBackPressed()
-                        ));
+                .subscribe(listMaybe -> {}, this::errorLoadCards);
+    }
+
+    protected Maybe<List<Card>> loadCardsToList() {
+        return deckDb.cardDaoAsync().getCardsByDeletedNotOrderByOrdinal()
+                .subscribeOn(Schedulers.io())
+                .doOnError(this::errorLoadCards)
+                .doOnSuccess(cards -> {
+                    getCurrentList().clear();
+                    getCurrentList().addAll(cards);
+                });
+    }
+
+    protected void refreshDataSet(int positionStart, int itemCount) {
+        activity.runOnUiThread(() -> {
+            // ID.WIDTH.1. Check if the id width has been calculated for the currently used max id length.
+            idTextViewWidth = calcCardIdWidth.getIdWidth(cards);
+            activity.idHeader.setWidth(idTextViewWidth);
+            if (positionStart < 0)
+                this.notifyDataSetChanged();
+            else
+                this.notifyItemRangeChanged(positionStart, itemCount);
+        });
+    }
+
+    protected void errorLoadCards(Throwable e) {
+        exceptionHandler.handleException(
+                e, activity.getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while loading cards."
+        );
     }
 
     public void onClickDeleteCard(int position) {

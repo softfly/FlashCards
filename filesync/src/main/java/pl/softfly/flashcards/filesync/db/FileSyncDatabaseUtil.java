@@ -79,6 +79,14 @@ public class FileSyncDatabaseUtil {
         return db;
     }
 
+    @NonNull
+    public synchronized FileSyncDeckDatabase createDatabase(@NonNull String path) {
+        Objects.nonNull(path);
+        FileSyncDeckDatabase db = storageDb.createDatabase(path);
+        DECKS.put(path, db);
+        return db;
+    }
+
     public synchronized void closeDeckDatabase(String dbName) {
         FileSyncDeckDatabase db = DECKS.get(dbName);
         if (db != null) {

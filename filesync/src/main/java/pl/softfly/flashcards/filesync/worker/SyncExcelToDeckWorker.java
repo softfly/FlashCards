@@ -121,9 +121,11 @@ public class SyncExcelToDeckWorker extends Worker {
                 mimeType = cursor.getString(
                         cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
                 ).toLowerCase();
-                fileLastModifiedAt = TimeUnit.MILLISECONDS.toSeconds(cursor.getLong(
-                        cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
-                ));
+                fileLastModifiedAt = TimeUnit.MILLISECONDS.toSeconds(
+                        cursor.getLong(
+                                cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                        )
+                );
             }
         }
         return getApplicationContext().getContentResolver().openInputStream(uri);

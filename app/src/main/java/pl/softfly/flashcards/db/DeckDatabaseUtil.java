@@ -92,9 +92,11 @@ public class DeckDatabaseUtil {
     }
 
     @NonNull
-    public synchronized DeckDatabase createDatabase(@NonNull String dbPath) {
-        Objects.nonNull(dbPath);
-        return storageDb.createDatabase(dbPath);
+    public synchronized DeckDatabase createDatabase(@NonNull String path) {
+        Objects.nonNull(path);
+        DeckDatabase db = storageDb.createDatabase(path);
+        decks.put(path, db);
+        return db;
     }
 
     public synchronized void closeDatabase(String dbName) {

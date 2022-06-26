@@ -58,7 +58,7 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
         popupMenu.setOnDismissListener(menu -> {
             layout.removeView(view);
-            unfocusCard(popupMenu);
+            unfocusCard();
         });
         popupMenu.getMenu().findItem(R.id.select).setVisible(!adapter.isSelectionMode());
         popupMenu.show();
@@ -83,7 +83,7 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
         popupMenu.setOnDismissListener(menu -> {
             layout.removeView(view);
-            unfocusCard(popupMenu);
+            unfocusCard();
         });
         showSelect(popupMenu);
         showPaste(popupMenu);
@@ -144,21 +144,28 @@ public class SelectCardViewHolder extends DragSwipeCardViewHolder {
         }
     }
 
-    private void unfocusCard(PopupMenu p) {
+    protected void unfocusCard() {
         this.itemView.setActivated(false);
         // Check that the card has not been previously selected.
         int position = getBindingAdapterPosition();
         if (-1 < position && position < adapter.getItemCount()) {
             if (adapter.isCardSelected(getBindingAdapterPosition())) {
-                this.itemView.setSelected(true);
-                this.itemView.setBackgroundColor(
-                        MaterialColors.getColor(this.itemView, R.attr.colorItemSelected)
-                );
-
+                selectItemView();
             } else {
-                this.itemView.setSelected(false);
-                this.itemView.setBackgroundColor(0);
+                unselectItemView();
             }
         }
+    }
+
+    protected void selectItemView() {
+        this.itemView.setSelected(true);
+        this.itemView.setBackgroundColor(
+                MaterialColors.getColor(this.itemView, R.attr.colorItemSelected)
+        );
+    }
+
+    protected void unselectItemView() {
+        this.itemView.setSelected(false);
+        this.itemView.setBackgroundColor(0);
     }
 }

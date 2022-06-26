@@ -19,11 +19,14 @@ import androidx.work.WorkerParameters;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.FlashCardsApp;
-import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
 import pl.softfly.flashcards.entity.filesync.FileSynced;
+import pl.softfly.flashcards.filesync.algorithms.ImportExcelToDeck;
+import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
+import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 
 /**
  * This class separates the Android API from the algorithm.
@@ -55,27 +58,33 @@ public class ImportExcelToDeckWorker extends Worker {
 
             String fileUriS = inputData.getString(FILE_URI);
             Objects.requireNonNull(fileUriS);
+            Uri fileUri = Uri.parse(fileUriS);
 
             String importToFolderPath = inputData.getString(IMPORT_TO_FOLDER_PATH);
             Objects.requireNonNull(importToFolderPath);
 
-            Uri fileUri = Uri.parse(inputData.getString(FILE_URI));
+            askPermissions(fileUri);
+            InputStream isImportedFile = openExcelFile(fileUri);
 
             FileSynced fileSynced = new FileSynced();
             fileSynced.setUri(fileUri.toString());
             fileSynced.setAutoSync(inputData.getBoolean(AUTO_SYNC, false));
-
-            askPermissions(fileUri);
-            InputStream isImportedFile = openExcelFile(fileUri);
+            fileSynced.setLastSyncAt(fileLastModifiedAt);
 
             ImportExcelToDeck ImportExcelToDeck = new ImportExcelToDeck(getApplicationContext());
-            ImportExcelToDeck.importExcelFile(
+            String deckPath = ImportExcelToDeck.importExcelFile(
                     inputData.getString(IMPORT_TO_FOLDER_PATH),
                     fileName,
                     isImportedFile,
                     mimeType,
                     fileLastModifiedAt
             );
+
+            if (deckPath != null) {
+                getFsDeckDatabase(deckPath).fileSyncedDao().insert(fileSynced);
+            } else {
+                //TODO if empty
+            }
 
             showSuccessNotification();
             return Result.success();
@@ -102,8 +111,10 @@ public class ImportExcelToDeckWorker extends Worker {
                 mimeType = cursor.getString(
                         cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
                 ).toLowerCase();
-                fileLastModifiedAt = cursor.getLong(
-                        cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                fileLastModifiedAt = TimeUnit.MILLISECONDS.toSeconds(
+                        cursor.getLong(
+                                cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                        )
                 );
             }
         }
@@ -124,5 +135,9 @@ public class ImportExcelToDeckWorker extends Worker {
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
                 ImportExcelToDeckWorker.class.getSimpleName()
         );
+    }
+
+    protected FileSyncDeckDatabase getFsDeckDatabase(@NonNull String deckDbPath) {
+        return FileSyncDatabaseUtil.getInstance(getApplicationContext()).getDeckDatabase(deckDbPath);
     }
 }

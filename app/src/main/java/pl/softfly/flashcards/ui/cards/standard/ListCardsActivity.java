@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.functions.Consumer;
+import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
@@ -101,6 +103,14 @@ public class ListCardsActivity extends IconWithTextInTopbarActivity {
         Intent intent = new Intent(this, NewCardActivity.class);
         intent.putExtra(NewCardActivity.DECK_DB_PATH, deckDbPath);
         this.startActivity(intent);
+    }
+
+    public final void runOnUiThread(Runnable action, Consumer<? super Throwable> onError) {
+        getExceptionHandler().tryRun(() -> runOnUiThread(() -> action.run()), onError);
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 
     protected RecyclerView getRecyclerView() {

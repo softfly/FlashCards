@@ -48,30 +48,35 @@ public class ImportExcelToDeck extends AbstractReadExcel {
         this.appContext = appContext;
     }
 
-    public void importExcelFile(
+    public String importExcelFile(
             String importToFolderPath,
             String deckName,
             @NonNull InputStream inputStream,
             @NonNull String typeFile,
             Long lastModifiedAtFile
     ) throws IOException {
-        deckName = findFreeDeckName(importToFolderPath, deckName);
+        String deckDbPath = findFreeDeckName(importToFolderPath, deckName);
         Workbook workbook = typeFile.equals(TYPE_XLS)
                 ? new HSSFWorkbook(inputStream)
                 : new XSSFWorkbook(inputStream);
         Sheet datatypeSheet = workbook.getSheetAt(0);
         findColumnIndexes(datatypeSheet);
-        importCards(
+        importCardsToFile(
                 datatypeSheet,
-                deckName + ".db",
+                deckDbPath,
                 getTermIndex(),
                 getDefinitionIndex(),
                 getSkipHeaderRows(),
                 lastModifiedAtFile
         );
+        if (deckDb != null) {
+            return deckDbPath;
+        } else {
+            return null;
+        }
     }
 
-    protected void importCards(
+    protected void importCardsToFile(
             @NonNull Sheet datatypeSheet,
             @NonNull String deckDbPath,
             int termPosition,
@@ -92,6 +97,7 @@ public class ImportExcelToDeck extends AbstractReadExcel {
             Card card = new Card();
             card.setOrdinal(ordinal);
             ordinal += SyncExcelToDeck.MULTIPLE_ORDINAL;
+            card.setCreatedAt(lastModifiedAtFile);
             card.setModifiedAt(lastModifiedAtFile);
 
             if (termPosition > -1) {
@@ -110,10 +116,10 @@ public class ImportExcelToDeck extends AbstractReadExcel {
 
             if (nonEmpty(card.getTerm()) || nonEmpty(card.getDefinition())) {
                 if (empty(card.getTerm())) {
-                    card.setTerm(null);
+                    card.setTerm("");//NULL generates problem with WHERE sql query
                 }
                 if (empty(card.getDefinition())) {
-                    card.setDefinition(null);
+                    card.setDefinition("");//NULL generates problem with WHERE sql query
                 }
                 if (deckDb == null) deckDb = getDeckDatabase(deckDbPath);
                 cardsList.add(card);

@@ -4,7 +4,11 @@
     <declare-styleable name="Theme">
         <attr name="colorListDivider" format="color" />
         <attr name="opacityListDivider" format="color" />
-        <attr name="colorItemRecentlySynced" format="color" />
+
+        <attr name="colorItemRecentlyAddedCard" format="color" />
+        <attr name="colorItemRecentlyUpdatedCard" format="color" />
+        <attr name="colorItemRecentlyAddedFileCard" format="color" />
+        <attr name="colorItemRecentlyUpdatedFileCard" format="color" />
         <attr name="colorItemSelected" format="color" />
         <attr name="colorItemActive" format="color" />
         <attr name="colorIcons" format="color" />

@@ -11,6 +11,11 @@
 
     <color name="green_200">#FFA5D6A7</color>
     <color name="green_800">#FF2E7D32</color>
+    <color name="green_700">#FF388E3C</color>
+
+    <color name="orange_900">#FFE65100</color>
+    <color name="orange_800">#FFEF6C00</color>
+
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

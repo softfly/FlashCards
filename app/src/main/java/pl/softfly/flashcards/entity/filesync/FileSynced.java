@@ -25,6 +25,11 @@ public class FileSynced {
     private Long lastSyncAt;
 
     /**
+     * When was the deck recently updated.
+     */
+    private Long deckModifiedAt;
+
+    /**
      * A deck can only automatically sync with one file.
      */
     private boolean autoSync;
@@ -51,6 +56,14 @@ public class FileSynced {
 
     public void setLastSyncAt(Long lastSyncAt) {
         this.lastSyncAt = lastSyncAt;
+    }
+
+    public Long getDeckModifiedAt() {
+        return deckModifiedAt;
+    }
+
+    public void setDeckModifiedAt(Long deckModifiedAt) {
+        this.deckModifiedAt = deckModifiedAt;
     }
 
     public boolean isAutoSync() {

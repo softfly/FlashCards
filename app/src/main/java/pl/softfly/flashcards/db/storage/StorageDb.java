@@ -42,7 +42,7 @@ public abstract class StorageDb<DB extends RoomDatabase> {
     @NonNull
     public DB getDatabase(@NonNull String path) {
         path = addDbFilenameExtensionIfRequired(path);
-        if (!(new File(path)).isFile()) throw new RuntimeException("The database does not exist.");
+        if (!(new File(path)).isFile()) throw new RuntimeException("The database does not exist: " + path);
         return getRoomDb(path);
     }
 

@@ -18,7 +18,7 @@ import io.reactivex.rxjava3.core.Maybe;
 public interface FileSyncedAsyncDao {
 
     @NonNull
-    @Query("SELECT lastSyncAt FROM FileSync_FileSynced ORDER BY lastSyncAt DESC")
-    Maybe<LocalDateTime> findLastSyncAt();
+    @Query("SELECT deckModifiedAt FROM FileSync_FileSynced ORDER BY deckModifiedAt DESC")
+    Maybe<Long> findDeckModifiedAt();
 
 }

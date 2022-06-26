@@ -3,9 +3,13 @@ package pl.softfly.flashcards.ui.cards.file_sync;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.color.MaterialColors;
+
+import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.cards.select.SelectCardViewHolder;
 
 /**
@@ -48,5 +52,21 @@ public class FileSyncCardViewHolder extends SelectCardViewHolder {
     public boolean onSingleTapUp(@NonNull MotionEvent e) {
         if (adapter.getActivity().isEditingUnlocked()) return super.onSingleTapUp(e);
         return false;
+    }
+
+    @Override
+    protected void unfocusCard() {
+        this.itemView.setActivated(false);
+        // Check that the card has not been previously selected.
+        int position = getBindingAdapterPosition();
+        if (-1 < position && position < adapter.getItemCount()) {
+            if (adapter.isCardSelected(getBindingAdapterPosition())) {
+                selectItemView();
+            } else if (adapter.isShowedRecentlySynced(getBindingAdapterPosition())) {
+                adapter.setRecentlySyncedBackground(this, position);
+            } else {
+                unselectItemView();
+            }
+        }
     }
 }

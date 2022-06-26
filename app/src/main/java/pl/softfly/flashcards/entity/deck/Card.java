@@ -20,9 +20,15 @@ public class Card {
 
     private String definition;
 
+    private Long createdAt;
+
     private Long modifiedAt;
 
     private Long deletedAt;
+
+    private Long fileSyncCreatedAt;
+
+    private Long fileSyncModifiedAt;
 
     private boolean termHtml;
 
@@ -62,6 +68,14 @@ public class Card {
         this.definition = definition;
     }
 
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Long getModifiedAt() {
         return modifiedAt;
     }
@@ -76,6 +90,22 @@ public class Card {
 
     public void setDeletedAt(Long deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public Long getFileSyncCreatedAt() {
+        return fileSyncCreatedAt;
+    }
+
+    public void setFileSyncCreatedAt(Long fileSyncCreatedAt) {
+        this.fileSyncCreatedAt = fileSyncCreatedAt;
+    }
+
+    public Long getFileSyncModifiedAt() {
+        return fileSyncModifiedAt;
+    }
+
+    public void setFileSyncModifiedAt(Long fileSyncModifiedAt) {
+        this.fileSyncModifiedAt = fileSyncModifiedAt;
     }
 
     public boolean isTermHtml() {

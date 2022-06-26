@@ -49,7 +49,8 @@ public abstract class CardDao extends pl.softfly.flashcards.dao.deck.CardDao {
             "FROM Core_Card c " +
             "LEFT JOIN FileSync_CardImported i ON i.cardId=c.id " +
             "WHERE " +
-            "c.ordinal > :ordinalGreaterThan " +
+            "c.deletedAt IS NULL " +
+            "AND c.ordinal > :ordinalGreaterThan " +
             "AND c.id NOT IN(SELECT cardId FROM FileSync_CardImportedRemoved WHERE fileSyncedId=:fileSyncedId)" +
             "ORDER BY c.ordinal ASC " +
             "LIMIT 100")

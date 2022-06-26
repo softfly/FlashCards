@@ -121,7 +121,7 @@ public class SyncExcelToDeckStepDefs {
 
         deckDb = FileSyncDatabaseUtil
                 .getInstance(appContext)
-                .getDeckDatabase(deckDbPath);
+                .createDatabase(deckDbPath);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

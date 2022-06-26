@@ -32,6 +32,7 @@ import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.filesync.dao.CardImportedDao;
 import pl.softfly.flashcards.filesync.db.FileSyncDatabaseUtil;
 import pl.softfly.flashcards.filesync.db.FileSyncDeckDatabase;
 import pl.softfly.flashcards.entity.filesync.CardImported;
@@ -142,12 +143,13 @@ public class SyncExcelToDeck extends AbstractReadExcel {
         determineNewOrderCards.determineNewOrderCards(fsDeckDb, fileModifiedAt);
 
         // 6. Count the statistics of how many cards have been changed.
-        deckAdded = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_INSERT_BY_FILE);
-        deckUpdated = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_UPDATE_BY_FILE);
-        deckDeleted = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_DELETE_BY_FILE);
-        fileAdded = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_INSERT_BY_DECK);
-        fileUpdated = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_UPDATE_BY_DECK);
-        fileDeleted = fsDeckDb.cardImportedDao().countByContentStatus(CardImported.STATUS_DELETE_BY_DECK);
+        CardImportedDao cardImportedDao = fsDeckDb.cardImportedDao();
+        deckAdded = cardImportedDao.countByContentStatus(CardImported.STATUS_INSERT_BY_FILE);
+        deckUpdated = cardImportedDao.countByContentStatus(CardImported.STATUS_UPDATE_BY_FILE);
+        deckDeleted = cardImportedDao.countByContentStatus(CardImported.STATUS_DELETE_BY_FILE);
+        fileAdded = cardImportedDao.countByContentStatus(CardImported.STATUS_INSERT_BY_DECK);
+        fileUpdated = cardImportedDao.countByContentStatus(CardImported.STATUS_UPDATE_BY_DECK);
+        fileDeleted = cardImportedDao.countByContentStatus(CardImported.STATUS_DELETE_BY_DECK);
     }
 
     /**
@@ -201,8 +203,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         cardIdsConnected,
                         fileSynced.getId())
                 ) {
-                    if (!empty(term)) cardImported.setTerm(term);
-                    if (!empty(definition)) cardImported.setDefinition(definition);
+                    cardImported.setTerm(term);
+                    cardImported.setDefinition(definition);
                 }
 
                 // @todo remove, only for debugging
@@ -240,7 +242,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                 }
             }
         }
-        return null;
+        return "";
     }
 
     protected String getStringCellValue(Cell cell) {
@@ -583,11 +585,18 @@ public class SyncExcelToDeck extends AbstractReadExcel {
             CardImported cardImported = cardImportedList.remove(0);
 
             switch (cardImported.getContentStatus()) {
-                case CardImported.STATUS_UNCHANGED:
-                case CardImported.STATUS_INSERT_BY_DECK: {
+                case CardImported.STATUS_UNCHANGED: {
                     Card card = fsDeckDb.cardDao().findById(cardImported.getCardId());
                     card.setOrdinal(cardImported.getNewOrdinal());
                     cardsListToUpdate.add(card);
+                }
+                break;
+                case CardImported.STATUS_INSERT_BY_DECK: {
+                    Card card = fsDeckDb.cardDao().findById(cardImported.getCardId());
+                    card.setOrdinal(cardImported.getNewOrdinal());
+                    card.setFileSyncCreatedAt(newLastSyncAt);
+                    cardsListToUpdate.add(card);
+                    fileSynced.setDeckModifiedAt(newLastSyncAt);
                 }
                 break;
                 case CardImported.STATUS_INSERT_BY_FILE: {
@@ -595,11 +604,19 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                     cardUtil.setTerm(card, cardImported.getTerm());
                     cardUtil.setDefinition(card, cardImported.getDefinition());
                     card.setModifiedAt(newLastSyncAt);
-
+                    card.setCreatedAt(newLastSyncAt);
                     card.setOrdinal(cardImported.getNewOrdinal());
 
                     cardImported.setCardId(Long.valueOf(fsDeckDb.cardDao().insert(card)).intValue());//@todo not needed
                     cardsImportedListToUpdate.add(cardImported);
+                    fileSynced.setDeckModifiedAt(newLastSyncAt);
+                }
+                break;
+                case CardImported.STATUS_UPDATE_BY_DECK: {
+                    Card card = fsDeckDb.cardDao().findById(cardImported.getCardId());
+                    card.setFileSyncModifiedAt(newLastSyncAt);
+                    cardsListToUpdate.add(card);
+                    fileSynced.setDeckModifiedAt(newLastSyncAt);
                 }
                 break;
                 case CardImported.STATUS_UPDATE_BY_FILE: {
@@ -610,6 +627,7 @@ public class SyncExcelToDeck extends AbstractReadExcel {
 
                     card.setOrdinal(cardImported.getNewOrdinal());
                     cardsListToUpdate.add(card);
+                    fileSynced.setDeckModifiedAt(newLastSyncAt);
                 }
                 break;
                 case CardImported.STATUS_DELETE_BY_FILE: {
@@ -676,7 +694,8 @@ public class SyncExcelToDeck extends AbstractReadExcel {
                         }, card.getOrdinal());
             }
         }
-        for (int i = fsDeckDb.cardImportedDao().countByDeleteByDeck() - fsDeckDb.cardImportedDao().countByInsertByDeck(); i > 0; i--) {
+        int countLastRowsToRemove = fsDeckDb.cardImportedDao().countByDeleteByDeck() - fsDeckDb.cardImportedDao().countByInsertByDeck();
+        for (int i = countLastRowsToRemove; i > 0; i--) {
             sheet.removeRow(sheet.getRow(rowNum++));
         }
 

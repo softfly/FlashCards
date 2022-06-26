@@ -32,6 +32,15 @@ public class ExceptionHandler {
         return INSTANCE;
     }
 
+    public void tryRun(
+            @NonNull Runnable r,
+            @NonNull FragmentManager manager,
+            @NonNull String tag
+    ) {
+        tryHandleException(r, manager, tag, null, null);
+    }
+
+    @Deprecated
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
@@ -40,6 +49,7 @@ public class ExceptionHandler {
         tryHandleException(r, manager, tag, null, null);
     }
 
+    @Deprecated
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
@@ -49,6 +59,7 @@ public class ExceptionHandler {
         tryHandleException(r, manager, tag, message, null);
     }
 
+    @Deprecated
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
@@ -58,6 +69,7 @@ public class ExceptionHandler {
         tryHandleException(r, manager, tag, null, callback);
     }
 
+    @Deprecated
     public void tryHandleException(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
@@ -72,7 +84,7 @@ public class ExceptionHandler {
         }
     }
 
-    public void tryHandleException(
+    public void tryRun(
             @NonNull Runnable r,
             @NonNull Consumer<? super Throwable> onError
     ) {
@@ -85,6 +97,14 @@ public class ExceptionHandler {
                 throwable.printStackTrace();
             }
         }
+    }
+
+    @Deprecated
+    public void tryHandleException(
+            @NonNull Runnable r,
+            @NonNull Consumer<? super Throwable> onError
+    ) {
+        tryRun(r, onError);
     }
 
     public void handleException(

@@ -16,7 +16,10 @@
         <item name="colorListDivider">@color/grey_300</item>
         <item name="opacityListDivider">@color/opacity_100</item>
 
-        <item name="colorItemRecentlySynced">@color/green_200</item>
+        <item name="colorItemRecentlyAddedCard">@color/green_200</item>
+        <item name="colorItemRecentlyUpdatedCard">@color/orange_900</item>
+        <item name="colorItemRecentlyAddedFileCard">@color/green_200</item>
+        <item name="colorItemRecentlyUpdatedFileCard">@color/orange_900</item>
         <item name="colorItemSelected">@color/deep_purple_50</item>
         <item name="colorItemActive">@color/deep_purple_200</item>
 

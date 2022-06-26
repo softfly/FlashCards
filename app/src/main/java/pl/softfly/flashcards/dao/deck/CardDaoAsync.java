@@ -49,8 +49,24 @@ public abstract class CardDaoAsync {
     public abstract Maybe<List<Card>> getNextCards();
 
     @NonNull
-    @Query("SELECT * FROM Core_Card WHERE deletedAt IS NULL AND modifiedAt=:modifiedAt")
-    public abstract Maybe<List<Card>> findByModifiedAt(LocalDateTime modifiedAt);
+    @Query("SELECT id FROM Core_Card WHERE deletedAt IS NULL AND createdAt=:createdAt")
+    public abstract Maybe<List<Integer>> findIdsByCreatedAt(long createdAt);
+
+    @NonNull
+    @Query("SELECT id FROM Core_Card WHERE deletedAt IS NULL AND createdAt!=:modifiedAt AND modifiedAt=:modifiedAt")
+    public abstract Maybe<List<Integer>> findIdsByModifiedAtAndCreatedAtNot(long modifiedAt);
+
+    @NonNull
+    @Query("SELECT id FROM Core_Card WHERE deletedAt IS NULL AND fileSyncCreatedAt=:fileSyncCreatedAt")
+    public abstract Maybe<List<Integer>> findIdsByFileSyncCreatedAt(long fileSyncCreatedAt);
+
+    @NonNull
+    @Query("SELECT id FROM Core_Card " +
+            "WHERE " +
+            "deletedAt IS NULL " +
+            "AND (fileSyncCreatedAt!=:fileSyncModifiedAt OR fileSyncCreatedAt IS NULL) " +
+            "AND fileSyncModifiedAt=:fileSyncModifiedAt")
+    public abstract Maybe<List<Integer>> findIdsByFileSyncModifiedAtAndFileSyncCreatedAtNot(long fileSyncModifiedAt);
 
     @NonNull
     @Insert

@@ -8,10 +8,10 @@ plugins {
 android {
     signingConfigs {
         release {
-            storeFile file('key-FlashXards.jks')
+            storeFile file('C:\\Users\\ziems\\StudioProjects\\FlashCards.jks')
+            storePassword ',b_X&>;]#,MPn,]^'
+            keyPassword ',b_X&>;]#,MPn,]^'
             keyAlias 'FlashCards'
-            storePassword ''
-            keyPassword ''
         }
     }
     compileSdkVersion 31
