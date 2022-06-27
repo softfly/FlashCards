@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
-import pl.softfly.flashcards.ui.MainActivity;
+import pl.softfly.flashcards.ui.main.MainActivity;
 import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
@@ -29,60 +28,90 @@ import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
  */
 public class ListFoldersDecksFragment extends ListDecksFragment {
 
-    private FolderDeckRecyclerViewAdapter adapter;
-
-    public ListFoldersDecksFragment() {
-    }
+    /* -----------------------------------------------------------------------------------------
+     * Constructor
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                getAdapter().goFolderUp();
-            }
-        });
+        initHandleOnBackPressed();
         ((MainActivity) requireActivity()).hideBackArrow();
         initCutDeckPathObserver();
     }
 
-    protected void initCutDeckPathObserver() {
-        getAdapter().getCutPathLiveData().observe(this, cutPath -> {
-            if (cutPath != null) {
-                if (Files.isDirectory(Paths.get(cutPath))) {
-                    getBinding().pasteButton.setText("Paste the folder here");
-                } else {
-                    getBinding().pasteButton.setText("Paste the deck here");
-                }
-                getBinding().pasteMenuBottom.setVisibility(View.VISIBLE);
-                getBinding().cancelButton.setOnClickListener(v -> getAdapter().getCutPathLiveData().postValue(null));
-                getBinding().pasteButton.setOnClickListener(v -> onClickPaste(cutPath));
-            } else {
-                getBinding().pasteMenuBottom.setVisibility(View.GONE);
-            }
-        });
+    @Override
+    protected FolderDeckBaseViewAdapter onCreateAdapter() {
+        return new FolderDeckBaseViewAdapter((MainActivity) getActivity());
     }
+
+    protected void initHandleOnBackPressed() {
+        requireActivity()
+                .getOnBackPressedDispatcher()
+                .addCallback(this, new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        getAdapter().goFolderUp();
+                    }
+                });
+    }
+
+    protected void initCutDeckPathObserver() {
+        getAdapter().getCutPathLiveData().observe(this, cutPath ->
+                getExceptionHandler().tryRun(() -> {
+                    if (cutPath != null) {
+                        if (Files.isDirectory(Paths.get(cutPath))) {
+                            getBinding().pasteButton.setText("Paste the folder here");
+                        } else {
+                            getBinding().pasteButton.setText("Paste the deck here");
+                        }
+                        getBinding().pasteMenuBottom.setVisibility(View.VISIBLE);
+                        getBinding().cancelButton.setOnClickListener(v -> getAdapter().getCutPathLiveData().postValue(null));
+                        getBinding().pasteButton.setOnClickListener(v -> onClickPaste(cutPath));
+                    } else {
+                        getBinding().pasteMenuBottom.setVisibility(View.GONE);
+                    }
+                }, this::onErrorCutDeckPath));
+    }
+
+    protected void onErrorCutDeckPath(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while pasting folder / deck."
+        );
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Fragment methods overridden
+     * ----------------------------------------------------------------------------------------- */
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_folder: {
+                DialogFragment dialog = new CreateFolderDialog(getAdapter().getCurrentFolder(), getAdapter());
+                dialog.show(getActivity().getSupportFragmentManager(), "CreateFolder");
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Actions
+     * ----------------------------------------------------------------------------------------- */
 
     protected void onClickPaste(String cutPath) {
         try {
             if (Files.isDirectory(Paths.get(cutPath))) {
                 onClickPasteFolder(cutPath);
             } else {
-                DeckDatabaseUtil.getInstance(getContext())
-                        .moveDatabase(cutPath, getAdapter().getCurrentFolder().getPath())
-                        .subscribe(() -> {
-                            getAdapter().refreshItems();
-                            getAdapter().getCutPathLiveData().postValue(null);
-                        });
+                onCLickPasteDeck(cutPath);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            getExceptionHandler().handleException(
-                    e, getParentFragmentManager(),
-                    ListFoldersDecksFragment.class.getSimpleName(),
-                    "Error while paste files."
-            );
+        } catch (IOException e) {
+            onErrorCutDeckPath(e);
         }
     }
 
@@ -107,26 +136,15 @@ public class ListFoldersDecksFragment extends ListDecksFragment {
                     from.delete();
                     getAdapter().refreshItems();
                     getAdapter().getCutPathLiveData().postValue(null);
-                });
+                }, this::onErrorCutDeckPath);
     }
 
-    @Override
-    protected FolderDeckRecyclerViewAdapter onCreateAdapter() {
-        adapter = new FolderDeckRecyclerViewAdapter((MainActivity) getActivity(), this);
-        return adapter;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.new_folder: {
-                DialogFragment dialog = new CreateFolderDialog(getAdapter().getCurrentFolder(), getAdapter());
-                dialog.show(getActivity().getSupportFragmentManager(), "CreateFolder");
-                return true;
-            }
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    protected void onCLickPasteDeck(String cutPath) {
+        getDeckDatabaseUtil().moveDatabase(cutPath, getAdapter().getCurrentFolder().getPath())
+                .subscribe(() -> {
+                    getAdapter().refreshItems();
+                    getAdapter().getCutPathLiveData().postValue(null);
+                }, this::onErrorCutDeckPath);
     }
 
     public boolean onSupportNavigateUp() {
@@ -139,11 +157,9 @@ public class ListFoldersDecksFragment extends ListDecksFragment {
      * ----------------------------------------------------------------------------------------- */
 
     @Override
-    public FolderDeckRecyclerViewAdapter getAdapter() {
-        return adapter;
+    public FolderDeckBaseViewAdapter getAdapter() {
+        return (FolderDeckBaseViewAdapter) super.getAdapter();
     }
 
-    protected ExceptionHandler getExceptionHandler() {
-        return ExceptionHandler.getInstance();
-    }
+
 }

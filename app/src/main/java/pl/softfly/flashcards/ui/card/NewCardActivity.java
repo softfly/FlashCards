@@ -101,7 +101,7 @@ public class NewCardActivity extends AppCompatActivity {
                     refreshLastUpdatedAt();
                 }, e -> exceptionHandler.handleException(
                         e, getSupportFragmentManager(),
-                        NewCardActivity.class.getSimpleName() + "_OnClickSaveCard",
+                        this.getClass().getSimpleName() + "_OnClickSaveCard",
                         (dialog, which) -> onBackPressed()
                 ));
     }
@@ -111,17 +111,13 @@ public class NewCardActivity extends AppCompatActivity {
                 .subscribe(deck -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        NewCardActivity.class.getSimpleName(),
+                        this.getClass().getSimpleName(),
                         "Error while creating card."
                 ));
     }
 
     @Nullable
     protected DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
-        if (!deckDbPath.endsWith(".db")) {
-            throw new RuntimeException("The database does not have the .db extension.");
-        }
-
         return DeckDatabaseUtil
                 .getInstance(getApplicationContext())
                 .getDatabase(deckDbPath);

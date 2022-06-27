@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,18 +15,17 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.room.AppDatabase;
-import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.base.BaseDialogFragment;
+import pl.softfly.flashcards.ui.main.MainActivity;
+import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
 
-public class DeleteFolderDialog extends DialogFragment {
+public class DeleteFolderDialog extends BaseDialogFragment {
 
     private final File currentFolder;
 
-    private final DeckRecyclerViewAdapter adapter;
+    private final DeckBaseViewAdapter adapter;
 
-    public DeleteFolderDialog(File currentFolder, DeckRecyclerViewAdapter adapter) {
+    public DeleteFolderDialog(File currentFolder, DeckBaseViewAdapter adapter) {
         this.adapter = adapter;
         this.currentFolder = currentFolder;
     }
@@ -48,20 +45,15 @@ public class DeleteFolderDialog extends DialogFragment {
                                 .subscribeOn(Schedulers.io())
                                 .subscribe(() -> {
                                     adapter.refreshItems();
-                                    getActivity().runOnUiThread(() -> {
-                                        Toast.makeText(
-                                                requireContext(),
-                                                "The folder has been removed.",
-                                                Toast.LENGTH_SHORT
-                                        ).show();
-                                    });
+                                    ((MainActivity) getActivity()).runOnUiThread(
+                                            () -> Toast.makeText(
+                                                    requireContext(),
+                                                    "The folder has been removed.",
+                                                    Toast.LENGTH_SHORT
+                                            ).show(), this::onError);
                                 });
-                    } catch (Exception e) {
-                        getExceptionHandler().handleException(
-                                e, getActivity().getSupportFragmentManager(),
-                                DeleteFolderDialog.class.getSimpleName(),
-                                "Error while deleting folder."
-                        );
+                    } catch (IOException e) {
+                        onError(e);
                     }
                 })
                 .setNegativeButton("No", (dialog, which) -> {
@@ -76,14 +68,12 @@ public class DeleteFolderDialog extends DialogFragment {
                 .forEach(File::delete);
     }
 
-    protected ExceptionHandler getExceptionHandler() {
-        return ExceptionHandler.getInstance();
-    }
-
-    @Nullable
-    protected AppDatabase getAppDatabase() {
-        return AppDatabaseUtil
-                .getInstance(getContext())
-                .getDatabase();
+    @NonNull
+    protected void onError(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while deleting folder."
+        );
     }
 }

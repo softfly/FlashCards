@@ -8,21 +8,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.ui.base.recyclerview.BaseViewHolder;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class DeckViewHolder extends BaseViewHolder implements View.OnClickListener {
 
     TextView nameTextView;
     TextView totalTextView;
     RelativeLayout deckLayoutListItem;
-    protected DeckRecyclerViewAdapter adapter;
+    protected DeckBaseViewAdapter adapter;
 
-    public DeckViewHolder(@NonNull View itemView, DeckRecyclerViewAdapter adapter) {
+    public DeckViewHolder(@NonNull View itemView, DeckBaseViewAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
         nameTextView = itemView.findViewById(R.id.nameTextView);
@@ -70,5 +70,9 @@ public class DeckViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     @Override
     public void onClick(View view) {
         adapter.onItemClick(getBindingAdapterPosition());
+    }
+
+    public DeckBaseViewAdapter getAdapter() {
+        return adapter;
     }
 }

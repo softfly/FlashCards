@@ -1,7 +1,9 @@
 package pl.softfly.flashcards.ui.cards.file_sync;
 
+import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,13 +19,14 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.entity.deck.Card;
-import pl.softfly.flashcards.ui.cards.select.SelectCardRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.cards.select.SelectCardBaseViewAdapter;
+import pl.softfly.flashcards.ui.cards.select.SelectCardViewHolder;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapter {
+public class FileSyncCardBaseViewAdapter extends SelectCardBaseViewAdapter {
 
     private Set<Integer> recentlyAddedCards;
 
@@ -33,7 +36,7 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
 
     private Set<Integer> recentlyUpdatedFileCards;
 
-    public FileSyncCardRecyclerViewAdapter(FileSyncListCardsActivity activity, String deckDbPath) {
+    public FileSyncCardBaseViewAdapter(FileSyncListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);
     }
 
@@ -56,23 +59,24 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     protected void setRecentlySyncedBackground(RecyclerView.ViewHolder holder, int position) {
         Card card = getItem(position);
         Integer cardId = card.getId();
-        if (recentlyAddedCards != null && recentlyAddedCards.contains(cardId)) {
-            holder.itemView.setBackgroundColor(
-                    MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlyAddedCard)
-            );
-        } else if (recentlyUpdatedCards != null && recentlyUpdatedCards.contains(cardId)) {
-            holder.itemView.setBackgroundColor(
-                    MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlyUpdatedCard)
-            );
-        } else if (recentlyAddedFileCards != null && recentlyAddedFileCards.contains(cardId)) {
-            holder.itemView.setBackgroundColor(
-                    MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlyAddedFileCard)
-            );
-        } else if (recentlyUpdatedFileCards != null && recentlyUpdatedFileCards.contains(cardId)) {
-            holder.itemView.setBackgroundColor(
-                    MaterialColors.getColor(holder.itemView, R.attr.colorItemRecentlyUpdatedFileCard)
-            );
+        View itemView = holder.itemView;
+        if (setBackgroundColorIfContainsCard(itemView, recentlyAddedCards, cardId, R.attr.colorItemRecentlyAddedCard)) return;
+        if (setBackgroundColorIfContainsCard(itemView, recentlyUpdatedCards, cardId, R.attr.colorItemRecentlyUpdatedCard)) return;
+        if (setBackgroundColorIfContainsCard(itemView, recentlyAddedFileCards, cardId, R.attr.colorItemRecentlyAddedFileCard)) return;
+        if (setBackgroundColorIfContainsCard(itemView, recentlyUpdatedFileCards, cardId, R.attr.colorItemRecentlyUpdatedFileCard)) return;
+    }
+
+    protected boolean setBackgroundColorIfContainsCard(
+            View itemView,
+            Set<Integer> cards,
+            int cardId,
+            @AttrRes int colorAttributeResId
+    ) {
+        if (cards != null && cards.contains(cardId)) {
+            itemView.setBackgroundColor(MaterialColors.getColor(itemView, colorAttributeResId));
+            return true;
         }
+        return false;
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -84,9 +88,9 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
         if (isShowedRecentlySynced()) {
             Completable.fromMaybe(loadCardsToList())
                     .andThen(loadRecentlySynced().toObservable())
-                    .doOnComplete(() -> refreshDataSet(positionStart, itemCount))
+                    .doOnComplete(() -> refreshDataSet(positionStart, itemCount, this::onErrorLoadCards))
                     .subscribeOn(Schedulers.io())
-                    .subscribe(aLong -> {}, this::errorLoadCards);
+                    .subscribe(aLong -> {}, this::onErrorLoadCards);
         } else {
             super.loadCards(positionStart, itemCount);
         }
@@ -108,7 +112,7 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     }
 
     protected Maybe<Long> loadRecentlySynced() {
-        return getDeckDatabase().fileSyncedDao().findDeckModifiedAt()
+        return getDeckDb().fileSyncedDao().findDeckModifiedAt()
                 .doOnSuccess(deckModifiedAt ->
                         Observable.merge(
                                         getRecentlyAddedDeckCards(deckModifiedAt).toObservable(),
@@ -122,27 +126,27 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     }
 
     protected Maybe<List<Integer>> getRecentlyAddedDeckCards(long createdAt) {
-        return getDeckDatabase().cardDaoAsync().findIdsByCreatedAt(createdAt)
+        return getDeckDb().cardDaoAsync().findIdsByCreatedAt(createdAt)
                 .doOnSuccess(cardIds -> recentlyAddedCards = new HashSet<>(cardIds));
     }
 
     protected Maybe<List<Integer>> getRecentlyUpdatedDeckCards(long modifiedAt) {
-        return getDeckDatabase().cardDaoAsync().findIdsByModifiedAtAndCreatedAtNot(modifiedAt)
+        return getDeckDb().cardDaoAsync().findIdsByModifiedAtAndCreatedAtNot(modifiedAt)
                 .doOnSuccess(cardIds -> recentlyUpdatedCards = new HashSet<>(cardIds));
     }
 
     protected Maybe<List<Integer>> getRecentlyAddedFileCards(long fileSyncCreatedAt) {
-        return getDeckDatabase().cardDaoAsync().findIdsByFileSyncCreatedAt(fileSyncCreatedAt)
+        return getDeckDb().cardDaoAsync().findIdsByFileSyncCreatedAt(fileSyncCreatedAt)
                 .doOnSuccess(cardIds -> recentlyAddedFileCards = new HashSet<>(cardIds));
     }
 
     protected Maybe<List<Integer>> getRecentlyUpdatedFileCards(long fileSyncModifiedAt) {
-        return getDeckDatabase().cardDaoAsync().findIdsByFileSyncModifiedAtAndFileSyncCreatedAtNot(fileSyncModifiedAt)
+        return getDeckDb().cardDaoAsync().findIdsByFileSyncModifiedAtAndFileSyncCreatedAtNot(fileSyncModifiedAt)
                 .doOnSuccess(cardIds -> recentlyUpdatedFileCards = new HashSet<>(cardIds));
     }
 
     protected void errorShowRecentlySynced(Throwable e) {
-        exceptionHandler.handleException(
+        getExceptionHandler().handleException(
                 e, getActivity().getSupportFragmentManager(),
                 this.getClass().getSimpleName() + "_OnClickShowRecentlySynced",
                 "Error while showing recently synced."
@@ -179,13 +183,13 @@ public class FileSyncCardRecyclerViewAdapter extends SelectCardRecyclerViewAdapt
     }
 
     @Override
-    public void onCardUnselect(@NonNull RecyclerView.ViewHolder holder) {
+    public void onCardUnselect(SelectCardViewHolder holder) {
         super.onCardUnselect(holder);
         setRecentlySyncedBackground(holder, holder.getBindingAdapterPosition());
     }
 
     @Override
     public FileSyncListCardsActivity getActivity() {
-        return getActivity();
+        return (FileSyncListCardsActivity) super.getActivity();
     }
 }

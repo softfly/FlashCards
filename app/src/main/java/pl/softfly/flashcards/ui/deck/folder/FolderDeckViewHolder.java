@@ -13,20 +13,21 @@ import pl.softfly.flashcards.ui.deck.standard.DeckViewHolder;
  */
 public class FolderDeckViewHolder extends DeckViewHolder {
 
-    protected FolderDeckRecyclerViewAdapter adapter;
-
-    public FolderDeckViewHolder(@NonNull View itemView, FolderDeckRecyclerViewAdapter adapter) {
+    public FolderDeckViewHolder(@NonNull View itemView, FolderDeckBaseViewAdapter adapter) {
         super(itemView, adapter);
-        this.adapter = adapter;
     }
 
     @Override
     protected boolean onMenuMoreClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.cut:
-                adapter.cut(getBindingAdapterPosition());
+                getAdapter().cut(getBindingAdapterPosition());
                 return true;
         }
         return super.onMenuMoreClick(item);
+    }
+
+    public FolderDeckBaseViewAdapter getAdapter() {
+        return (FolderDeckBaseViewAdapter) super.getAdapter();
     }
 }

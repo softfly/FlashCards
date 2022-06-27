@@ -16,19 +16,19 @@ import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.entity.app.Deck;
-import pl.softfly.flashcards.ui.MainActivity;
-import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.main.MainActivity;
+import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
 import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class RecentDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
+public class RecentDeckBaseViewAdapter extends DeckBaseViewAdapter {
 
     protected final ArrayList<Deck> decks = new ArrayList<>();
 
-    public RecentDeckRecyclerViewAdapter(@NonNull MainActivity activity, ListDecksFragment listDecksFragment) {
-        super(activity, listDecksFragment);
+    public RecentDeckBaseViewAdapter(@NonNull MainActivity activity) {
+        super(activity);
     }
 
     @NonNull
@@ -43,7 +43,7 @@ public class RecentDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
     }
 
     public void loadItems(@NonNull File openFolder) {
-        AppDatabase appDb = AppDatabaseUtil.getInstance(activity.getApplicationContext()).getDatabase();
+        AppDatabase appDb = AppDatabaseUtil.getInstance(getActivity().getApplicationContext()).getDatabase();
         appDb.deckDaoAsync()
                 .findByLastUpdatedAt(15)
                 .subscribeOn(Schedulers.io())
@@ -57,7 +57,7 @@ public class RecentDeckRecyclerViewAdapter extends DeckRecyclerViewAdapter {
                                     .map(deck -> deck.getName())
                                     .collect(Collectors.toList())
                     );
-                    activity.runOnUiThread(() -> notifyDataSetChanged());
+                    getActivity().runOnUiThread(() -> notifyDataSetChanged());
                 })
                 .subscribe();
     }

@@ -161,7 +161,7 @@ public class SyncExcelToDeckWorker extends Worker {
     protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
-                SyncExcelToDeckWorker.class.getSimpleName()
+                this.getClass().getSimpleName()
         );
     }
 

@@ -3,36 +3,40 @@ package pl.softfly.flashcards.ui.cards.drag_swipe;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 
-import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.cards.standard.CardBaseViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 
 public class DragSwipeListCardsActivity extends ListCardsActivity {
-
-    private DragSwipeCardRecyclerViewAdapter adapter;
 
     private boolean dragSwipeEnabled = true;
 
     private ItemTouchHelper itemTouchHelper;
 
+    /* -----------------------------------------------------------------------------------------
+     * Constructor
+     * ----------------------------------------------------------------------------------------- */
+
     @Override
     protected void onCreateRecyclerView() {
         super.onCreateRecyclerView();
         itemTouchHelper = new ItemTouchHelper(onCreateTouchHelper());
+        getAdapter().setTouchHelper(itemTouchHelper);
         setDragSwipeEnabled(dragSwipeEnabled);
-        adapter.setTouchHelper(itemTouchHelper);
     }
 
     @Override
-    protected CardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new DragSwipeCardRecyclerViewAdapter(this, deckDbPath);
-        setAdapter(adapter);
-        return adapter;
+    protected CardBaseViewAdapter onCreateRecyclerViewAdapter() {
+        return new DragSwipeCardBaseViewAdapter(this, getDeckDbPath());
     }
 
     @NonNull
-    protected ItemTouchHelper.Callback onCreateTouchHelper() {
-        return new DragSwipeCardTouchHelper(adapter);
+    protected DragSwipeCardTouchHelper onCreateTouchHelper() {
+        return new DragSwipeCardTouchHelper(getAdapter());
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Drag/swipe features
+     * ----------------------------------------------------------------------------------------- */
 
     protected void setDragSwipeEnabled(boolean dragSwipeEnabled) {
         if (itemTouchHelper != null) {
@@ -45,8 +49,12 @@ public class DragSwipeListCardsActivity extends ListCardsActivity {
         this.dragSwipeEnabled = dragSwipeEnabled;
     }
 
-    protected void setAdapter(DragSwipeCardRecyclerViewAdapter adapter) {
-        super.setAdapter(adapter);
-        this.adapter = adapter;
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
+
+    @Override
+    protected DragSwipeCardBaseViewAdapter getAdapter() {
+        return (DragSwipeCardBaseViewAdapter) super.getAdapter();
     }
 }

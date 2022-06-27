@@ -8,22 +8,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 
 import java.io.File;
 
-import io.reactivex.rxjava3.functions.Consumer;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.standard.DeckRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.base.BaseDialogFragment;
+import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
 
-public class CreateFolderDialog extends DialogFragment {
+public class CreateFolderDialog extends BaseDialogFragment {
 
     private final File currentFolder;
 
-    private final DeckRecyclerViewAdapter adapter;
+    private final DeckBaseViewAdapter adapter;
 
-    public CreateFolderDialog(File currentFolder, DeckRecyclerViewAdapter adapter) {
+    public CreateFolderDialog(File currentFolder, DeckBaseViewAdapter adapter) {
         this.adapter = adapter;
         this.currentFolder = currentFolder;
     }
@@ -37,7 +35,7 @@ public class CreateFolderDialog extends DialogFragment {
                 .setMessage("Please enter the name:")
                 .setView(view)
                 .setPositiveButton("OK",
-                        (dialog, which) -> getExceptionHandler().tryHandleException(() -> {
+                        (dialog, which) -> getExceptionHandler().tryRun(() -> {
                             EditText deckNameEditText = view.findViewById(R.id.folderName);
                             String newFolderName = deckNameEditText.getText().toString();
                             File folder = new File(currentFolder.getPath() + "/" + newFolderName);
@@ -45,34 +43,38 @@ public class CreateFolderDialog extends DialogFragment {
                                 //noinspection ResultOfMethodCallIgnored
                                 folder.mkdir();
                                 adapter.refreshItems();
-                                Toast.makeText(
-                                        requireContext(),
-                                        "\"" + newFolderName + "\" folder created.",
-                                        Toast.LENGTH_SHORT
-                                ).show();
+                                showToastFolderCreated(newFolderName);
                             } else {
-                                Toast.makeText(
-                                        requireContext(),
-                                        "\"" + newFolderName + "\" folder already exists.",
-                                        Toast.LENGTH_SHORT
-                                ).show();
+                                showToastFolderExists(newFolderName);
                             }
-                        }, getOnError()))
+                        }, this::onError))
                 .setNegativeButton("Cancel", (dialog, which) -> {
                 })
                 .create();
     }
 
-    @NonNull
-    protected Consumer<? super Throwable> getOnError() {
-        return e -> getExceptionHandler().handleException(
-                e, getActivity().getSupportFragmentManager(),
-                CreateFolderDialog.class.getSimpleName(),
-                "Error while creating new folder."
-        );
+    protected void showToastFolderCreated(String newFolderName) {
+        Toast.makeText(
+                requireContext(),
+                "\"" + newFolderName + "\" folder created.",
+                Toast.LENGTH_SHORT
+        ).show();
     }
 
-    protected ExceptionHandler getExceptionHandler() {
-        return ExceptionHandler.getInstance();
+    protected void showToastFolderExists(String newFolderName) {
+        Toast.makeText(
+                requireContext(),
+                "\"" + newFolderName + "\" folder already exists.",
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    @NonNull
+    protected void onError(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while creating new folder."
+        );
     }
 }

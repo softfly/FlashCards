@@ -1,10 +1,8 @@
 package pl.softfly.flashcards.ui.cards.drag_swipe;
 
 import android.view.MotionEvent;
-import android.view.View;
 
-import androidx.annotation.NonNull;
-
+import pl.softfly.flashcards.databinding.ItemCardBinding;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 
 /**
@@ -12,15 +10,17 @@ import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
  */
 public class DragSwipeCardViewHolder extends CardViewHolder {
 
-    protected DragSwipeCardRecyclerViewAdapter adapter;
-
-    public DragSwipeCardViewHolder(@NonNull View itemView, DragSwipeCardRecyclerViewAdapter adapter) {
-        super(itemView, adapter);
-        this.adapter = adapter;
+    public DragSwipeCardViewHolder(ItemCardBinding binding, DragSwipeCardBaseViewAdapter adapter) {
+        super(binding, adapter);
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-        adapter.getTouchHelper().startDrag(this);
+        getAdapter().getTouchHelper().startDrag(this);
+    }
+
+    @Override
+    protected DragSwipeCardBaseViewAdapter getAdapter() {
+        return (DragSwipeCardBaseViewAdapter) super.getAdapter();
     }
 }

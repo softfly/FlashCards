@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.color.MaterialColors;
 
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.databinding.ItemCardBinding;
 
 /**
  * @author Grzegorz Ziemski
@@ -24,49 +25,66 @@ import pl.softfly.flashcards.R;
 public class CardViewHolder extends RecyclerView.ViewHolder
         implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
-    protected final static int MOVE_POPUP_SLIGHTLY_TO_LEFT = 200;
-    protected final static int MOVE_POPUP_SLIGHTLY_TO_UNDER = 100;
-
-    private final CardRecyclerViewAdapter adapter;
-    private final TextView idTextView;
-    private final TextView termTextView;
-    private final TextView definitionTextView;
-    @NonNull
+    private final CardBaseViewAdapter adapter;
     private final GestureDetector gestureDetector;
+    private final ItemCardBinding binding;
+
+    /**
+     * Needed to define where the popup menu should be displayed.
+     */
     private float lastTouchX;
+
+    /**
+     * Needed to define where the popup menu should be displayed.
+     */
     private float lastTouchY;
 
-    public CardViewHolder(@NonNull View itemView, CardRecyclerViewAdapter adapter) {
-        super(itemView);
+    public CardViewHolder(ItemCardBinding binding, CardBaseViewAdapter adapter) {
+        super(binding.getRoot());
         this.adapter = adapter;
-        idTextView = itemView.findViewById(R.id.id);
-        termTextView = itemView.findViewById(R.id.term);
-        definitionTextView = itemView.findViewById(R.id.definition);
+        this.binding = binding;
         gestureDetector = new GestureDetector(itemView.getContext(), this);
         itemView.setOnTouchListener(this);
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * C_02_01 When no card is selected and tap on the card, show the popup menu.
+     * ----------------------------------------------------------------------------------------- */
+
+    protected interface CreatePopupMenu {
+        void create(PopupMenu popupMenu);
+    }
+
+    /**
+     * Show popup at last tap location.
+     */
+    @SuppressLint("RestrictedApi")
+    public void showPopupMenu(CreatePopupMenu createPopupMenu) {
+        // A view that allows to display a popup with coordinates.
+        final ViewGroup layout = adapter.getActivity().getListCardsView();
+        final View view = createParentViewPopupMenu();
+        layout.addView(view);
+
+        PopupMenu popupMenu = new PopupMenu(
+                itemView.getContext(),
+                view,
+                Gravity.TOP | Gravity.LEFT
+        );
+        createPopupMenu.create(popupMenu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
+        popupMenu.setOnDismissListener(menu -> {
+            layout.removeView(view);
+            unfocusItemView();
+        });
+        popupMenu.show();
     }
 
     /**
      * C_02_01 When no card is selected and tap on the card, show the popup menu.
      */
-    @SuppressLint("RestrictedApi")
-    public void showPopupMenu() {
-        // A view that allows to display a popup with coordinates.
-        final ViewGroup layout = adapter.getActivity().findViewById(R.id.listCards);
-        final View view = createParentViewPopupMenu();
-        layout.addView(view);
-        PopupMenu popupMenu = new PopupMenu(
-                this.itemView.getContext(),
-                view,
-                Gravity.TOP | Gravity.LEFT
-        );
+    protected void createSingleTapMenu(PopupMenu popupMenu) {
         popupMenu.getMenuInflater().inflate(R.menu.popup_menu_card, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(this::onPopupMenuItemClick);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
-        popupMenu.setOnDismissListener(menu -> {
-            layout.removeView(view);
-        });
-        popupMenu.show();
+        popupMenu.setOnMenuItemClickListener(CardViewHolder.this::onPopupMenuItemClick);
     }
 
     /**
@@ -76,9 +94,10 @@ public class CardViewHolder extends RecyclerView.ViewHolder
     protected View createParentViewPopupMenu() {
         final View view = new View(adapter.getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(1, 1));
-        view.setX(getLastTouchX() - MOVE_POPUP_SLIGHTLY_TO_LEFT);
-        final float maxY_ToDisplay = itemView.getY() + itemView.getHeight();
-        view.setY(Math.min(getLastTouchY() + MOVE_POPUP_SLIGHTLY_TO_UNDER, maxY_ToDisplay));
+        view.setX(getLastTouchX());
+
+        final float maxY = itemView.getY() + itemView.getHeight();
+        view.setY(Math.min(getLastTouchY(), maxY));
         return view;
     }
 
@@ -100,14 +119,17 @@ public class CardViewHolder extends RecyclerView.ViewHolder
         throw new RuntimeException(String.format("Not implemented itemId=%d", item.getItemId()));
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Implementation of GestureDetector
+     * ----------------------------------------------------------------------------------------- */
+
     @Override
     public boolean onDown(MotionEvent e) {
         return false;
     }
 
     @Override
-    public void onShowPress(MotionEvent e) {
-    }
+    public void onShowPress(MotionEvent e) {}
 
     /**
      * C_02_01 When no card is selected and tap on the card, show the popup menu.
@@ -116,54 +138,76 @@ public class CardViewHolder extends RecyclerView.ViewHolder
     public boolean onSingleTapUp(@NonNull MotionEvent event) {
         lastTouchX = event.getRawX();
         lastTouchY = event.getRawY();
-        this.itemView.setActivated(true);
-        this.itemView.setBackgroundColor(
-                MaterialColors.getColor(this.itemView, R.attr.colorItemActive)
-        );
-        showPopupMenu();
+        focusSingleTapItemView();
+        showPopupMenu(this::createSingleTapMenu);
         return false;
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
+        return false; // It might be used when ItemTouchHelper is not attached.
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
+        // Do nothing
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouch(View v, @NonNull MotionEvent event) {
-        lastTouchX = event.getX();
-        lastTouchY = event.getY();
+        lastTouchX = event.getRawX();
+        lastTouchY = event.getRawY();
         gestureDetector.onTouchEvent(event);
         return false;
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Change the look of the view.
+     * ----------------------------------------------------------------------------------------- */
+
+    public void focusSingleTapItemView() {
+        itemView.setActivated(true);
+        itemView.setBackgroundColor(
+                MaterialColors.getColor(itemView, R.attr.colorItemActive)
+        );
+    }
+
+    public void unfocusItemView() {
+        this.itemView.setSelected(false);
+        this.itemView.setBackgroundColor(0);
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
+
     protected TextView getIdTextView() {
-        return idTextView;
+        return binding.id;
     }
 
     protected TextView getTermTextView() {
-        return termTextView;
+        return binding.term;
     }
 
     protected TextView getDefinitionTextView() {
-        return definitionTextView;
+        return binding.definition;
     }
 
-    protected float getLastTouchX() {
+    private float getLastTouchX() {
         return lastTouchX;
     }
 
-    protected float getLastTouchY() {
+    private float getLastTouchY() {
         return lastTouchY;
+    }
+
+    protected CardBaseViewAdapter getAdapter() {
+        return adapter;
     }
 }

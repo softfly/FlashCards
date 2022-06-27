@@ -67,7 +67,7 @@ public class EditCardActivity extends NewCardActivity {
                 .subscribe(deck -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        EditCardActivity.class.getSimpleName(),
+                        this.getClass().getSimpleName(),
                         "Error while updating card."
                 ));
     }

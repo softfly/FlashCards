@@ -28,8 +28,7 @@ class AppSettingsViewModel(
     /**
      * Value saved after clicking OK in DB.
      */
-    val darkModeDb: LiveData<AppConfig> = appDb.appConfigLiveData().findByKey(
-        AppConfig.DARK_MODE)
+    val darkModeDb: LiveData<AppConfig> = appDb.appConfigLiveData().findByKey(AppConfig.DARK_MODE)
 
     /**
      * Takes into consideration isSystemInDarkTheme()

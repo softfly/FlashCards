@@ -2,14 +2,10 @@ package pl.softfly.flashcards.ui.cards.file_sync;
 
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.color.MaterialColors;
-
-import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.databinding.ItemCardBinding;
 import pl.softfly.flashcards.ui.cards.select.SelectCardViewHolder;
 
 /**
@@ -17,56 +13,63 @@ import pl.softfly.flashcards.ui.cards.select.SelectCardViewHolder;
  */
 public class FileSyncCardViewHolder extends SelectCardViewHolder {
 
-    protected FileSyncCardRecyclerViewAdapter adapter;
-
     public FileSyncCardViewHolder(
-            @NonNull View itemView,
-            FileSyncCardRecyclerViewAdapter adapter
+            ItemCardBinding binding,
+            FileSyncCardBaseViewAdapter adapter
     ) {
-        super(itemView, adapter);
-        this.adapter = adapter;
+        super(binding, adapter);
     }
 
     @Override
-    public void showPopupMenu() {
-        if (adapter.getActivity().isEditingUnlocked()) super.showPopupMenu();
+    public void showPopupMenu(CreatePopupMenu createPopupMenu) {
+        if (getAdapter().getActivity().isEditingUnlocked()) super.showPopupMenu(createPopupMenu);
     }
 
     @Override
     public void showSelectPopupMenu() {
-        if (adapter.getActivity().isEditingUnlocked()) super.showSelectPopupMenu();
+        if (getAdapter().getActivity().isEditingUnlocked()) super.showSelectPopupMenu();
     }
 
     @Override
     protected boolean onPopupMenuItemClick(@NonNull MenuItem item) {
-        if (adapter.getActivity().isEditingUnlocked()) return super.onPopupMenuItemClick(item);
+        if (getAdapter().getActivity().isEditingUnlocked()) return super.onPopupMenuItemClick(item);
         else throw new RuntimeException("Deck editing is locked. Sync in progress..");
     }
 
     @Override
     public void onLongPress(MotionEvent e) {
-        if (adapter.getActivity().isEditingUnlocked()) super.onLongPress(e);
+        if (getAdapter().getActivity().isEditingUnlocked()) super.onLongPress(e);
     }
 
     @Override
     public boolean onSingleTapUp(@NonNull MotionEvent e) {
-        if (adapter.getActivity().isEditingUnlocked()) return super.onSingleTapUp(e);
+        if (getAdapter().getActivity().isEditingUnlocked()) return super.onSingleTapUp(e);
         return false;
     }
 
     @Override
-    protected void unfocusCard() {
-        this.itemView.setActivated(false);
+    public void unfocusItemView() {
+        // TODO
+        // this.itemView.setActivated(false);
         // Check that the card has not been previously selected.
         int position = getBindingAdapterPosition();
-        if (-1 < position && position < adapter.getItemCount()) {
-            if (adapter.isCardSelected(getBindingAdapterPosition())) {
+        if (-1 < position && position < getAdapter().getItemCount()) {
+            if (getAdapter().isCardSelected(position)) {
                 selectItemView();
-            } else if (adapter.isShowedRecentlySynced(getBindingAdapterPosition())) {
-                adapter.setRecentlySyncedBackground(this, position);
+            } else if (getAdapter().isShowedRecentlySynced(position)) {
+                getAdapter().setRecentlySyncedBackground(this, position);
             } else {
-                unselectItemView();
+                super.unfocusItemView();
             }
         }
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
+
+    @Override
+    public FileSyncCardBaseViewAdapter getAdapter() {
+        return (FileSyncCardBaseViewAdapter) super.getAdapter();
     }
 }

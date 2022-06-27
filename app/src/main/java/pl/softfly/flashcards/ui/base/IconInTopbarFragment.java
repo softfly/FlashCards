@@ -1,8 +1,6 @@
-package pl.softfly.flashcards.ui;
+package pl.softfly.flashcards.ui.base;
 
 import android.annotation.SuppressLint;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
@@ -12,7 +10,6 @@ import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.fragment.app.Fragment;
 import androidx.viewbinding.ViewBinding;
 
 import com.google.android.material.color.MaterialColors;
@@ -22,7 +19,7 @@ import pl.softfly.flashcards.R;
 /**
  * @author Grzegorz Ziemski
  */
-public abstract class IconWithTextInTopbarFragment extends Fragment {
+public abstract class IconInTopbarFragment extends BaseFragment {
 
 
     @SuppressLint("ResourceAsColor")

@@ -133,7 +133,7 @@ public class ImportExcelToDeckWorker extends Worker {
     protected void showExceptionDialog(@NonNull Exception e) {
         exceptionHandler.handleException(
                 e, ((FlashCardsApp) getApplicationContext()).getActiveActivity(),
-                ImportExcelToDeckWorker.class.getSimpleName()
+                this.getClass().getSimpleName()
         );
     }
 

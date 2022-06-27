@@ -26,23 +26,23 @@ import pl.softfly.flashcards.Config;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.databinding.FragmentListDecksBinding;
 import pl.softfly.flashcards.ui.ExportImportDbUtil;
-import pl.softfly.flashcards.ui.IconWithTextInTopbarFragment;
-import pl.softfly.flashcards.ui.MainActivity;
+import pl.softfly.flashcards.ui.base.IconInTopbarFragment;
+import pl.softfly.flashcards.ui.main.MainActivity;
 import pl.softfly.flashcards.ui.app.settings.AppSettingsActivity;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ListDecksFragment extends IconWithTextInTopbarFragment {
+public class ListDecksFragment extends IconInTopbarFragment {
 
     private FragmentListDecksBinding binding;
 
-    private DeckRecyclerViewAdapter adapter;
+    private DeckBaseViewAdapter adapter;
 
-    protected ExportImportDbUtil exportImportDbUtil = new ExportImportDbUtil(this);
+    private ExportImportDbUtil exportImportDbUtil = new ExportImportDbUtil(this);
 
     /* -----------------------------------------------------------------------------------------
-     * Fragment methods overridden
+     * Constructor
      * ----------------------------------------------------------------------------------------- */
 
     @Override
@@ -53,8 +53,8 @@ public class ListDecksFragment extends IconWithTextInTopbarFragment {
         setHasOptionsMenu(true);
     }
 
-    protected DeckRecyclerViewAdapter onCreateAdapter() {
-        return new DeckRecyclerViewAdapter((MainActivity) getActivity(), this);
+    protected DeckBaseViewAdapter onCreateAdapter() {
+        return new DeckBaseViewAdapter((MainActivity) getActivity());
     }
 
     protected void askPermissionManageExternalStorage() {
@@ -93,10 +93,14 @@ public class ListDecksFragment extends IconWithTextInTopbarFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Fragment methods overridden
+     * ----------------------------------------------------------------------------------------- */
+
     @Override
     public void onResume() {
-        adapter.refreshItems();
         super.onResume();
+        adapter.refreshItems();
     }
 
     @Override
@@ -153,7 +157,7 @@ public class ListDecksFragment extends IconWithTextInTopbarFragment {
     }
 
     /* -----------------------------------------------------------------------------------------
-     * Gets
+     * Gets/Sets
      * ----------------------------------------------------------------------------------------- */
 
     @Override
@@ -161,11 +165,15 @@ public class ListDecksFragment extends IconWithTextInTopbarFragment {
         return binding;
     }
 
-    public DeckRecyclerViewAdapter getAdapter() {
+    public DeckBaseViewAdapter getAdapter() {
         return adapter;
     }
 
     public void refreshItems() {
         adapter.refreshItems();
+    }
+
+    public ExportImportDbUtil getExportImportDbUtil() {
+        return exportImportDbUtil;
     }
 }

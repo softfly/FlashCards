@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui;
+package pl.softfly.flashcards.ui.base;
 
 import android.annotation.SuppressLint;
 import android.graphics.PorterDuff;
@@ -9,7 +9,6 @@ import android.text.style.ImageSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.android.material.color.MaterialColors;
@@ -19,7 +18,7 @@ import pl.softfly.flashcards.R;
 /**
  * @author Grzegorz Ziemski
  */
-public abstract class IconWithTextInTopbarActivity extends AppCompatActivity {
+public abstract class IconInTopbarActivity extends BaseActivity {
 
     @SuppressLint("ResourceAsColor")
     @NonNull

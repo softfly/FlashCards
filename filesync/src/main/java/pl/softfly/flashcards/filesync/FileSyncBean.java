@@ -31,7 +31,7 @@ import pl.softfly.flashcards.filesync.ui.SetUpAutoSyncFileDialog;
 import pl.softfly.flashcards.filesync.worker.ExportExcelFromDeckWorker;
 import pl.softfly.flashcards.filesync.worker.ImportExcelToDeckWorker;
 import pl.softfly.flashcards.filesync.worker.SyncExcelToDeckWorker;
-import pl.softfly.flashcards.ui.MainActivity;
+import pl.softfly.flashcards.ui.main.MainActivity;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 
 /**
@@ -261,7 +261,7 @@ public class FileSyncBean implements FileSync {
                 .subscribe(blockedAt -> {
                 }, e -> exceptionHandler.handleException(
                         e, activity.getSupportFragmentManager(),
-                        FileSyncBean.class.getSimpleName(),
+                        this.getClass().getSimpleName(),
                         "Error while exporting or syncing cards.",
                         (dialog, which) -> activity.onBackPressed()
                 ));

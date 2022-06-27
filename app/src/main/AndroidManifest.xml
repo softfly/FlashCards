@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlashCards">
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.main.ExceptionMainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,10 +23,10 @@
         <activity
             android:name=".ui.card.study.ExceptionStudyCardActivity"
             android:exported="false"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.main.ExceptionMainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MainActivity" />
+                android:value=".ui.main.ExceptionMainActivity" />
         </activity>
         <activity
             android:name=".ui.card.NewCardActivity"

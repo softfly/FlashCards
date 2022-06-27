@@ -1,10 +1,9 @@
-package pl.softfly.flashcards.ui;
+package pl.softfly.flashcards.ui.main;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,7 +13,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.List;
 
 import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CreateSampleDeck;
@@ -24,10 +22,17 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.entity.app.AppConfig;
 import pl.softfly.flashcards.entity.app.Deck;
+import pl.softfly.flashcards.ui.FileSyncUtil;
+import pl.softfly.flashcards.ui.base.BaseActivity;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
+import pl.softfly.flashcards.ui.deck.folder_exception.ExceptionListFoldersDecksFragment;
 import pl.softfly.flashcards.ui.deck.recent.ListRecentDecksFragment;
+import pl.softfly.flashcards.ui.deck.recent_exception.ExceptionListRecentDecksFragment;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * @author Grzegorz Ziemski
+ */
+public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
 
@@ -187,14 +192,14 @@ public class MainActivity extends AppCompatActivity {
 
     public ListFoldersDecksFragment getListAllDecksFragment() {
         if (listFoldersDecksFragment == null) {
-            listFoldersDecksFragment = new ListFoldersDecksFragment();
+            listFoldersDecksFragment = new ExceptionListFoldersDecksFragment();
         }
         return listFoldersDecksFragment;
     }
 
     public ListRecentDecksFragment getListRecentDecksFragment() {
         if (listRecentDecksFragment == null) {
-            listRecentDecksFragment = new ListRecentDecksFragment();
+            listRecentDecksFragment = new ExceptionListRecentDecksFragment();
         }
         return listRecentDecksFragment;
     }

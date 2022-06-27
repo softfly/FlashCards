@@ -1,11 +1,7 @@
 package pl.softfly.flashcards.ui.cards.file_sync;
 
 import static pl.softfly.flashcards.filesync.FileSync.TAG;
-import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLS;
-import static pl.softfly.flashcards.filesync.FileSync.TYPE_XLSX;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,11 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
@@ -27,12 +20,11 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.Config;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.DeckConfig;
 import pl.softfly.flashcards.filesync.FileSync;
@@ -44,45 +36,111 @@ import pl.softfly.flashcards.ui.cards.select.SelectListCardsActivity;
  */
 public class FileSyncListCardsActivity extends SelectListCardsActivity {
 
-    protected final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private static final int SECONDS_5 = 5000;
+
     @NonNull
     private final FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
 
-    protected FileSyncUtil fileSyncUtil;
+    private FileSyncUtil fileSyncUtil;
 
     @Nullable
     private DeckDatabase deckDb;
-    private FileSyncCardRecyclerViewAdapter adapter;
+
     private boolean editingLocked = false;
+
+    /* -----------------------------------------------------------------------------------------
+     * Constructor
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        deckDb = getDeckDatabase();
-        deckDb.deckConfigLiveData().findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
-                .observe(this, deckConfig -> {
-                    if (deckConfig != null && deckConfig.getValue() != null) {
-                        lockEditing();
-                        checkIfEditingIsLocked();
-                    } else {
-                        unlockEditing();
-                    }
-                });
+        deckDb = getDeckDatabase(getDeckDbPath());
         fileSyncUtil = new FileSyncUtil(this);
+        observeEditingBlockedAt();
+    }
+
+    protected void observeEditingBlockedAt() {
+        deckDb.deckConfigLiveData().findByKey(DeckConfig.FILE_SYNC_EDITING_BLOCKED_AT)
+                .observe(this, deckConfig -> getExceptionHandler().tryRun(
+                        () -> {
+                            if (deckConfig != null && deckConfig.getValue() != null) {
+                                lockEditing();
+                                checkIfEditingIsLocked();
+                            } else {
+                                unlockEditing();
+                            }
+                        },
+                        getSupportFragmentManager(),
+                        this.getClass().getSimpleName(),
+                        "Error while unlocking / locking editing."
+                ));
     }
 
     @Override
-    protected FileSyncCardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new FileSyncCardRecyclerViewAdapter(this, deckDbPath);
-        setAdapter(adapter);
-        return adapter;
+    protected FileSyncCardBaseViewAdapter onCreateRecyclerViewAdapter() {
+        return new FileSyncCardBaseViewAdapter(this, getDeckDbPath());
     }
 
-    @NonNull
+    /* -----------------------------------------------------------------------------------------
+     * Activity methods overridden
+     * ----------------------------------------------------------------------------------------- */
+
     @Override
-    protected ItemTouchHelper.Callback onCreateTouchHelper() {
-        return new FileSyncCardTouchHelper(adapter);
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        if (isEditingUnlocked()) {
+            if (getAdapter().isSelectionMode()) {
+                menu.add(0, R.id.sync_excel, 2,
+                        menuIconWithText(
+                                getDrawableHelper(R.drawable.ic_sharp_sync_24),
+                                "Sync with Excel"
+                        ));
+                menu.add(0, R.id.export_excel, 3,
+                        menuIconWithText(
+                                getDrawableHelper(R.drawable.ic_round_file_upload_24),
+                                "Export to new Excel"
+                        ));
+                if (!getAdapter().isShowedRecentlySynced()) {
+                    menu.add(0, R.id.show_recently_synced, 4,
+                            menuIconWithText(
+                                    getDrawableHelper(R.drawable.ic_round_visibility_24),
+                                    "Show recently synced"
+                            ));
+                } else {
+                    menu.add(0, R.id.hide_recently_synced, 5,
+                            menuIconWithText(
+                                    getDrawableHelper(R.drawable.ic_baseline_visibility_off_24),
+                                    "Hide recently synced"
+                            ));
+                }
+            }
+            return super.onCreateOptionsMenu(menu);
+        }
+        return false;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sync_excel:
+                fileSyncUtil.launchSyncFile(getDeckDbPath());
+                return true;
+            case R.id.export_excel:
+                fileSyncUtil.launchExportToFile(getDeckDbPath());
+                return true;
+            case R.id.show_recently_synced:
+                getAdapter().showRecentlySynced();
+                return true;
+            case R.id.hide_recently_synced:
+                getAdapter().hideRecentlySynced();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * FileSync features
+     * ----------------------------------------------------------------------------------------- */
 
     /**
      * Unlock deck editing if any worker is working.
@@ -98,27 +156,17 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                         .subscribeOn(Schedulers.io())
                         .doOnError(Throwable::printStackTrace)
                         .doOnSuccess(deckConfig -> {
-                            WorkManager workManager = WorkManager.getInstance(getApplicationContext());
-                            ListenableFuture<List<WorkInfo>> statuses = workManager.getWorkInfos(
-                                    WorkQuery.Builder
-                                            .fromTags(Arrays.asList(FileSync.TAG))
-                                            .addStates(Arrays.asList(WorkInfo.State.ENQUEUED, WorkInfo.State.RUNNING))
-                                            .build()
-                            );
-                            if (statuses.get().isEmpty()) {
+                            if (isFileSyncWorkersRuns()) {
                                 deckConfig.setValue(null);
                                 deckDb.deckConfigDao().update(deckConfig);
                                 if (editingLocked) {
                                     unlockEditing();
-                                    if (Config.getInstance(getApplicationContext()).isCrashlyticsEnabled()) {
-                                        crashlytics.setCustomKey("tag", TAG);
-                                        crashlytics.log("Emergency editing unlock, the worker has failed miserably.");
-                                    }
+                                    sendCrashlyticsLogUnlock();
                                 }
                             } else if (!editingLocked) {
                                 lockEditing();
                             } else if (editingLocked) {
-                                handler.postDelayed(this, 5000);
+                                handler.postDelayed(this, SECONDS_5);
                             }
                         })
                         .doOnEvent((value, error) -> {
@@ -128,98 +176,69 @@ public class FileSyncListCardsActivity extends SelectListCardsActivity {
                                 }
                             }
                         })
-                        .subscribe(deckConfig -> {
-                        }, e -> exceptionHandler.handleException(
+                        .subscribe(deckConfig -> {}, e -> getExceptionHandler().handleException(
                                 e, getSupportFragmentManager(),
-                                FileSyncListCardsActivity.class.getSimpleName() + "_CheckIfEditingIsLocked",
+                                this.getClass().getSimpleName() + "_CheckIfEditingIsLocked",
                                 (dialog, which) -> onBackPressed()
                         ));
             }
         });
     }
 
-    private void lockEditing() {
-        editingLocked = true;
+    protected boolean isFileSyncWorkersRuns() throws ExecutionException, InterruptedException {
+        WorkManager workManager = WorkManager.getInstance(getApplicationContext());
+        ListenableFuture<List<WorkInfo>> statuses = workManager.getWorkInfos(
+                WorkQuery.Builder
+                        .fromTags(Arrays.asList(FileSync.TAG))
+                        .addStates(Arrays.asList(WorkInfo.State.ENQUEUED, WorkInfo.State.RUNNING))
+                        .build()
+        );
+        return statuses.get().isEmpty();
+    }
+
+    protected void sendCrashlyticsLogUnlock() {
+        if (Config.getInstance(getApplicationContext()).isCrashlyticsEnabled()) {
+            crashlytics.setCustomKey("tag", TAG);
+            crashlytics.log("Emergency editing unlock, the worker has failed miserably.");
+        }
+    }
+
+    protected void lockEditing() {
         runOnUiThread(() -> {
             findViewById(R.id.editingLocked).setVisibility(View.VISIBLE);
             setDragSwipeEnabled(false);
-        });
-        refreshMenuOnAppBar();
+            refreshMenuOnAppBar();
+            editingLocked = true;
+        }, this::onErrorLockEditing);
     }
 
-    private void unlockEditing() {
+    protected void unlockEditing() {
         runOnUiThread(() -> {
             findViewById(R.id.editingLocked).setVisibility(View.INVISIBLE);
             setDragSwipeEnabled(true);
-        });
-        refreshMenuOnAppBar();
-        editingLocked = false;
+            refreshMenuOnAppBar();
+            editingLocked = false;
+        }, this::onErrorLockEditing);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        if (isEditingUnlocked()) {
-            menu.add(0, R.id.sync_excel, 2,
-                    menuIconWithText(
-                            getDrawableHelper(R.drawable.ic_sharp_sync_24),
-                            "Sync with Excel"
-                    ));
-            menu.add(0, R.id.export_excel, 3,
-                    menuIconWithText(
-                            getDrawableHelper(R.drawable.ic_round_file_upload_24),
-                            "Export to new Excel"
-                    ));
-            if (!adapter.isShowedRecentlySynced()) {
-                menu.add(0, R.id.show_recently_synced, 4,
-                        menuIconWithText(
-                                getDrawableHelper(R.drawable.ic_round_visibility_24),
-                                "Show recently synced"
-                        ));
-            } else {
-                menu.add(0, R.id.hide_recently_synced, 5,
-                        menuIconWithText(
-                                getDrawableHelper(R.drawable.ic_baseline_visibility_off_24),
-                                "Hide recently synced"
-                        ));
-            }
-            return super.onCreateOptionsMenu(menu);
-        }
-        return false;
+    protected void onErrorLockEditing(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while unlocking / locking editing."
+        );
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sync_excel:
-                fileSyncUtil.launchSyncFile(deckDbPath);
-                return true;
-            case R.id.export_excel:
-                fileSyncUtil.launchExportToFile(deckDbPath);
-                return true;
-            case R.id.show_recently_synced:
-                adapter.showRecentlySynced();
-                return true;
-            case R.id.hide_recently_synced:
-                adapter.hideRecentlySynced();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Nullable
-    protected DeckDatabase getDeckDatabase() {
-        return DeckDatabaseUtil
-                .getInstance(getBaseContext())
-                .getDatabase(deckDbPath);
-    }
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
 
     public boolean isEditingUnlocked() {
         return !editingLocked;
     }
 
-    protected void setAdapter(FileSyncCardRecyclerViewAdapter adapter) {
-        super.setAdapter(adapter);
-        this.adapter = adapter;
+    @Override
+    public FileSyncCardBaseViewAdapter getAdapter() {
+        return (FileSyncCardBaseViewAdapter) super.getAdapter();
     }
-
 }

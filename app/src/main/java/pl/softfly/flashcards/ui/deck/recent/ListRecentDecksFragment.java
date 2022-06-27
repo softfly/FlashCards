@@ -6,7 +6,7 @@ import android.view.MenuInflater;
 import androidx.annotation.NonNull;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.MainActivity;
+import pl.softfly.flashcards.ui.main.MainActivity;
 import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 
 /**
@@ -15,8 +15,8 @@ import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 public class ListRecentDecksFragment extends ListDecksFragment {
 
     @Override
-    protected RecentDeckRecyclerViewAdapter onCreateAdapter() {
-        return new RecentDeckRecyclerViewAdapter((MainActivity) getActivity(), this);
+    protected RecentDeckBaseViewAdapter onCreateAdapter() {
+        return new RecentDeckBaseViewAdapter((MainActivity) getActivity());
     }
 
     @Override

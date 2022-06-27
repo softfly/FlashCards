@@ -92,20 +92,19 @@ public class ExportImportDbUtil {
                             }
                         }
                     } catch (Exception e) {
-                        getExceptionHandler().handleException(
-                                e, fragment.getActivity().getSupportFragmentManager(),
-                                ExportImportDbUtil.class.getSimpleName(),
-                                "Error while exporting DB."
-                        );
+                        onErrorExportDb(e);
                     }
                 })
                 .subscribeOn(Schedulers.io())
-                .subscribe(() -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, fragment.getActivity().getSupportFragmentManager(),
-                        ExportImportDbUtil.class.getSimpleName(),
-                        "Error while exporting DB."
-                ));
+                .subscribe(() -> {}, this::onErrorExportDb);
+    }
+
+    protected void onErrorExportDb(Throwable e) {
+        getExceptionHandler().handleException(
+                e, fragment.getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while exporting DB."
+        );
     }
 
     @SuppressLint("Range")
@@ -136,20 +135,19 @@ public class ExportImportDbUtil {
                         out.close();
                         //adapter.refreshItems();
                     } catch (IOException e) {
-                        getExceptionHandler().handleException(
-                                e, fragment.getActivity().getSupportFragmentManager(),
-                                ExportImportDbUtil.class.getSimpleName(),
-                                "Error while importing DB."
-                        );
+                        onErrorImportDb(e);
                     }
                 })
                 .subscribeOn(Schedulers.io())
-                .subscribe(() -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, fragment.getActivity().getSupportFragmentManager(),
-                        ExportImportDbUtil.class.getSimpleName(),
-                        "Error while importing DB."
-                ));
+                .subscribe(() -> {}, this::onErrorImportDb);
+    }
+
+    protected void onErrorImportDb(Throwable e) {
+        getExceptionHandler().handleException(
+                e, fragment.getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while importing DB."
+        );
     }
 
     public void launchExportDb(String dbPath) {

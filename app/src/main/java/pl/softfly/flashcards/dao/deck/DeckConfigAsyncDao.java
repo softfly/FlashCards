@@ -58,11 +58,9 @@ public abstract class DeckConfigAsyncDao {
                         deckConfig.setValue(newValue);
                         insert(deckConfig)
                                 .subscribeOn(Schedulers.io())
-                                .subscribe(() -> {
-                                }, onError);
+                                .subscribe(() -> {}, onError);
                     }
                 })
-                .subscribe(deckConfig -> {
-                }, onError);
+                .subscribe(deckConfig -> {}, onError);
     }
 }

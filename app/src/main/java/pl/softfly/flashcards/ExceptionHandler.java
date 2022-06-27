@@ -1,6 +1,8 @@
 package pl.softfly.flashcards;
 
 import android.content.DialogInterface;
+import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,8 +51,7 @@ public class ExceptionHandler {
         tryHandleException(r, manager, tag, null, null);
     }
 
-    @Deprecated
-    public void tryHandleException(
+    public void tryRun(
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
             @NonNull String tag,
@@ -64,9 +65,42 @@ public class ExceptionHandler {
             @NonNull Runnable r,
             @NonNull FragmentManager manager,
             @NonNull String tag,
+            @NonNull String message
+    ) {
+        tryHandleException(r, manager, tag, message, null);
+    }
+
+    public void tryRun(
+            @NonNull Runnable r,
+            @NonNull FragmentManager manager,
+            @NonNull String tag,
             DialogInterface.OnClickListener callback
     ) {
         tryHandleException(r, manager, tag, null, callback);
+    }
+
+    @Deprecated
+    public void tryHandleException(
+            @NonNull Runnable r,
+            @NonNull FragmentManager manager,
+            @NonNull String tag,
+            DialogInterface.OnClickListener callback
+    ) {
+        tryHandleException(r, manager, tag, null, callback);
+    }
+
+    public void tryRun(
+            @NonNull Runnable r,
+            @NonNull FragmentManager manager,
+            @NonNull String tag,
+            @NonNull String message,
+            DialogInterface.OnClickListener callback
+    ) {
+        try {
+            r.run();
+        } catch (Exception e) {
+            handleException(e, manager, tag, message, callback);
+        }
     }
 
     @Deprecated
@@ -178,5 +212,20 @@ public class ExceptionHandler {
             ExceptionDialog dialog = new ExceptionDialog(e, message, positiveListener);
             dialog.show(activity.getSupportFragmentManager(), tag);
         }
+    }
+
+    public void setDefaultUncaughtExceptionHandler(AppCompatActivity activity) {
+        Thread.setDefaultUncaughtExceptionHandler((paramThread, paramThrowable) -> {
+            new Thread(() -> {
+                Looper.prepare();
+                Toast.makeText(activity, "Fatal error", Toast.LENGTH_LONG).show();
+                Looper.loop();
+            }).start();
+            try {
+                Thread.sleep(500); // Let the Toast display before app will get shutdown
+            } catch (InterruptedException e) {
+            }
+            System.exit(2);
+        });
     }
 }

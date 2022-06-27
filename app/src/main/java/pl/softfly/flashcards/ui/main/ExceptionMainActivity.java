@@ -1,12 +1,10 @@
-package pl.softfly.flashcards.ui.cards.exception;
+package pl.softfly.flashcards.ui.main;
 
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -15,7 +13,7 @@ import pl.softfly.flashcards.ui.cards.file_sync.FileSyncListCardsActivity;
  * I considered making classes for catching exceptions more general and making Composition,
  * but in the Manifest defined classes must inherit android.app.Activity.
  */
-public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
+public class ExceptionMainActivity extends MainActivity {
 
     /* -----------------------------------------------------------------------------------------
      * Constructor
@@ -23,23 +21,8 @@ public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getExceptionHandler().tryRun(
-                () -> super.onCreate(savedInstanceState),
-                getSupportFragmentManager(),
-                this.getClass().getSimpleName(),
-                (dialog, which) -> onBackPressed() //TODO show error
-        );
-    }
-
-    @Override
-    protected ExceptionCardBaseViewAdapter onCreateRecyclerViewAdapter() {
-        return new ExceptionCardBaseViewAdapter(this, getDeckDbPath());
-    }
-
-    @NonNull
-    @Override
-    protected ExceptionCardTouchHelper onCreateTouchHelper() {
-        return new ExceptionCardTouchHelper(getAdapter());
+        super.onCreate(savedInstanceState);
+        getExceptionHandler().setDefaultUncaughtExceptionHandler(this);
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -49,17 +32,17 @@ public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
     @Override
     protected void onResume() {
         getExceptionHandler().tryRun(
-                () -> super.onResume(),
+                super::onResume,
                 getSupportFragmentManager(),
                 this.getClass().getSimpleName(),
-                "Error while resuming activity."
+                "Error while resuming main activity."
         );
     }
 
     @Override
     public void onRestart() {
         getExceptionHandler().tryRun(
-                () -> super.onRestart(),
+                super::onRestart,
                 getSupportFragmentManager(),
                 this.getClass().getSimpleName(),
                 "Error while restarting activity."
@@ -95,7 +78,16 @@ public class ExceptionListCardsActivity extends FileSyncListCardsActivity {
     }
 
     @Override
-    public ExceptionCardBaseViewAdapter getAdapter() {
-        return (ExceptionCardBaseViewAdapter) super.getAdapter();
+    public boolean onSupportNavigateUp() {
+        try {
+            return super.onSupportNavigateUp();
+        } catch (Exception e) {
+            getExceptionHandler().handleException(
+                    e, getSupportFragmentManager(),
+                    this.getClass().getSimpleName(),
+                    "Error when pressing back."
+            );
+            return false;
+        }
     }
 }

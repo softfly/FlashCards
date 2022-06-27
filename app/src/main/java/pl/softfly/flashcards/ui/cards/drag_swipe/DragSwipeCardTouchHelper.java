@@ -1,30 +1,28 @@
 package pl.softfly.flashcards.ui.cards.drag_swipe;
 
+import android.view.MotionEvent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.color.MaterialColors;
-
-import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 
 /**
  * @author Grzegorz Ziemski
  */
 public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
 
-    private final DragSwipeCardRecyclerViewAdapter adapter;
-    private int dragTo = -1;
+    protected static final int NO_DRAG = -1;
+    protected static final int DRAG_AFTER_POSITION = 1;
 
-    public DragSwipeCardTouchHelper(DragSwipeCardRecyclerViewAdapter adapter) {
+    private final DragSwipeCardBaseViewAdapter adapter;
+    private int dragToPosition = NO_DRAG;
+
+    public DragSwipeCardTouchHelper(DragSwipeCardBaseViewAdapter adapter) {
         this.adapter = adapter;
-    }
-
-    @Override
-    public boolean isLongPressDragEnabled() {
-        return false;
     }
 
     @Override
@@ -33,7 +31,9 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
             @NonNull RecyclerView.ViewHolder viewHolder
     ) {
         super.clearView(recyclerView, viewHolder);
-        dragTo = -1;
+        CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
+        cardViewHolder.unfocusItemView();
+        dragToPosition = NO_DRAG;
     }
 
     @Override
@@ -42,23 +42,45 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
             int actionState
     ) {
         super.onSelectedChanged(viewHolder, actionState);
+        CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
         switch (actionState) {
             case ItemTouchHelper.ACTION_STATE_DRAG:
             case ItemTouchHelper.ACTION_STATE_SWIPE:
-                viewHolder.itemView.setActivated(true);
-                viewHolder.itemView.setBackgroundColor(
-                        MaterialColors.getColor(viewHolder.itemView, R.attr.colorItemActive)
-                );
+                cardViewHolder.focusSingleTapItemView();
                 break;
             case ItemTouchHelper.ACTION_STATE_IDLE:
-                if (dragTo != -1) {
-                    Card card = adapter.getItem(dragTo);
-                    if (card.getOrdinal() != dragTo + 1) {
-                        adapter.moveCard(card, dragTo + 1);
+                if (dragToPosition != -1) {
+                    Card card = adapter.getItem(dragToPosition);
+                    if (card.getOrdinal() != dragToPosition + DRAG_AFTER_POSITION) {
+                        adapter.moveCard(card, dragToPosition + DRAG_AFTER_POSITION);
                     }
                 }
                 break;
         }
+    }
+
+    @Override
+    public boolean onMove(
+            @NonNull RecyclerView recyclerView,
+            @NonNull RecyclerView.ViewHolder viewHolder,
+            @NonNull RecyclerView.ViewHolder target
+    ) {
+        dragToPosition = target.getBindingAdapterPosition();
+        adapter.onMoveCard(viewHolder.getBindingAdapterPosition(), dragToPosition);
+        return true;
+    }
+
+    @Override
+    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+        adapter.onClickDeleteCard(viewHolder.getBindingAdapterPosition());
+    }
+
+    @Override
+    public boolean isLongPressDragEnabled() {
+        /**
+         * It is implemented by {@link DragSwipeCardViewHolder#onLongPress(MotionEvent)}
+         */
+        return false;
     }
 
     @Override
@@ -71,19 +93,7 @@ public class DragSwipeCardTouchHelper extends ItemTouchHelper.Callback {
         return makeMovementFlags(dragFlags, swipeFlags);
     }
 
-    @Override
-    public boolean onMove(
-            @NonNull RecyclerView recyclerView,
-            @NonNull RecyclerView.ViewHolder viewHolder,
-            @NonNull RecyclerView.ViewHolder target
-    ) {
-        dragTo = target.getBindingAdapterPosition();
-        adapter.onCardMoveNoSave(viewHolder.getBindingAdapterPosition(), dragTo);
-        return true;
-    }
-
-    @Override
-    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        adapter.onClickDeleteCard(viewHolder.getBindingAdapterPosition());
+    protected DragSwipeCardBaseViewAdapter getAdapter() {
+        return adapter;
     }
 }

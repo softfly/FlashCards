@@ -4,31 +4,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ItemTouchHelper;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.cards.drag_swipe.DragSwipeListCardsActivity;
 
 public class SelectListCardsActivity extends DragSwipeListCardsActivity {
 
-    private SelectCardRecyclerViewAdapter adapter;
+    /* -----------------------------------------------------------------------------------------
+     * Constructor
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
-    protected SelectCardRecyclerViewAdapter onCreateRecyclerViewAdapter() {
-        adapter = new SelectCardRecyclerViewAdapter(this, deckDbPath);
-        setAdapter(adapter);
-        return adapter;
+    protected SelectCardBaseViewAdapter onCreateRecyclerViewAdapter() {
+        return new SelectCardBaseViewAdapter(this, getDeckDbPath());
     }
 
     @NonNull
     @Override
-    protected ItemTouchHelper.Callback onCreateTouchHelper() {
-        return new SelectCardTouchHelper(adapter);
+    protected SelectCardTouchHelper onCreateTouchHelper() {
+        return new SelectCardTouchHelper(getAdapter());
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Activity methods overridden
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        if (adapter.isSelectionMode()) {
+        if (getAdapter().isSelectionMode()) {
             menu.add(0, R.id.deselect_all, 2,
                     menuIconWithText(
                             getDrawableHelper(R.drawable.ic_baseline_deselect_24),
@@ -50,18 +53,22 @@ public class SelectListCardsActivity extends DragSwipeListCardsActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.deselect_all:
-                adapter.onClickDeselectAll();
+                getAdapter().onClickDeselectAll();
                 return true;
             case R.id.delete_selected:
-                adapter.onClickDeleteSelected();
+                getAdapter().onClickDeleteSelected();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    protected void setAdapter(SelectCardRecyclerViewAdapter adapter) {
-        super.setAdapter(adapter);
-        this.adapter = adapter;
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
+
+    @Override
+    public SelectCardBaseViewAdapter getAdapter() {
+        return (SelectCardBaseViewAdapter) super.getAdapter();
     }
 }

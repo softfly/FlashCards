@@ -10,7 +10,6 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,180 +23,196 @@ import java.util.Objects;
 
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabaseUtil;
+import pl.softfly.flashcards.databinding.ActivityStudyCardBinding;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.Card;
 import pl.softfly.flashcards.entity.deck.CardLearningProgress;
 import pl.softfly.flashcards.entity.deck.DeckConfig;
-import pl.softfly.flashcards.ui.IconWithTextInTopbarActivity;
+import pl.softfly.flashcards.ui.base.IconInTopbarActivity;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
 
-public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
+public abstract class StudyCardActivity extends IconInTopbarActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
-    private final static float DIVIDE_HOURS_TO_DAYS = 24;
+    private final static float DIVIDE_MINUTES_TO_DAYS = 24 * 60;
     private final static int DEFAULT_TERM_FONT_SIZE = 24;
     private final static int DEFAULT_DEFINITION_FONT_SIZE = 24;
 
     private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
-    protected DeckDatabase deckDb;
-    protected AppDatabase appDb;
+    private ActivityStudyCardBinding binding;
+    private DeckDatabase deckDb;
+    private AppDatabase appDb;
     private String deckDbPath;
     private StudyCardViewModel model;
-    private ZoomTextView termView;
-    private ZoomTextView definitionView;
-    private TextView showDefinitionView;
-    private View gradeButtonsLayout;
-    private Button againButton;
-    private Button easyButton;
-    private Button hardButton;
+
+    /* -----------------------------------------------------------------------------------------
+     * Constructor
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_study_card);
+        binding = ActivityStudyCardBinding.inflate(getLayoutInflater());
+        setContentView(getBinding().getRoot());
 
         Intent intent = getIntent();
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         Objects.nonNull(deckDbPath);
-        deckDb = DeckDatabaseUtil.getInstance(getApplicationContext()).getDatabase(deckDbPath);
-        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDatabase();
+        deckDb = getDeckDatabase(deckDbPath);
+        appDb = getAppDatabase();
 
         model = new ViewModelProvider(this).get(StudyCardViewModel.class);
         model.setDeckDb(deckDb);
 
-        gradeButtonsLayout = findViewById(R.id.gradeButtonsLayout);
-        gradeButtonsLayout.setVisibility(INVISIBLE);
         initTermView();
-        initShowDefinition();
         initDefinitionView();
-        initAgainButton();
-        initEasyButton();
-        initHardButton();
+        getBinding().showDefinitionView.setOnClickListener(this::onClickShowDefinition);
 
-        model.getCard().observe(this, this::onChanged);
+        getBinding().gradeButtonsLayout.setVisibility(INVISIBLE);
+        getBinding().againButton.setOnClickListener(this::onAgainClick);
+        model.getAgainLearningProgress().observe(this, this::onAgainChanged);
+        getBinding().quickButton.setOnClickListener(this::onQuickClick);
+        model.getQuickLearningProgress().observe(this, this::onQuickChanged);
+        getBinding().easyButton.setOnClickListener(this::onEasyClick);
+        model.getEasyLearningProgress().observe(this, this::onEasyChanged);
+        getBinding().hardButton.setOnClickListener(this::onHardClick);
+        model.getHardLearningProgress().observe(this, this::onHardChanged);
+
+        model.getCard().observe(this, this::onCardChanged);
         model.nextCard();
     }
 
-    protected void onChanged(@Nullable Card card) {
+    protected void onCardChanged(@Nullable Card card) {
         if (card == null) {
             NoStudyCardsDialog dialog = new NoStudyCardsDialog();
             dialog.show(getSupportFragmentManager(), "NoStudyCardsDialog");
+            return;
+        }
+        setText(getBinding().termView, card.getTerm());
+        setText(getBinding().definitionView, card.getDefinition());
+        getBinding().gradeButtonsLayout.setVisibility(INVISIBLE);
+        getBinding().definitionView.setVisibility(INVISIBLE);
+        getBinding().showDefinitionView.setVisibility(VISIBLE);
+    }
+
+    protected void setText(TextView textView, String value) {
+        if (htmlUtil.isHtml(value)) {
+            textView.setText(htmlUtil.fromHtml(value));
         } else {
-            if (htmlUtil.isHtml(card.getTerm())) {
-                termView.setText(htmlUtil.fromHtml(card.getTerm()));
-            } else {
-                termView.setText(card.getTerm());
-            }
-            if (htmlUtil.isHtml(card.getDefinition())) {
-                definitionView.setText(htmlUtil.fromHtml(card.getDefinition()));
-            } else {
-                definitionView.setText(card.getDefinition());
-            }
-            gradeButtonsLayout.setVisibility(INVISIBLE);
-            definitionView.setVisibility(INVISIBLE);
-            showDefinitionView.setVisibility(VISIBLE);
+            textView.setText(value);
         }
     }
 
-    private void initShowDefinition() {
-        showDefinitionView = findViewById(R.id.showDefinitionView);
-        showDefinitionView.setOnClickListener(v -> {
-            gradeButtonsLayout.setVisibility(VISIBLE);
-            definitionView.setVisibility(VISIBLE);
-            showDefinitionView.setVisibility(INVISIBLE);
-        });
+    private void onClickShowDefinition(View v) {
+        getBinding().gradeButtonsLayout.setVisibility(VISIBLE);
+        getBinding().definitionView.setVisibility(VISIBLE);
+        getBinding().showDefinitionView.setVisibility(INVISIBLE);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @SuppressLint("ClickableViewAccessibility")
     protected void initTermView() {
-        termView = findViewById(R.id.termView);
-        termView.setMovementMethod(new ScrollingMovementMethod());
-        deckDb.deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_TERM_FONT_SIZE)
+        getBinding().termView.setMovementMethod(new ScrollingMovementMethod());
+        getDeckDb().deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_TERM_FONT_SIZE)
                 .subscribeOn(Schedulers.io())
-                .doOnSuccess(deckConfig -> termView.setTextSize(deckConfig))
+                .doOnSuccess(deckConfig -> getBinding().termView.setTextSize(deckConfig))
                 .subscribe(deckConfig -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_InitTermView",
+                        this.getClass().getSimpleName() + "_InitTermView",
                         "Error while read the deck view settings."
                 ));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void initDefinitionView() {
-        definitionView = findViewById(R.id.definitionView);
-        definitionView.setMovementMethod(new ScrollingMovementMethod());
-        deckDb.deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_DEFINITION_FONT_SIZE)
+        getBinding().definitionView.setMovementMethod(new ScrollingMovementMethod());
+        getDeckDb().deckConfigAsyncDao().getFloatByKey(DeckConfig.STUDY_CARD_DEFINITION_FONT_SIZE)
                 .subscribeOn(Schedulers.io())
-                .doOnSuccess(deckConfig -> definitionView.setTextSize(deckConfig))
+                .doOnSuccess(deckConfig -> getBinding().definitionView.setTextSize(deckConfig))
                 .subscribe(deckConfig -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_InitDefinitionView",
+                        this.getClass().getSimpleName() + "_InitDefinitionView",
                         "Error while read the deck view settings."
                 ));
     }
 
-    protected void initAgainButton() {
-        againButton = findViewById(R.id.againButton);
-        againButton.setOnClickListener(v -> {
-            updateCardLearningProgress(model.getAgainLearningProgress().getValue());
-            model.nextCard();
-        });
-        model.getAgainLearningProgress().observe(this,
-                cardLearningProgress ->
-                        againButton.setText("Again\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
+    protected void onAgainClick(View v) {
+        updateCardLearningProgress(model.getAgainLearningProgress().getValue());
+        model.nextCard();
     }
 
-    private void initEasyButton() {
-        easyButton = findViewById(R.id.easyButton);
-        easyButton.setOnClickListener(v -> {
-            updateCardLearningProgress(model.getEasyLearningProgress().getValue());
-            model.nextCard();
-        });
-        model.getEasyLearningProgress().observe(this,
-                cardLearningProgress ->
-                        easyButton.setText("Easy\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
+    protected void onAgainChanged(CardLearningProgress cardLearningProgress) {
+        getBinding().againButton.setText(
+                "Again\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
+        );
     }
 
-    private void initHardButton() {
-        hardButton = findViewById(R.id.hardButton);
-        hardButton.setOnClickListener(v -> {
-            updateCardLearningProgress(model.getHardLearningProgress().getValue());
-            model.nextCard();
-        });
-        model.getHardLearningProgress().observe(this,
-                cardLearningProgress ->
-                        hardButton.setText("Hard\n" + cardLearningProgress.getInterval() / DIVIDE_HOURS_TO_DAYS ));
+    protected void onQuickClick(View v) {
+        updateCardLearningProgress(model.getQuickLearningProgress().getValue());
+        model.nextCard();
+    }
+
+    protected void onQuickChanged(CardLearningProgress cardLearningProgress) {
+        if (cardLearningProgress != null) {
+            getBinding().easyButton.setText(
+                    "Quick Repetition\n" + cardLearningProgress.getInterval() + " min"
+            );
+        } else {
+            getBinding().easyButton.setVisibility(INVISIBLE);
+        }
+    }
+
+    protected void onEasyClick(View v) {
+        updateCardLearningProgress(model.getEasyLearningProgress().getValue());
+        model.nextCard();
+    }
+
+    protected void onEasyChanged(CardLearningProgress cardLearningProgress) {
+        getBinding().easyButton.setText(
+                "Easy\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
+        );
+    }
+
+    protected void onHardChanged(CardLearningProgress cardLearningProgress) {
+        getBinding().hardButton.setText(
+                "Hard\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
+        );
+    }
+
+    protected void onHardClick(View v) {
+        updateCardLearningProgress(model.getHardLearningProgress().getValue());
+        model.nextCard();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void updateCardLearningProgress(@NonNull CardLearningProgress learningProgress) {
+    protected void updateCardLearningProgress(@NonNull CardLearningProgress learningProgress) {
         model.updateLearningProgress(learningProgress)
                 .subscribe(() -> refreshLastUpdatedAt()
                         , e -> getExceptionHandler().handleException(
                                 e, getSupportFragmentManager(),
-                                StudyCardActivity.class.getSimpleName() + "_UpdateCardLearningProgress",
+                                this.getClass().getSimpleName() + "_UpdateCardLearningProgress",
                                 "Error while updating card learning progress."
                         ));
     }
 
     protected void refreshLastUpdatedAt() {
-        appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
+        getAppDb().deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
                 .subscribe(deck -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_UpdateCardLearningProgress",
+                        this.getClass().getSimpleName() + "_UpdateCardLearningProgress",
                         "Error while updating card learning progress."
                 ));
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Activity methods overridden
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -247,7 +262,7 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void deleteCard() {
+    protected void deleteCard() {
         Card card = model.getCard().getValue();
         model.deleteCard()
                 .doOnComplete(() -> Snackbar.make(findViewById(android.R.id.content),
@@ -258,13 +273,13 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
                 .subscribe(() -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_OnClickDeleteCard",
+                        this.getClass().getSimpleName() + "_OnClickDeleteCard",
                         "Error while removing the card."
                 ));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void revertCard(@NonNull Card card) {
+    protected void revertCard(@NonNull Card card) {
         model.revertCard(card)
                 .doOnComplete(() -> runOnUiThread(
                         () -> Toast.makeText(
@@ -276,29 +291,38 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
                 .subscribe(() -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
-                        StudyCardActivity.class.getSimpleName() + "_OnClickRevertCard",
+                        this.getClass().getSimpleName() + "_OnClickRevertCard",
                         "Error while restoring the card."
                 ));
     }
 
     protected void resetView() {
-        termView.setTextSize(DEFAULT_TERM_FONT_SIZE);
-        definitionView.setTextSize(DEFAULT_DEFINITION_FONT_SIZE);
+        getBinding().termView.setTextSize(DEFAULT_TERM_FONT_SIZE);
+        getBinding().definitionView.setTextSize(DEFAULT_DEFINITION_FONT_SIZE);
     }
 
     @Override
     protected void onStop() {
-        deckDb.deckConfigAsyncDao().updateDeckConfig(
+        getDeckDb().deckConfigAsyncDao().updateDeckConfig(
                 DeckConfig.STUDY_CARD_TERM_FONT_SIZE,
-                Float.toString(termView.getScaledTextSize()),
+                Float.toString(getBinding().termView.getScaledTextSize()),
                 getOnErrorSavingViewSettings()
         );
-        deckDb.deckConfigAsyncDao().updateDeckConfig(
+        getDeckDb().deckConfigAsyncDao().updateDeckConfig(
                 DeckConfig.STUDY_CARD_DEFINITION_FONT_SIZE,
-                Float.toString(definitionView.getScaledTextSize()),
+                Float.toString(getBinding().definitionView.getScaledTextSize()),
                 getOnErrorSavingViewSettings()
         );
         super.onStop();
+    }
+
+    @NonNull
+    protected Consumer<? super Throwable> getOnErrorSavingViewSettings() {
+        return e -> getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName() + "_OnStop",
+                "Error while saving deck view settings."
+        );
     }
 
     @NonNull
@@ -306,16 +330,15 @@ public abstract class StudyCardActivity extends IconWithTextInTopbarActivity {
         return deckDbPath.substring(deckDbPath.lastIndexOf("/") + 1);
     }
 
-    @NonNull
-    protected Consumer<? super Throwable> getOnErrorSavingViewSettings() {
-        return e -> getExceptionHandler().handleException(
-                e, getSupportFragmentManager(),
-                StudyCardActivity.class.getSimpleName() + "_OnStop",
-                "Error while saving deck view settings."
-        );
+    protected ActivityStudyCardBinding getBinding() {
+        return binding;
     }
 
-    protected ExceptionHandler getExceptionHandler() {
-        return ExceptionHandler.getInstance();
+    protected DeckDatabase getDeckDb() {
+        return deckDb;
+    }
+
+    protected AppDatabase getAppDb() {
+        return appDb;
     }
 }

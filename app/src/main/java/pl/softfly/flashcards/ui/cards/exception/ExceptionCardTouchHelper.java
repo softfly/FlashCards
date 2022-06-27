@@ -5,19 +5,15 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import pl.softfly.flashcards.ExceptionHandler;
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncCardTouchHelper;
+import pl.softfly.flashcards.ui.cards.select.SelectCardTouchHelper;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
+public class ExceptionCardTouchHelper extends SelectCardTouchHelper {
 
-    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-    private final ExceptionCardRecyclerViewAdapter adapter;
-
-    public ExceptionCardTouchHelper(ExceptionCardRecyclerViewAdapter adapter) {
+    public ExceptionCardTouchHelper(ExceptionCardBaseViewAdapter adapter) {
         super(adapter);
-        this.adapter = adapter;
     }
 
     @Override
@@ -25,10 +21,10 @@ public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
             @NonNull RecyclerView recyclerView,
             @NonNull RecyclerView.ViewHolder viewHolder
     ) {
-        exceptionHandler.tryHandleException(
+        getExceptionHandler().tryRun(
                 () -> super.clearView(recyclerView, viewHolder),
-                adapter.getActivity().getSupportFragmentManager(),
-                ExceptionCardTouchHelper.class.getSimpleName() + "_ClearView"
+                getAdapter().getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName() + "_ClearView"
         );
     }
 
@@ -37,10 +33,10 @@ public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
             @Nullable RecyclerView.ViewHolder viewHolder,
             int actionState
     ) {
-        exceptionHandler.tryHandleException(
+        getExceptionHandler().tryRun(
                 () -> super.onSelectedChanged(viewHolder, actionState),
-                adapter.getActivity().getSupportFragmentManager(),
-                ExceptionCardTouchHelper.class.getSimpleName() + "_OnSelectedChanged"
+                getAdapter().getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName() + "_OnSelectedChanged"
         );
     }
 
@@ -53,9 +49,9 @@ public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
         try {
             return super.onMove(recyclerView, viewHolder, target);
         } catch (Exception e) {
-            exceptionHandler.handleException(
-                    e, adapter.getActivity().getSupportFragmentManager(),
-                    ExceptionCardTouchHelper.class.getSimpleName() + "_OnMove"
+            getExceptionHandler().handleException(
+                    e, getAdapter().getActivity().getSupportFragmentManager(),
+                    this.getClass().getSimpleName() + "_OnMove"
             );
             return false;
         }
@@ -63,10 +59,14 @@ public class ExceptionCardTouchHelper extends FileSyncCardTouchHelper {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        exceptionHandler.tryHandleException(
+        getExceptionHandler().tryRun(
                 () -> super.onSwiped(viewHolder, direction),
-                adapter.getActivity().getSupportFragmentManager(),
-                ExceptionCardTouchHelper.class.getSimpleName() + "_OnSwiped"
+                getAdapter().getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName() + "_OnSwiped"
         );
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 }

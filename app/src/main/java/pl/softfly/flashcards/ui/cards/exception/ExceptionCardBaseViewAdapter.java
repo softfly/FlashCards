@@ -4,19 +4,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
-import pl.softfly.flashcards.ui.cards.file_sync.FileSyncCardRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.cards.file_sync.FileSyncCardBaseViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ExceptionCardRecyclerViewAdapter extends FileSyncCardRecyclerViewAdapter {
+public class ExceptionCardBaseViewAdapter extends FileSyncCardBaseViewAdapter {
 
-    private final ExceptionListCardsActivity activity;
-
-    public ExceptionCardRecyclerViewAdapter(ExceptionListCardsActivity activity, String deckDbPath) {
+    public ExceptionCardBaseViewAdapter(ExceptionListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);
-        this.activity = activity;
     }
 
     @NonNull
@@ -27,14 +24,10 @@ public class ExceptionCardRecyclerViewAdapter extends FileSyncCardRecyclerViewAd
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        exceptionHandler.tryHandleException(
+        getExceptionHandler().tryRun(
                 () -> super.onBindViewHolder(holder, position),
                 getActivity().getSupportFragmentManager(),
-                ExceptionListCardsActivity.class.getSimpleName() + "_OnRestart"
+                this.getClass().getSimpleName() + "_OnBindViewHolder"
         );
-    }
-
-    public ExceptionListCardsActivity getActivity() {
-        return activity;
     }
 }

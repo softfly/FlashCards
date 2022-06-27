@@ -4,13 +4,11 @@ import static pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity.AFTER_OR
 
 import android.content.Intent;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,35 +16,39 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.HtmlUtil;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.DeckDatabaseUtil;
+import pl.softfly.flashcards.databinding.ItemCardBinding;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.ui.base.recyclerview.BaseViewAdapter;
 import pl.softfly.flashcards.ui.card.EditCardActivity;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
 import pl.softfly.flashcards.ui.card.NewCardAfterOrdinalActivity;
 
-public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder> {
+public class CardBaseViewAdapter extends BaseViewAdapter<CardViewHolder> {
 
-    private final ListCardsActivity activity;
-    private final String deckDbPath;
     private final List<Card> cards = new LinkedList<>();
-    private final ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
+    private final String deckDbPath;
+    private final DeckDatabase deckDb;
     private final CalcCardIdWidth calcCardIdWidth = CalcCardIdWidth.getInstance();
     private final HtmlUtil htmlUtil = HtmlUtil.getInstance();
-    public int idTextViewWidth = 0;
-    @Nullable
-    protected DeckDatabase deckDb;
 
-    public CardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
-        this.activity = activity;
+    public int idTextViewWidth = 0;
+
+    public CardBaseViewAdapter(ListCardsActivity activity, String deckDbPath) {
+        super(activity);
         this.deckDbPath = deckDbPath;
-        this.deckDb = getDeckDatabase();
+        this.deckDb = getDeckDatabase(deckDbPath);
         loadCards();
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Adapter methods overridden
+     * ----------------------------------------------------------------------------------------- */
 
     @NonNull
     @Override
@@ -54,10 +56,8 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         return new CardViewHolder(onCreateView(parent), this);
     }
 
-    protected View onCreateView(@NonNull ViewGroup parent) {
-        return LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_card, parent, false);
+    protected ItemCardBinding onCreateView(@NonNull ViewGroup parent) {
+        return ItemCardBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
     }
 
     @Override
@@ -69,65 +69,72 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
             calcCardIdWidth.setIdWidth(holder, idTextViewWidth);
         }
 
-        if (htmlUtil.isHtml(card.getTerm())) {
-            holder.getTermTextView().setText(htmlUtil.fromHtml(card.getTerm()).toString());
-        } else {
-            holder.getTermTextView().setText(card.getTerm());
-        }
+        setText(holder.getTermTextView(), card.getTerm());
+        setText(holder.getDefinitionTextView(), card.getDefinition());
+    }
 
-        if (htmlUtil.isHtml(card.getDefinition())) {
-            holder.getDefinitionTextView().setText(htmlUtil.fromHtml(card.getDefinition()).toString());
+    protected void setText(TextView textView, String value) {
+        if (htmlUtil.isHtml(value)) {
+            textView.setText(htmlUtil.fromHtml(value).toString());
         } else {
-            holder.getDefinitionTextView().setText(card.getDefinition());
+            textView.setText(value);
         }
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Cards
+     * ----------------------------------------------------------------------------------------- */
 
     public void loadCards() {
         loadCards(-1, -1);
     }
 
     public void loadCards(int positionStart, int itemCount) {
-        loadCardsToList()
-                .doOnComplete(() -> refreshDataSet(positionStart, itemCount))
+        loadCardsToList().toObservable()
+                .doOnComplete(() -> refreshDataSet(positionStart, itemCount, this::onErrorLoadCards))
                 .subscribeOn(Schedulers.io())
-                .subscribe(listMaybe -> {}, this::errorLoadCards);
+                .subscribe(listMaybe -> {}, this::onErrorLoadCards);
     }
 
     protected Maybe<List<Card>> loadCardsToList() {
         return deckDb.cardDaoAsync().getCardsByDeletedNotOrderByOrdinal()
                 .subscribeOn(Schedulers.io())
-                .doOnError(this::errorLoadCards)
+                .doOnError(this::onErrorLoadCards)
                 .doOnSuccess(cards -> {
                     getCurrentList().clear();
                     getCurrentList().addAll(cards);
                 });
     }
 
-    protected void refreshDataSet(int positionStart, int itemCount) {
-        activity.runOnUiThread(() -> {
+    protected void refreshDataSet(int positionStart, int itemCount, Consumer<? super Throwable> onError) {
+        getActivity().runOnUiThread(() -> {
             // ID.WIDTH.1. Check if the id width has been calculated for the currently used max id length.
             idTextViewWidth = calcCardIdWidth.getIdWidth(cards);
-            activity.idHeader.setWidth(idTextViewWidth);
+            getActivity().getIdHeader().setWidth(idTextViewWidth);
             if (positionStart < 0)
                 this.notifyDataSetChanged();
             else
                 this.notifyItemRangeChanged(positionStart, itemCount);
-        });
+        }, onError);
     }
 
-    protected void errorLoadCards(Throwable e) {
-        exceptionHandler.handleException(
-                e, activity.getSupportFragmentManager(),
+    protected void onErrorLoadCards(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
                 this.getClass().getSimpleName(),
                 "Error while loading cards."
         );
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Menu actions
+     * ----------------------------------------------------------------------------------------- */
+
     public void onClickDeleteCard(int position) {
         Card card = removeItem(position);
         deckDb.cardDao().deleteAsync(card)
                 .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> activity.runOnUiThread(() -> {
+                .doOnComplete(() -> getActivity().runOnUiThread(() -> {
                     notifyItemRemoved(position);
                     //Refresh ordinal numbers.
                     loadCards(position, getItemCount() - position);
@@ -136,52 +143,55 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
                                     Snackbar.LENGTH_LONG)
                             .setAction("Undo", v -> revertCard(card))
                             .show();
-                }))
-                .subscribe(() -> {
-                }, e -> exceptionHandler.handleException(
-                        e, activity.getSupportFragmentManager(),
-                        CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickDeleteCard",
-                        "Error while removing the card."
-                ));
+                }, this::onErrorClickDeleteCard))
+                .subscribe(() -> {}, this::onErrorClickDeleteCard);
     }
 
-    private void revertCard(@NonNull Card card) {
+    protected void onErrorClickDeleteCard(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName() + "_OnClickDeleteCard",
+                "Error while removing the card."
+        );
+    }
+
+    protected void revertCard(@NonNull Card card) {
         deckDb.cardDao().restoreAsync(card)
                 .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> activity.runOnUiThread(
+                .doOnComplete(() -> getActivity().runOnUiThread(
                         () -> {
                             loadCards(card.getOrdinal() - 1, getItemCount() - card.getOrdinal() + 2);
-                            Toast.makeText(activity, "The card has been restored.", Toast.LENGTH_SHORT).show();
-                        })
+                            Toast.makeText(getActivity(), "The card has been restored.", Toast.LENGTH_SHORT).show();
+                        }, this::onErrorRevertCard)
                 )
-                .subscribe(() -> {
-                }, e -> exceptionHandler.handleException(
-                        e, activity.getSupportFragmentManager(),
-                        CardRecyclerViewAdapter.class.getSimpleName() + "_OnClickRevertCard",
-                        "Error while restoring the card."
-                ));
+                .subscribe(() -> {}, this::onErrorRevertCard);
+    }
+
+    protected void onErrorRevertCard(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getActivity().getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while restoring the card."
+        );
     }
 
     protected void startEditCardActivity(int position) {
-        Intent intent = new Intent(activity, EditCardActivity.class);
+        Intent intent = new Intent(getActivity(), EditCardActivity.class);
         intent.putExtra(EditCardActivity.DECK_DB_PATH, deckDbPath);
         intent.putExtra(EditCardActivity.CARD_ID, getItem(position).getId());
-        activity.startActivity(intent);
+        getActivity().startActivity(intent);
     }
 
     protected void startNewCardActivity(int position) {
-        Intent intent = new Intent(activity, NewCardAfterOrdinalActivity.class);
+        Intent intent = new Intent(getActivity(), NewCardAfterOrdinalActivity.class);
         intent.putExtra(NewCardActivity.DECK_DB_PATH, deckDbPath);
         intent.putExtra(AFTER_ORDINAL, getItem(position).getOrdinal());
-        activity.startActivity(intent);
+        getActivity().startActivity(intent);
     }
 
-    @Nullable
-    protected DeckDatabase getDeckDatabase() {
-        return DeckDatabaseUtil
-                .getInstance(activity.getApplicationContext())
-                .getDatabase(deckDbPath);
-    }
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets Items
+     * ----------------------------------------------------------------------------------------- */
 
     @Override
     public int getItemCount() {
@@ -201,7 +211,19 @@ public class CardRecyclerViewAdapter extends RecyclerView.Adapter<CardViewHolder
         return cards.remove(position);
     }
 
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
+
+    protected DeckDatabase getDeckDb() {
+        return deckDb;
+    }
+
     public ListCardsActivity getActivity() {
-        return activity;
+        return (ListCardsActivity) super.getActivity();
+    }
+
+    protected ExceptionHandler getExceptionHandler() {
+        return ExceptionHandler.getInstance();
     }
 }

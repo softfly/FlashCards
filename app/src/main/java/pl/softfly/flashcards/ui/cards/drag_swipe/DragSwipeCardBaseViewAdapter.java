@@ -7,22 +7,20 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.entity.deck.Card;
-import pl.softfly.flashcards.ui.cards.standard.CardRecyclerViewAdapter;
+import pl.softfly.flashcards.ui.cards.standard.CardBaseViewAdapter;
 import pl.softfly.flashcards.ui.cards.standard.CardViewHolder;
 import pl.softfly.flashcards.ui.cards.standard.ListCardsActivity;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class DragSwipeCardRecyclerViewAdapter
-        extends CardRecyclerViewAdapter {
+public class DragSwipeCardBaseViewAdapter
+        extends CardBaseViewAdapter {
 
-    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
     private ItemTouchHelper touchHelper;
 
-    public DragSwipeCardRecyclerViewAdapter(ListCardsActivity activity, String deckDbPath) {
+    public DragSwipeCardBaseViewAdapter(ListCardsActivity activity, String deckDbPath) {
         super(activity, deckDbPath);
     }
 
@@ -32,7 +30,7 @@ public class DragSwipeCardRecyclerViewAdapter
         return new DragSwipeCardViewHolder(onCreateView(parent), this);
     }
 
-    public void onCardMoveNoSave(int fromPosition, int toPosition) {
+    public void onMoveCard(int fromPosition, int toPosition) {
         Card card = getItem(fromPosition);
         getCurrentList().remove(card);
         getCurrentList().add(toPosition, card);
@@ -42,15 +40,19 @@ public class DragSwipeCardRecyclerViewAdapter
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void moveCard(@NonNull Card cutCard, int toPosition) {
         Completable.fromAction(
-                        () -> deckDb.cardDao().changeCardOrdinal(cutCard, toPosition))
+                        () -> getDeckDb().cardDao().changeCardOrdinal(cutCard, toPosition))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(this::loadCards)
                 .subscribe(() -> {
-                }, e -> exceptionHandler.handleException(
+                }, e -> getExceptionHandler().handleException(
                         e, getActivity().getSupportFragmentManager(),
-                        DragSwipeCardRecyclerViewAdapter.class.getSimpleName() + "MoveCard"
+                        this.getClass().getSimpleName() + "_MoveCard"
                 ));
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
 
     public ItemTouchHelper getTouchHelper() {
         return touchHelper;
