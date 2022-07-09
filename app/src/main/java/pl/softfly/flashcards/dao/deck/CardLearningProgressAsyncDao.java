@@ -17,17 +17,17 @@ import pl.softfly.flashcards.entity.deck.CardLearningProgress;
  * @author Grzegorz Ziemski
  */
 @Dao
-public abstract class CardLearningProgressAsyncDao {
+public interface CardLearningProgressAsyncDao {
 
     @NonNull
     @Query("SELECT * FROM Core_CardLearningProgress WHERE cardId=:cardId")
-    public abstract Maybe<CardLearningProgress> findByCardId(Integer cardId);
+    Maybe<CardLearningProgress> findByCardId(Integer cardId);
 
     @NonNull
     @Insert
-    public abstract Completable insertAll(CardLearningProgress... cards);
+    Completable insertAll(CardLearningProgress... cards);
 
     @NonNull
     @Update
-    public abstract Completable updateAll(CardLearningProgress... cardLearningProgress);
+    Completable updateAll(CardLearningProgress... cardLearningProgress);
 }

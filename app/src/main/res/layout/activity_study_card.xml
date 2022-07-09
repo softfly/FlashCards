@@ -81,33 +81,44 @@
 
         <Button
             android:id="@+id/againButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:backgroundTint="#C80909"
-            android:text="Again\n0.0"
+            android:backgroundTint="@color/red_900"
+            android:text="Again"
             android:textAllCaps="false"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/hardButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/quickButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:backgroundTint="#3F51B5"
-            android:text="Hard\n1.0 day"
+            android:backgroundTint="@color/orange_800"
+            android:text="Quick Repetition"
+            android:textSize="11sp"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/hardButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/blue_800"
+            android:text="Hard"
             android:textAllCaps="false" />
 
         <Button
             android:id="@+id/easyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:backgroundTint="#4CAF50"
-            android:text="Easy\n5.0 day"
+            android:backgroundTint="@color/green_700"
+            android:text="Easy"
             android:textAllCaps="false" />
 
     </LinearLayout>

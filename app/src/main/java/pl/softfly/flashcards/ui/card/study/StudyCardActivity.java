@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.HtmlUtil;
@@ -37,6 +39,7 @@ import pl.softfly.flashcards.ui.card.EditCardActivity;
 public abstract class StudyCardActivity extends IconInTopbarActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
+    private final static float DIVIDE_MINUTES_TO_HOURS = 60;
     private final static float DIVIDE_MINUTES_TO_DAYS = 24 * 60;
     private final static int DEFAULT_TERM_FONT_SIZE = 24;
     private final static int DEFAULT_DEFINITION_FONT_SIZE = 24;
@@ -64,8 +67,10 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
         deckDb = getDeckDatabase(deckDbPath);
         appDb = getAppDatabase();
 
+        // TODO
         model = new ViewModelProvider(this).get(StudyCardViewModel.class);
         model.setDeckDb(deckDb);
+        model.setAppDb(appDb);
 
         initTermView();
         initDefinitionView();
@@ -74,6 +79,7 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
         getBinding().gradeButtonsLayout.setVisibility(INVISIBLE);
         getBinding().againButton.setOnClickListener(this::onAgainClick);
         model.getAgainLearningProgress().observe(this, this::onAgainChanged);
+        getBinding().quickButton.setVisibility(View.GONE);
         getBinding().quickButton.setOnClickListener(this::onQuickClick);
         model.getQuickLearningProgress().observe(this, this::onQuickChanged);
         getBinding().easyButton.setOnClickListener(this::onEasyClick);
@@ -82,7 +88,7 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
         model.getHardLearningProgress().observe(this, this::onHardChanged);
 
         model.getCard().observe(this, this::onCardChanged);
-        model.nextCard();
+        nextCard();
     }
 
     protected void onCardChanged(@Nullable Card card) {
@@ -143,71 +149,89 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
 
     protected void onAgainClick(View v) {
         updateCardLearningProgress(model.getAgainLearningProgress().getValue());
-        model.nextCard();
-    }
-
-    protected void onAgainChanged(CardLearningProgress cardLearningProgress) {
-        getBinding().againButton.setText(
-                "Again\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
-        );
     }
 
     protected void onQuickClick(View v) {
         updateCardLearningProgress(model.getQuickLearningProgress().getValue());
-        model.nextCard();
-    }
-
-    protected void onQuickChanged(CardLearningProgress cardLearningProgress) {
-        if (cardLearningProgress != null) {
-            getBinding().easyButton.setText(
-                    "Quick Repetition\n" + cardLearningProgress.getInterval() + " min"
-            );
-        } else {
-            getBinding().easyButton.setVisibility(INVISIBLE);
-        }
     }
 
     protected void onEasyClick(View v) {
         updateCardLearningProgress(model.getEasyLearningProgress().getValue());
-        model.nextCard();
-    }
-
-    protected void onEasyChanged(CardLearningProgress cardLearningProgress) {
-        getBinding().easyButton.setText(
-                "Easy\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
-        );
-    }
-
-    protected void onHardChanged(CardLearningProgress cardLearningProgress) {
-        getBinding().hardButton.setText(
-                "Hard\n" + cardLearningProgress.getInterval() / DIVIDE_MINUTES_TO_DAYS
-        );
-    }
-
-    protected void onHardClick(View v) {
-        updateCardLearningProgress(model.getHardLearningProgress().getValue());
-        model.nextCard();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void updateCardLearningProgress(@NonNull CardLearningProgress learningProgress) {
-        model.updateLearningProgress(learningProgress)
-                .subscribe(() -> refreshLastUpdatedAt()
-                        , e -> getExceptionHandler().handleException(
-                                e, getSupportFragmentManager(),
-                                this.getClass().getSimpleName() + "_UpdateCardLearningProgress",
-                                "Error while updating card learning progress."
-                        ));
+        model.updateLearningProgress(learningProgress, deckDbPath, this::onErrorUpdateCardLearningProgress)
+                .subscribe(() -> {}, this::onErrorUpdateCardLearningProgress);
     }
 
-    protected void refreshLastUpdatedAt() {
-        getAppDb().deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
-                .subscribe(deck -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, getSupportFragmentManager(),
-                        this.getClass().getSimpleName() + "_UpdateCardLearningProgress",
-                        "Error while updating card learning progress."
-                ));
+    protected void onErrorUpdateCardLearningProgress(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while update learning progress."
+        );
+    }
+
+    protected void onAgainChanged(CardLearningProgress cardLearningProgress) {
+        getBinding().againButton.setText("Again");
+    }
+
+    protected void onHardClick(View v) {
+        updateCardLearningProgress(model.getHardLearningProgress().getValue());
+    }
+
+    protected void onQuickChanged(CardLearningProgress cardLearningProgress) {
+        if (cardLearningProgress != null) {
+            getBinding().quickButton.setVisibility(VISIBLE);
+            getBinding().quickButton.setText(
+                    "Quick Repetition\n" + displayInterval(cardLearningProgress.getInterval())
+            );
+        }
+    }
+
+    protected void onEasyChanged(CardLearningProgress cardLearningProgress) {
+        if (cardLearningProgress.getId() == null || cardLearningProgress.getRemembered().equals(false)) {
+            getBinding().easyButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            getBinding().easyButton.setText(
+                    "Easy\n" + displayIntervalWithDays(cardLearningProgress.getInterval())
+            );
+        } else {
+            getBinding().easyButton.setText(
+                    "Easy\n" + displayInterval(cardLearningProgress.getInterval())
+            );
+        }
+    }
+
+    protected void onHardChanged(CardLearningProgress cardLearningProgress) {
+        if (cardLearningProgress.getId() == null || cardLearningProgress.getRemembered().equals(false)) {
+            getBinding().hardButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            getBinding().hardButton.setText(
+                    "Hard\n" + displayIntervalWithDays(cardLearningProgress.getInterval())
+            );
+        } else {
+            getBinding().hardButton.setText(
+                    "Hard\n" + displayInterval(cardLearningProgress.getInterval())
+            );
+        }
+    }
+
+    protected String displayIntervalWithDays(float interval) {
+        if (interval < 24*60) {
+            return displayInterval(interval);
+        } else if (interval < 2*24*60) {
+            return String.format("%.1f", interval / DIVIDE_MINUTES_TO_DAYS)  + " day";
+        }
+        return String.format("%.1f", interval / DIVIDE_MINUTES_TO_DAYS)  + " days";
+    }
+
+    protected String displayInterval(float interval) {
+        if (interval < 60) {
+            return (int)interval + " min";
+        } else if (interval < 24*60) {
+            return String.format("%.1f", interval / DIVIDE_MINUTES_TO_HOURS)  + " h";
+        }
+        return String.format("%.1f", interval / DIVIDE_MINUTES_TO_DAYS);
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -261,41 +285,6 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
         this.startActivity(intent);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    protected void deleteCard() {
-        Card card = model.getCard().getValue();
-        model.deleteCard()
-                .doOnComplete(() -> Snackbar.make(findViewById(android.R.id.content),
-                                "The card has been deleted.",
-                                Snackbar.LENGTH_LONG)
-                        .setAction("Undo", v -> revertCard(card))
-                        .show())
-                .subscribe(() -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, getSupportFragmentManager(),
-                        this.getClass().getSimpleName() + "_OnClickDeleteCard",
-                        "Error while removing the card."
-                ));
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    protected void revertCard(@NonNull Card card) {
-        model.revertCard(card)
-                .doOnComplete(() -> runOnUiThread(
-                        () -> Toast.makeText(
-                                this,
-                                "The card has been restored.",
-                                Toast.LENGTH_SHORT
-                        ).show())
-                )
-                .subscribe(() -> {
-                }, e -> getExceptionHandler().handleException(
-                        e, getSupportFragmentManager(),
-                        this.getClass().getSimpleName() + "_OnClickRevertCard",
-                        "Error while restoring the card."
-                ));
-    }
-
     protected void resetView() {
         getBinding().termView.setTextSize(DEFAULT_TERM_FONT_SIZE);
         getBinding().definitionView.setTextSize(DEFAULT_DEFINITION_FONT_SIZE);
@@ -324,6 +313,68 @@ public abstract class StudyCardActivity extends IconInTopbarActivity {
                 "Error while saving deck view settings."
         );
     }
+
+    /* -----------------------------------------------------------------------------------------
+     * Card actions
+     * ----------------------------------------------------------------------------------------- */
+
+    protected void nextCard() {
+        model.nextCard(this::onErrorNextCard);
+    }
+
+    protected void onErrorNextCard(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while read the next card."
+        );
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    protected void deleteCard() {
+        Card card = model.getCard().getValue();
+        model.deleteCard(this::onErrorDeleteCard)
+                .doOnComplete(() -> Snackbar.make(findViewById(android.R.id.content),
+                                "The card has been deleted.",
+                                Snackbar.LENGTH_LONG)
+                        .setAction("Undo", v -> revertCard(card))
+                        .show())
+                .subscribe(() -> {}, this::onErrorDeleteCard);
+    }
+
+    protected void onErrorDeleteCard(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while removing the card."
+        );
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    protected void revertCard(@NonNull Card card) {
+        model.revertCard(card, this::onErrorRevertCard)
+                .doOnComplete(() -> runOnUiThread(
+                        () -> Toast.makeText(
+                                this,
+                                "The card has been restored.",
+                                Toast.LENGTH_SHORT
+                        ).show(), this::onErrorRevertCard)
+                )
+                .subscribe(() -> {
+                }, this::onErrorRevertCard);
+    }
+
+    protected void onErrorRevertCard(Throwable e) {
+        getExceptionHandler().handleException(
+                e, getSupportFragmentManager(),
+                this.getClass().getSimpleName(),
+                "Error while restoring the card."
+        );
+    }
+
+    /* -----------------------------------------------------------------------------------------
+     * Gets/Sets
+     * ----------------------------------------------------------------------------------------- */
 
     @NonNull
     protected String getDeckName(@NonNull String deckDbPath) {

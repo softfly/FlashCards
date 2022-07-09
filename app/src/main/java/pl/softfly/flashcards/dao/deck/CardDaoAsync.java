@@ -46,7 +46,7 @@ public abstract class CardDaoAsync {
             "AND (l.nextReplayAt < strftime('%s', CURRENT_TIMESTAMP) OR l.nextReplayAt IS NULL) " +
             "ORDER BY l.nextReplayAt ASC, c.ordinal ASC " +
             "LIMIT 10")
-    public abstract Maybe<List<Card>> getNextCards();
+    public abstract Maybe<List<Card>> getNextCardsToReplay();
 
     @NonNull
     @Query("SELECT id FROM Core_Card WHERE deletedAt IS NULL AND createdAt=:createdAt")
