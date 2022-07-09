@@ -3,6 +3,7 @@ package pl.softfly.flashcards.ui.card;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import java.util.Objects;
 
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.R;
+import pl.softfly.flashcards.databinding.ActivityEditCardBinding;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.entity.deck.Card;
 
@@ -20,20 +22,35 @@ public class EditCardActivity extends NewCardActivity {
 
     private Card card;
 
+    private ActivityEditCardBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
         int cardId = intent.getIntExtra(CARD_ID, 0);
-        deckDb.cardDaoAsync().getCard(cardId).subscribeOn(Schedulers.io())
+        getDeckDb().cardDaoAsync().getCard(cardId).subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(card -> runOnUiThread(() -> {
                     this.card = card;
-                    termEditText.setText(card.getTerm());
-                    definitionEditText.setText(card.getDefinition());
+                    getTermEditText().setText(card.getTerm());
+                    getDefinitionEditText().setText(card.getDefinition());
                 }))
                 .subscribe();
+
+        getDeckDb().cardLearningProgressAsyncDao().findByCardId(cardId).subscribeOn(Schedulers.io())
+                .doOnError(Throwable::printStackTrace)
+                .doOnSuccess(learningProgress -> runOnUiThread(() -> {
+                    getNextReplayAtTextDate().setText(learningProgress.getNextReplayAt().toString());
+                }))
+                .subscribe();
+    }
+
+    @Override
+    protected void createBinding() {
+        binding = ActivityEditCardBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
     }
 
     @Override
@@ -49,10 +66,10 @@ public class EditCardActivity extends NewCardActivity {
     }
 
     protected void onClickUpdateCard() {
-        cardUtil.setTerm(card, termEditText.getText().toString());
-        cardUtil.setDefinition(card, definitionEditText.getText().toString());
+        getCardUtil().setTerm(card, getTermEditText().getText().toString());
+        getCardUtil().setDefinition(card, getDefinitionEditText().getText().toString());
         card.setModifiedAt(TimeUtil.getNowEpochSec());
-        deckDb.cardDaoAsync().updateAll(card)
+        getDeckDb().cardDaoAsync().updateAll(card)
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
                     Toast.makeText(this, "The card has been updated.", Toast.LENGTH_SHORT).show();
@@ -63,12 +80,28 @@ public class EditCardActivity extends NewCardActivity {
 
     @Override
     protected void refreshLastUpdatedAt() {
-        appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath)
+        getAppDb().deckDaoAsync().refreshLastUpdatedAt(getDeckDbPath())
                 .subscribe(deck -> {
                 }, e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
                         this.getClass().getSimpleName(),
                         "Error while updating card."
                 ));
+    }
+
+    private ActivityEditCardBinding getBinding() {
+        return binding;
+    }
+
+    protected EditText getTermEditText() {
+        return getBinding().termEditText;
+    }
+
+    protected EditText getDefinitionEditText() {
+        return getBinding().definitionEditText;
+    }
+
+    protected EditText getNextReplayAtTextDate() {
+        return getBinding().nextReplayAtTextDate;
     }
 }

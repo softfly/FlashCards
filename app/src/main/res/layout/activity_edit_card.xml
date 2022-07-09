@@ -21,6 +21,7 @@
         android:layout_weight="1"
         android:ems="10"
         android:gravity="center"
+        android:hint="Term"
         android:importantForAutofill="no"
         android:inputType="textMultiLine"
         android:lines="6"
@@ -52,5 +53,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/definitionLabel" />
+
+    <TextView
+        android:id="@+id/nextReplayAtLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Date of the next replay at:"
+        app:layout_constraintTop_toBottomOf="@+id/definitionEditText"
+        tools:layout_editor_absoluteX="26dp" />
+
+    <EditText
+        android:id="@+id/nextReplayAtTextDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="date"
+        android:enabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nextReplayAtLabel" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

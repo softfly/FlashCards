@@ -9,43 +9,35 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.CardUtil;
-import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.db.AppDatabaseUtil;
-import pl.softfly.flashcards.db.DeckDatabaseUtil;
+import pl.softfly.flashcards.databinding.ActivityNewCardBinding;
 import pl.softfly.flashcards.db.TimeUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.ui.base.BaseActivity;
 
-public class NewCardActivity extends AppCompatActivity {
+public class NewCardActivity extends BaseActivity {
 
     public static final String DECK_DB_PATH = "deckDbPath";
 
-    protected String deckDbPath;
+    private String deckDbPath;
 
     @Nullable
-    protected DeckDatabase deckDb;
-    protected AppDatabase appDb;
+    private DeckDatabase deckDb;
+    private AppDatabase appDb;
 
-    protected EditText termEditText;
-    protected EditText definitionEditText;
-
-    protected ExceptionHandler exceptionHandler = ExceptionHandler.getInstance();
-    protected CardUtil cardUtil = CardUtil.getInstance();
+    private CardUtil cardUtil = CardUtil.getInstance();
+    private ActivityNewCardBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_card);
-
-        termEditText = findViewById(R.id.termEditText);
-        definitionEditText = findViewById(R.id.definitionEditText);
+        createBinding();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -53,7 +45,12 @@ public class NewCardActivity extends AppCompatActivity {
         Intent intent = getIntent();
         deckDbPath = intent.getStringExtra(DECK_DB_PATH);
         deckDb = getDeckDatabase(deckDbPath);
-        appDb = AppDatabaseUtil.getInstance(getApplicationContext()).getDatabase();
+        appDb = getAppDatabase();
+    }
+
+    protected void createBinding() {
+        binding = ActivityNewCardBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
     }
 
     @Override
@@ -79,8 +76,8 @@ public class NewCardActivity extends AppCompatActivity {
     @NonNull
     protected Card createCard() {
         Card card = new Card();
-        cardUtil.setTerm(card, termEditText.getText().toString());
-        cardUtil.setDefinition(card, definitionEditText.getText().toString());
+        cardUtil.setTerm(card, getTermEditText().getText().toString());
+        cardUtil.setDefinition(card, getDefinitionEditText().getText().toString());
         card.setModifiedAt(TimeUtil.getNowEpochSec());
         return card;
     }
@@ -97,9 +94,8 @@ public class NewCardActivity extends AppCompatActivity {
                             super.finish();
                         })
                 )
-                .subscribe(() -> {
-                    refreshLastUpdatedAt();
-                }, e -> exceptionHandler.handleException(
+                .subscribe(() -> refreshLastUpdatedAt(),
+                        e -> getExceptionHandler().handleException(
                         e, getSupportFragmentManager(),
                         this.getClass().getSimpleName() + "_OnClickSaveCard",
                         (dialog, which) -> onBackPressed()
@@ -116,14 +112,32 @@ public class NewCardActivity extends AppCompatActivity {
                 ));
     }
 
-    @Nullable
-    protected DeckDatabase getDeckDatabase(@NonNull String deckDbPath) {
-        return DeckDatabaseUtil
-                .getInstance(getApplicationContext())
-                .getDatabase(deckDbPath);
+    private ActivityNewCardBinding getBinding() {
+        return binding;
     }
 
-    protected ExceptionHandler getExceptionHandler() {
-        return ExceptionHandler.getInstance();
+    protected EditText getTermEditText() {
+        return getBinding().termEditText;
+    }
+
+    protected EditText getDefinitionEditText() {
+        return getBinding().definitionEditText;
+    }
+
+    protected CardUtil getCardUtil() {
+        return cardUtil;
+    }
+
+    @Nullable
+    protected DeckDatabase getDeckDb() {
+        return deckDb;
+    }
+
+    protected AppDatabase getAppDb() {
+        return appDb;
+    }
+
+    protected String getDeckDbPath() {
+        return deckDbPath;
     }
 }

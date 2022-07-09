@@ -24,7 +24,7 @@ public class NewCardAfterOrdinalActivity extends NewCardActivity {
     protected void onClickSaveCard() {
         Card card = createCard();
         Completable.fromAction(() ->
-                        deckDb.cardDao().insertAfterOrdinal(card, afterOrdinal + 1))
+                        getDeckDb().cardDao().insertAfterOrdinal(card, afterOrdinal + 1))
                 .subscribeOn(Schedulers.io())
                 .doOnComplete(() -> runOnUiThread(() -> {
                             Toast.makeText(this,

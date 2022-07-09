@@ -215,10 +215,10 @@ public class ExceptionHandler {
     }
 
     public void setDefaultUncaughtExceptionHandler(AppCompatActivity activity) {
-        Thread.setDefaultUncaughtExceptionHandler((paramThread, paramThrowable) -> {
+        Thread.setDefaultUncaughtExceptionHandler((paramThread, throwable) -> {
             new Thread(() -> {
                 Looper.prepare();
-                Toast.makeText(activity, "Fatal error", Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, "Fatal error: " + throwable, Toast.LENGTH_LONG).show();
                 Looper.loop();
             }).start();
             try {
