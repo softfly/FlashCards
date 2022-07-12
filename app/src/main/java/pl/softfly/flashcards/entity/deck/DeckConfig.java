@@ -13,7 +13,7 @@ public class DeckConfig {
 
     public static final String STUDY_CARD_TERM_FONT_SIZE = "StudyCard_Term_FontSize";
 
-    public static final String STUDY_CARD_DEFINITION_FONT_SIZE = "StudyCard_Term_FontSize";
+    public static final String STUDY_CARD_DEFINITION_FONT_SIZE = "StudyCard_Definition_FontSize";
 
     public static final String STUDY_CARD_TD_DISPLAY_RATIO = "StudyCard_TD_DisplayRatio";
 

@@ -6,6 +6,10 @@
         <item name="colorPrimaryVariant">@color/grey_1000</item>
         <item name="colorOnPrimary">@color/grey_400</item>
 
+        <item name="windowBackground">@android:color/black</item>
+        <item name="behindWindowBackground">@color/grey_1000</item>
+        <item name="cardBorder">@color/grey_900</item>
+
         <item name="android:statusBarColor" tools:targetApi="l">@color/grey_1000</item>
         <item name="actionBarStyle">@style/AppBarDarkStyle</item>
         <item name="android:windowBackground">@android:color/black</item>

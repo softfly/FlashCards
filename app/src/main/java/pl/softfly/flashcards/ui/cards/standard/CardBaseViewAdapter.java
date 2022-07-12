@@ -92,12 +92,11 @@ public class CardBaseViewAdapter extends BaseViewAdapter<CardViewHolder> {
     public void loadCards(int positionStart, int itemCount) {
         loadCardsToList().toObservable()
                 .doOnComplete(() -> refreshDataSet(positionStart, itemCount, this::onErrorLoadCards))
-                .subscribeOn(Schedulers.io())
                 .subscribe(listMaybe -> {}, this::onErrorLoadCards);
     }
 
     protected Maybe<List<Card>> loadCardsToList() {
-        return deckDb.cardDaoAsync().getCardsByDeletedNotOrderByOrdinal()
+        return deckDb.cardDaoAsync().getCardsByNotDeletedOrderByOrdinal()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onErrorLoadCards)
                 .doOnSuccess(cards -> {

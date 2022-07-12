@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.card.study.ExceptionStudyCardActivity"
+            android:name=".ui.card.study.display_ratio.DisplayRatioStudyCardActivity"
             android:exported="false"
             android:parentActivityName=".ui.main.ExceptionMainActivity">
             <meta-data

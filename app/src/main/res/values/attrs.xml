@@ -2,6 +2,10 @@
 <resources>
     <!-- These are the standard attributes that make up a complete theme. -->
     <declare-styleable name="Theme">
+        <attr name="windowBackground" format="color" />
+        <attr name="behindWindowBackground" format="color" />
+        <attr name="cardBorder" format="color" />
+
         <attr name="colorListDivider" format="color" />
         <attr name="opacityListDivider" format="color" />
 

@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card.study;
+package pl.softfly.flashcards.ui.card.study.zoom;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -18,6 +18,8 @@ public class ZoomTextView extends TextView {
     private final ScaleGestureDetector scaleDetector;
     @NonNull
     private final ZoomTextView view;
+    private boolean modeZoom;
+    private TextSizeListener textSizeListener;
     private final SimpleOnScaleGestureListener onScaleGestureListener =
             new SimpleOnScaleGestureListener() {
                 @Override
@@ -25,11 +27,13 @@ public class ZoomTextView extends TextView {
                     float newSize = view.getTextSize() * detector.getScaleFactor();
                     if (newSize > 30 && newSize < 80) {
                         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+                        if (textSizeListener != null) {
+                            textSizeListener.onUpdate(getScaledTextSize());
+                        }
                     }
                     return true;
                 }
             };
-    private boolean modeZoom;
 
     public ZoomTextView(Context context) {
         super(context);
@@ -74,5 +78,13 @@ public class ZoomTextView extends TextView {
 
     public void setTextSize(float size) {
         super.setTextSize(size);
+    }
+
+    public void setTextSizeListener(TextSizeListener textSizeListener) {
+        this.textSizeListener = textSizeListener;
+    }
+
+    interface TextSizeListener {
+        void onUpdate(float textSize);
     }
 }

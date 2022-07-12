@@ -2,14 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardLayout"
+    android:id="@+id/studyCardLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:stretchColumns="1"
     tools:context=".ui.card.study.DraggableStudyCardActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/card"
+        android:id="@+id/displayRatioLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -17,7 +17,7 @@
         app:layout_constraintBottom_toTopOf="@+id/gradeButtonsLayout"
         app:layout_constraintTop_toTopOf="parent">
 
-        <pl.softfly.flashcards.ui.card.study.ZoomTextView
+        <pl.softfly.flashcards.ui.card.study.zoom.ZoomTextView
             android:id="@+id/termView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -48,7 +48,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline" />
 
-        <pl.softfly.flashcards.ui.card.study.ZoomTextView
+        <pl.softfly.flashcards.ui.card.study.zoom.ZoomTextView
             android:id="@+id/definitionView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -83,7 +83,7 @@
             android:id="@+id/againButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:backgroundTint="@color/red_900"
             android:text="Again"
@@ -94,18 +94,19 @@
             android:id="@+id/quickButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:backgroundTint="@color/orange_800"
             android:text="Quick Repetition"
             android:textSize="11sp"
+            android:paddingHorizontal="2dp"
             android:textAllCaps="false" />
 
         <Button
             android:id="@+id/hardButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:backgroundTint="@color/blue_800"
             android:text="Hard"
@@ -115,7 +116,7 @@
             android:id="@+id/easyButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:backgroundTint="@color/green_700"
             android:text="Easy"

@@ -1,12 +1,9 @@
-package pl.softfly.flashcards.ui.card.study;
+package pl.softfly.flashcards.ui.card.study.slide;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import java.util.ListIterator;
-import java.util.Objects;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.functions.Consumer;
@@ -23,68 +20,20 @@ import pl.softfly.flashcards.entity.deck.CardLearningProgress;
 public class StudyCardViewModel extends ViewModel {
 
     private final CardReplayScheduler cardReplayScheduler = new CardReplayScheduler();
-    private final MutableLiveData<Card> card = new MutableLiveData<>();
     private final MutableLiveData<CardLearningProgress> againLearningProgress = new MutableLiveData<>();
     private final MutableLiveData<CardLearningProgress> quickLearningProgress = new MutableLiveData<>();
     private final MutableLiveData<CardLearningProgress> easyLearningProgress = new MutableLiveData<>();
     private final MutableLiveData<CardLearningProgress> hardLearningProgress = new MutableLiveData<>();
     private DeckDatabase deckDb;
     private AppDatabase appDb;
-    private ListIterator<Card> cardIterator;
 
-    public void nextCard(Consumer<? super Throwable> onError) {
-        if (Objects.nonNull(cardIterator) && cardIterator.hasNext()) {
-            setCard(cardIterator.next(), onError);
-        } else {
-            deckDb.cardDaoAsync().getNextCardsToReplay()
-                    .subscribeOn(Schedulers.io())
-                    .doOnSuccess(cards -> {
-                        cardIterator = cards.listIterator();
-                        if (cardIterator.hasNext()) {
-                            setCard(cardIterator.next(), onError);
-                        } else {
-                            setCard(null, onError);
-                        }
-                    })
-                    .subscribe(cards -> {}, onError);
-        }
+    public void setCard(int cardId, Consumer<? super Throwable> onError) {
+        setupLearningProgress(cardId, onError);
     }
 
-    protected void setCard(Card card, Consumer<? super Throwable> onError) {
-        if (card == null) {
-            this.card.postValue(null);
-            return;
-        }
-        this.card.postValue(card);
-        setupLearningProgress(card.getId(), onError);
-    }
-
-    @NonNull
-    public Completable deleteCard(Consumer<? super Throwable> onError) {
-        return deckDb.cardDao().deleteAsync(card.getValue())
-                .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> {
-                    cardIterator.remove();
-                    nextCard(onError);
-                });
-    }
-
-    @NonNull
-    public Completable revertCard(@NonNull Card card, Consumer<? super Throwable> onError) {
-        return deckDb.cardDao().restoreAsync(card)
-                .subscribeOn(Schedulers.io())
-                .doOnComplete(() -> {
-                            cardIterator.previous();
-                            cardIterator.add(card);
-                            cardIterator.previous();
-                            nextCard(onError);
-                        }
-                );
-    }
-
-    private void setupLearningProgress(@Nullable Integer cardId, Consumer<? super Throwable> onError) {
+    protected void setupLearningProgress(@Nullable Integer cardId, Consumer<? super Throwable> onError) {
         if (cardId == null) {
-            //DEBUG this
+            //TODO DEBUG this
             againLearningProgress.postValue(null);
             quickLearningProgress.postValue(null);
             easyLearningProgress.postValue(null);
@@ -99,7 +48,8 @@ public class StudyCardViewModel extends ViewModel {
                         scheduleFirstReplay(cardId);
                     }
                 })
-                .subscribe(learningProgress -> {}, onError);
+                .subscribe(learningProgress -> {
+                }, onError);
     }
 
     /**
@@ -127,10 +77,8 @@ public class StudyCardViewModel extends ViewModel {
      * This is for a scenario where Again was previously chosen.
      */
     protected void scheduleNextReplayAfterQuick(CardLearningProgress learningProgress) {
-        if (
-                learningProgress.getRemembered().equals(false)
-                        && learningProgress.getNextReplayAt() == null
-        ) {
+        if (learningProgress.getRemembered().equals(false)
+                && learningProgress.getNextReplayAt() == null) {
             quickLearningProgress.postValue(cardReplayScheduler.scheduleFirstReplayAfterQuick(learningProgress));
         } else {
             quickLearningProgress.postValue(null);
@@ -155,14 +103,8 @@ public class StudyCardViewModel extends ViewModel {
         }
         return updateCardLearningProgress
                 .andThen(appDb.deckDaoAsync().refreshLastUpdatedAt(deckDbPath))
-                .doOnSuccess(deck -> nextCard(onError))
                 .subscribeOn(Schedulers.io())
                 .flatMapCompletable(deck -> Completable.complete());
-    }
-
-    @NonNull
-    public MutableLiveData<Card> getCard() {
-        return card;
     }
 
     @NonNull

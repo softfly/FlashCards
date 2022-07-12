@@ -1,4 +1,4 @@
-package pl.softfly.flashcards.ui.card.study;
+package pl.softfly.flashcards.ui.card.study.exception;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -6,7 +6,7 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 
-import pl.softfly.flashcards.entity.deck.Card;
+import pl.softfly.flashcards.ui.card.study.slide.SlideStudyCardActivity;
 
 /**
  * @author Grzegorz Ziemski
@@ -15,7 +15,7 @@ import pl.softfly.flashcards.entity.deck.Card;
  * I considered making classes for catching exceptions more general and making Composition,
  * but in the Manifest defined classes must inherit android.app.Activity.
  */
-public class ExceptionStudyCardActivity extends DraggableStudyCardActivity {
+public class ExceptionStudyCardActivity extends SlideStudyCardActivity {
 
     /* -----------------------------------------------------------------------------------------
      * Constructor
@@ -101,6 +101,7 @@ public class ExceptionStudyCardActivity extends DraggableStudyCardActivity {
      * StudyCardActivity methods overridden
      * ----------------------------------------------------------------------------------------- */
 
+    /*
     @Override
     protected void onCardChanged(Card card) {
         getExceptionHandler().tryRun(
@@ -109,5 +110,5 @@ public class ExceptionStudyCardActivity extends DraggableStudyCardActivity {
                 this.getClass().getName(),
                 "Error while the updating the model card."
         );
-    }
+    }*/
 }

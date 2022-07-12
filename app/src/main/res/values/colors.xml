@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="white">#FFFFFFFF</color>
+
     <color name="deep_purple_50">#FFEDE7F6</color>
     <color name="deep_purple_100">#FFD1C4E9</color>
     <color name="deep_purple_200">#FFB39DDB</color>
+    <color name="deep_purple_300">#FF9575CD</color>
     <color name="deep_purple_600">#FF5E35B1</color>
     <color name="deep_purple_700">#FF512DA8</color>
     <color name="deep_purple_800">#FF4527A0</color>

@@ -42,7 +42,9 @@ public class EditCardActivity extends NewCardActivity {
         getDeckDb().cardLearningProgressAsyncDao().findByCardId(cardId).subscribeOn(Schedulers.io())
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(learningProgress -> runOnUiThread(() -> {
-                    getNextReplayAtTextDate().setText(learningProgress.getNextReplayAt().toString());
+                    if (learningProgress.getNextReplayAt() != null) {
+                        getNextReplayAtTextDate().setText(learningProgress.getNextReplayAt().toString());
+                    }
                 }))
                 .subscribe();
     }

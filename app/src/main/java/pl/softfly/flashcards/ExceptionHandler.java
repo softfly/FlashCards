@@ -216,13 +216,16 @@ public class ExceptionHandler {
 
     public void setDefaultUncaughtExceptionHandler(AppCompatActivity activity) {
         Thread.setDefaultUncaughtExceptionHandler((paramThread, throwable) -> {
+            if (Config.getInstance(activity).isCrashlyticsEnabled()) {
+                crashlytics.recordException(throwable);
+            }
             new Thread(() -> {
                 Looper.prepare();
                 Toast.makeText(activity, "Fatal error: " + throwable, Toast.LENGTH_LONG).show();
                 Looper.loop();
             }).start();
             try {
-                Thread.sleep(500); // Let the Toast display before app will get shutdown
+                Thread.sleep(1000); // Let the Toast display before app will get shutdown
             } catch (InterruptedException e) {
             }
             System.exit(2);

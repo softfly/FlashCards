@@ -17,11 +17,12 @@ import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.db.room.DeckDatabase;
 import pl.softfly.flashcards.ui.ExportImportDbUtil;
 import pl.softfly.flashcards.ui.FileSyncUtil;
-import pl.softfly.flashcards.ui.deck.folder.FolderViewHolder;
+import pl.softfly.flashcards.ui.card.study.display_ratio.DisplayRatioStudyCardActivity;
+import pl.softfly.flashcards.ui.card.study.slide.SlideStudyCardActivity;
 import pl.softfly.flashcards.ui.main.MainActivity;
 import pl.softfly.flashcards.ui.base.recyclerview.BaseViewAdapter;
 import pl.softfly.flashcards.ui.card.NewCardActivity;
-import pl.softfly.flashcards.ui.card.study.ExceptionStudyCardActivity;
+import pl.softfly.flashcards.ui.card.study.exception.ExceptionStudyCardActivity;
 import pl.softfly.flashcards.ui.cards.exception.ExceptionListCardsActivity;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
 
@@ -90,7 +91,7 @@ public class DeckBaseViewAdapter extends BaseViewAdapter<RecyclerView.ViewHolder
      * ----------------------------------------------------------------------------------------- */
 
     protected void newStudyCardActivity(int itemPosition) {
-        Intent intent = new Intent(getActivity(), ExceptionStudyCardActivity.class);
+        Intent intent = new Intent(getActivity(), DisplayRatioStudyCardActivity.class);
         intent.putExtra(
                 ExceptionStudyCardActivity.DECK_DB_PATH,
                 getFullDeckPath(itemPosition)
