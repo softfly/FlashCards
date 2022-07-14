@@ -1,26 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Theme.FlashCards" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
         <item name="colorPrimary">@color/grey_1000</item>
-        <item name="colorPrimaryVariant">@color/grey_1000</item>
+        <item name="colorPrimaryVariant">?attr/colorPrimary</item>
+        <item name="colorPrimaryDark">?attr/colorPrimary</item><!-- Notification bar color. -->
         <item name="colorOnPrimary">@color/grey_400</item>
 
-        <item name="windowBackground">@android:color/black</item>
-        <item name="behindWindowBackground">@color/grey_1000</item>
-        <item name="cardBorder">@color/grey_900</item>
-
-        <item name="android:statusBarColor" tools:targetApi="l">@color/grey_1000</item>
-        <item name="actionBarStyle">@style/AppBarDarkStyle</item>
+        <item name="colorIcon">@android:color/white</item>
         <item name="android:windowBackground">@android:color/black</item>
 
-        <item name="alertDialogTheme">@style/ThemeOverlay.MyApp.MaterialAlertDialog</item>
-        <!--<item name="materialAlertDialogTheme">@style/ThemeOverlay.MyApp.MaterialAlertDialog</item>-->
-
-
+        <!-- Study Card -->
         <item name="colorListDivider">@color/grey_900</item>
         <item name="opacityListDivider">@color/opacity_80</item>
+        <item name="behindWindowBackground">?attr/colorPrimary</item>
+        <item name="cardBorder">?attr/colorListDivider</item>
 
+        <!-- Show last synced -->
         <item name="colorItemRecentlyAddedCard">@color/green_800</item>
         <item name="colorItemRecentlyUpdatedCard">@color/orange_900</item>
         <item name="colorItemRecentlyAddedFileCard">@color/green_700</item>
@@ -28,24 +23,25 @@
         <item name="colorItemSelected">@color/deep_purple_700</item>
         <item name="colorItemActive">@color/deep_purple_900</item>
 
-        <item name="colorIcons">@android:color/white</item>
+        <!-- AlertDialog - Positive and Negative buttons are white.  -->
+        <item name="alertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
 
+        <item name="actionBarStyle">@style/AppBarDarkStyle</item>
+        <!-- The active icon is white instead of black -->
         <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
     </style>
 
     <style name="AppBarDarkStyle" parent="Widget.MaterialComponents.ActionBar.Primary">
-        <item name="background">@color/grey_1000</item>
+        <item name="background">?attr/colorPrimary</item>
     </style>
 
     <!-- BEGIN MaterialAlertDialog -->
-    <style name="ThemeOverlay.MyApp.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog
-        </item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.MyApp.Button.TextButton.Dialog
-        </item>
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button.TextButton.Dialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button.TextButton.Dialog</item>
     </style>
 
-    <style name="Widget.MyApp.Button.TextButton.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="Widget.App.Button.TextButton.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="materialThemeOverlay">@style/ThemeOverlay.MyApp.Button.TextButton.Dialog</item>
     </style>
 
@@ -54,6 +50,7 @@
     </style>
     <!-- END MaterialAlertDialog -->
 
+    <!-- BEGIN BottomNavigationView -->
     <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
     </style>
@@ -61,5 +58,6 @@
     <style name="ThemeOverlay.App.BottomNavigationView" parent="">
         <item name="colorPrimary">@android:color/white</item>
     </style>
+    <!-- END BottomNavigationView -->
 
 </resources>

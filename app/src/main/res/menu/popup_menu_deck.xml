@@ -16,15 +16,7 @@
         android:icon="@drawable/ic_round_content_cut_24"
         android:title="Cut" />
     <item
-        android:id="@+id/exportDbDeck"
-        android:icon="@drawable/ic_round_file_upload_24"
-        android:title="Export DB" />
-    <item
-        android:id="@+id/exportFile"
-        android:icon="@drawable/ic_round_file_upload_24"
-        android:title="Export to new Excel" />
-    <item
-        android:id="@+id/sync"
-        android:icon="@drawable/ic_sharp_sync_24"
-        android:title="Sync with Excel" />
+        android:id="@+id/more"
+        android:icon="@drawable/ic_baseline_more_horiz_24"
+        android:title="More" />
 </menu>

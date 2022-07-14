@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckViewAdapter;
 import pl.softfly.flashcards.ui.deck.standard.DeckViewHolder;
 
 /**
@@ -16,7 +16,7 @@ import pl.softfly.flashcards.ui.deck.standard.DeckViewHolder;
  */
 public class RecentDeckViewHolder extends DeckViewHolder {
 
-    public RecentDeckViewHolder(@NonNull View itemView, DeckBaseViewAdapter adapter) {
+    public RecentDeckViewHolder(@NonNull View itemView, DeckViewAdapter adapter) {
         super(itemView, adapter);
     }
 

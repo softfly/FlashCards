@@ -11,15 +11,14 @@ import androidx.fragment.app.DialogFragment;
 import io.reactivex.rxjava3.core.Completable;
 import pl.softfly.flashcards.ExceptionHandler;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
-import pl.softfly.flashcards.ui.deck.folder.CreateFolderDialog;
 
 public class RemoveDeckDialog extends DialogFragment {
 
     private final String path;
 
-    private final DeckBaseViewAdapter adapter;
+    private final DeckViewAdapter adapter;
 
-    public RemoveDeckDialog(String path, DeckBaseViewAdapter adapter) {
+    public RemoveDeckDialog(String path, DeckViewAdapter adapter) {
         this.adapter = adapter;
         this.path = path;
     }

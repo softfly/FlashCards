@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.db.DeckDatabaseUtil;
 import pl.softfly.flashcards.ui.main.MainActivity;
-import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class FolderDeckBaseViewAdapter extends DeckBaseViewAdapter {
+public class FolderDeckViewAdapter extends DeckViewAdapter {
 
     private static final int VIEW_TYPE_FOLDER = 2;
 
@@ -33,7 +33,7 @@ public class FolderDeckBaseViewAdapter extends DeckBaseViewAdapter {
      * Constructor
      * ----------------------------------------------------------------------------------------- */
 
-    public FolderDeckBaseViewAdapter(@NonNull MainActivity activity) {
+    public FolderDeckViewAdapter(@NonNull MainActivity activity) {
         super(activity);
     }
 

@@ -17,17 +17,16 @@ import pl.softfly.flashcards.db.AppDatabaseUtil;
 import pl.softfly.flashcards.db.room.AppDatabase;
 import pl.softfly.flashcards.entity.app.Deck;
 import pl.softfly.flashcards.ui.main.MainActivity;
-import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
-import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
+import pl.softfly.flashcards.ui.deck.standard.DeckViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class RecentDeckBaseViewAdapter extends DeckBaseViewAdapter {
+public class RecentDeckViewAdapter extends DeckViewAdapter {
 
     protected final ArrayList<Deck> decks = new ArrayList<>();
 
-    public RecentDeckBaseViewAdapter(@NonNull MainActivity activity) {
+    public RecentDeckViewAdapter(@NonNull MainActivity activity) {
         super(activity);
     }
 

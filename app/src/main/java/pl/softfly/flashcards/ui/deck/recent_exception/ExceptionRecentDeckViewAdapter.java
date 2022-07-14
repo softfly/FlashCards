@@ -1,33 +1,29 @@
-package pl.softfly.flashcards.ui.deck.folder_exception;
+package pl.softfly.flashcards.ui.deck.recent_exception;
 
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import pl.softfly.flashcards.ui.deck.recent.RecentDeckViewAdapter;
 import pl.softfly.flashcards.ui.main.MainActivity;
-import pl.softfly.flashcards.ui.deck.folder.FolderDeckBaseViewAdapter;
 
 /**
  * @author Grzegorz Ziemski
  */
-public class ExceptionFolderDeckBaseViewAdapter extends FolderDeckBaseViewAdapter {
+public class ExceptionRecentDeckViewAdapter extends RecentDeckViewAdapter {
 
     /* -----------------------------------------------------------------------------------------
      * Constructor
      * ----------------------------------------------------------------------------------------- */
 
-    public ExceptionFolderDeckBaseViewAdapter(@NonNull MainActivity activity) {
+    public ExceptionRecentDeckViewAdapter(@NonNull MainActivity activity) {
         super(activity);
     }
 
     @Override
-    protected RecyclerView.ViewHolder onCreateFolderViewHolder(View view) {
-        return new ExceptionFolderDeckViewHolder(view, this);
-    }
-
     protected RecyclerView.ViewHolder onCreateDeckViewHolder(View view) {
-        return new ExceptionFolderViewHolder(view, this);
+        return new ExceptionRecentDeckViewHolder(view, this);
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -42,4 +38,5 @@ public class ExceptionFolderDeckBaseViewAdapter extends FolderDeckBaseViewAdapte
                 this.getClass().getSimpleName() + "_OnBindViewHolder"
         );
     }
+
 }

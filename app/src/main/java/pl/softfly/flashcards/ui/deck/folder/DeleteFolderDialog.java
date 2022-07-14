@@ -17,15 +17,15 @@ import java.util.Comparator;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pl.softfly.flashcards.ui.base.BaseDialogFragment;
 import pl.softfly.flashcards.ui.main.MainActivity;
-import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckViewAdapter;
 
 public class DeleteFolderDialog extends BaseDialogFragment {
 
     private final File currentFolder;
 
-    private final DeckBaseViewAdapter adapter;
+    private final DeckViewAdapter adapter;
 
-    public DeleteFolderDialog(File currentFolder, DeckBaseViewAdapter adapter) {
+    public DeleteFolderDialog(File currentFolder, DeckViewAdapter adapter) {
         this.adapter = adapter;
         this.currentFolder = currentFolder;
     }

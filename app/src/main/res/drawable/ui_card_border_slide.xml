@@ -1,6 +1,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle" >
-    <solid android:color="?attr/windowBackground" />
+    <solid android:color="?android:attr/windowBackground" />
     <stroke android:width="3dp" android:color="?attr/cardBorder"/>
     <corners android:radius="10dp" />
 </shape>

@@ -14,7 +14,7 @@ public class ExceptionRecentDeckViewHolder extends RecentDeckViewHolder {
 
     public ExceptionRecentDeckViewHolder(
             @NonNull View itemView,
-            ExceptionRecentDeckBaseViewAdapter adapter
+            ExceptionRecentDeckViewAdapter adapter
     ) {
         super(itemView, adapter);
     }

@@ -27,7 +27,7 @@ public abstract class IconInTopbarFragment extends BaseFragment {
     public CharSequence menuIconWithText(@NonNull Drawable r, String title) {
         r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
         r.setColorFilter(
-                MaterialColors.getColor(getView(), R.attr.colorIcons),
+                MaterialColors.getColor(getView(), R.attr.colorIcon),
                 PorterDuff.Mode.MULTIPLY
         );
         SpannableString sb = new SpannableString("    " + title);

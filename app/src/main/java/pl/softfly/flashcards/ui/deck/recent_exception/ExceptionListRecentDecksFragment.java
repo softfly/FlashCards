@@ -8,12 +8,7 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import pl.softfly.flashcards.R;
-import pl.softfly.flashcards.ui.deck.folder.FolderDeckBaseViewAdapter;
-import pl.softfly.flashcards.ui.deck.folder_exception.ExceptionFolderDeckBaseViewAdapter;
 import pl.softfly.flashcards.ui.deck.recent.ListRecentDecksFragment;
-import pl.softfly.flashcards.ui.deck.recent.RecentDeckBaseViewAdapter;
-import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 import pl.softfly.flashcards.ui.main.MainActivity;
 
 /**
@@ -36,8 +31,8 @@ public class ExceptionListRecentDecksFragment extends ListRecentDecksFragment {
     }
 
     @Override
-    protected ExceptionRecentDeckBaseViewAdapter onCreateAdapter() {
-        return new ExceptionRecentDeckBaseViewAdapter((MainActivity) getActivity());
+    protected ExceptionRecentDeckViewAdapter onCreateAdapter() {
+        return new ExceptionRecentDeckViewAdapter((MainActivity) getActivity());
     }
 
     /* -----------------------------------------------------------------------------------------

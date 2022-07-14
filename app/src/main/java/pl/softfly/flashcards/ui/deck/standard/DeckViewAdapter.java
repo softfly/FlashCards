@@ -29,13 +29,13 @@ import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
 /**
  * @author Grzegorz Ziemski
  */
-public class DeckBaseViewAdapter extends BaseViewAdapter<RecyclerView.ViewHolder> {
+public class DeckViewAdapter extends BaseViewAdapter<RecyclerView.ViewHolder> {
 
     protected static final int VIEW_TYPE_DECK = 1;
 
     protected final ArrayList<String> deckNames = new ArrayList<>();
 
-    public DeckBaseViewAdapter(@NonNull MainActivity activity) {
+    public DeckViewAdapter(@NonNull MainActivity activity) {
         super(activity);
     }
 

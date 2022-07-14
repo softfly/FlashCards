@@ -20,9 +20,9 @@ public class FolderViewHolder extends BaseViewHolder implements View.OnClickList
     public TextView nameTextView;
     TextView moreTextView;
     RelativeLayout deckLayoutListItem;
-    FolderDeckBaseViewAdapter adapter;
+    FolderDeckViewAdapter adapter;
 
-    public FolderViewHolder(@NonNull View itemView, FolderDeckBaseViewAdapter adapter) {
+    public FolderViewHolder(@NonNull View itemView, FolderDeckViewAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
         nameTextView = itemView.findViewById(R.id.nameTextView);
@@ -59,7 +59,7 @@ public class FolderViewHolder extends BaseViewHolder implements View.OnClickList
         adapter.onItemClick(getBindingAdapterPosition());
     }
 
-    public FolderDeckBaseViewAdapter getAdapter() {
+    public FolderDeckViewAdapter getAdapter() {
         return adapter;
     }
 }

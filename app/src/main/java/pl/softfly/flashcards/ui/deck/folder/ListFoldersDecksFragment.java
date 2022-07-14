@@ -41,8 +41,8 @@ public class ListFoldersDecksFragment extends ListDecksFragment {
     }
 
     @Override
-    protected FolderDeckBaseViewAdapter onCreateAdapter() {
-        return new FolderDeckBaseViewAdapter((MainActivity) getActivity());
+    protected FolderDeckViewAdapter onCreateAdapter() {
+        return new FolderDeckViewAdapter((MainActivity) getActivity());
     }
 
     protected void initHandleOnBackPressed() {
@@ -157,8 +157,8 @@ public class ListFoldersDecksFragment extends ListDecksFragment {
      * ----------------------------------------------------------------------------------------- */
 
     @Override
-    public FolderDeckBaseViewAdapter getAdapter() {
-        return (FolderDeckBaseViewAdapter) super.getAdapter();
+    public FolderDeckViewAdapter getAdapter() {
+        return (FolderDeckViewAdapter) super.getAdapter();
     }
 
 

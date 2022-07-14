@@ -15,8 +15,8 @@ import pl.softfly.flashcards.ui.deck.standard.ListDecksFragment;
 public class ListRecentDecksFragment extends ListDecksFragment {
 
     @Override
-    protected RecentDeckBaseViewAdapter onCreateAdapter() {
-        return new RecentDeckBaseViewAdapter((MainActivity) getActivity());
+    protected RecentDeckViewAdapter onCreateAdapter() {
+        return new RecentDeckViewAdapter((MainActivity) getActivity());
     }
 
     @Override

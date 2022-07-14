@@ -37,7 +37,7 @@ public class ListDecksFragment extends IconInTopbarFragment {
 
     private FragmentListDecksBinding binding;
 
-    private DeckBaseViewAdapter adapter;
+    private DeckViewAdapter adapter;
 
     private ExportImportDbUtil exportImportDbUtil = new ExportImportDbUtil(this);
 
@@ -53,8 +53,8 @@ public class ListDecksFragment extends IconInTopbarFragment {
         setHasOptionsMenu(true);
     }
 
-    protected DeckBaseViewAdapter onCreateAdapter() {
-        return new DeckBaseViewAdapter((MainActivity) getActivity());
+    protected DeckViewAdapter onCreateAdapter() {
+        return new DeckViewAdapter((MainActivity) getActivity());
     }
 
     protected void askPermissionManageExternalStorage() {
@@ -165,7 +165,7 @@ public class ListDecksFragment extends IconInTopbarFragment {
         return binding;
     }
 
-    public DeckBaseViewAdapter getAdapter() {
+    public DeckViewAdapter getAdapter() {
         return adapter;
     }
 

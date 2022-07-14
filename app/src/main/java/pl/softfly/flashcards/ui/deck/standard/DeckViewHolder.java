@@ -20,9 +20,9 @@ public class DeckViewHolder extends BaseViewHolder implements View.OnClickListen
     TextView nameTextView;
     TextView totalTextView;
     RelativeLayout deckLayoutListItem;
-    protected DeckBaseViewAdapter adapter;
+    protected DeckViewAdapter adapter;
 
-    public DeckViewHolder(@NonNull View itemView, DeckBaseViewAdapter adapter) {
+    public DeckViewHolder(@NonNull View itemView, DeckViewAdapter adapter) {
         super(itemView);
         this.adapter = adapter;
         nameTextView = itemView.findViewById(R.id.nameTextView);
@@ -54,14 +54,9 @@ public class DeckViewHolder extends BaseViewHolder implements View.OnClickListen
             case R.id.removeDeck:
                 adapter.showDeleteDeckDialog(getBindingAdapterPosition());
                 return true;
-            case R.id.exportDbDeck:
-                adapter.launchExportDb(getBindingAdapterPosition());
-                return true;
-            case R.id.exportFile:
-                adapter.launchExportToFile(getBindingAdapterPosition());
-                return true;
-            case R.id.sync:
-                adapter.launchSyncFile(getBindingAdapterPosition());
+            case R.id.more:
+                DeckBottomMenu deckBottomMenu = new DeckBottomMenu(getAdapter(), getBindingAdapterPosition());
+                deckBottomMenu.show(getAdapter().getActivity().getSupportFragmentManager(), "test");
                 return true;
         }
         return false;
@@ -72,7 +67,7 @@ public class DeckViewHolder extends BaseViewHolder implements View.OnClickListen
         adapter.onItemClick(getBindingAdapterPosition());
     }
 
-    public DeckBaseViewAdapter getAdapter() {
+    public DeckViewAdapter getAdapter() {
         return adapter;
     }
 }

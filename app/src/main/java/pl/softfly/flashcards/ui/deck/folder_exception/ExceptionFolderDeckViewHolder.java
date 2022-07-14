@@ -14,7 +14,7 @@ public class ExceptionFolderDeckViewHolder extends FolderDeckViewHolder {
 
     public ExceptionFolderDeckViewHolder(
             @NonNull View itemView,
-            ExceptionFolderDeckBaseViewAdapter adapter
+            ExceptionFolderDeckViewAdapter adapter
     ) {
         super(itemView, adapter);
     }

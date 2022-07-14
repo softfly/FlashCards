@@ -13,7 +13,7 @@ import pl.softfly.flashcards.ui.deck.standard.DeckViewHolder;
  */
 public class FolderDeckViewHolder extends DeckViewHolder {
 
-    public FolderDeckViewHolder(@NonNull View itemView, FolderDeckBaseViewAdapter adapter) {
+    public FolderDeckViewHolder(@NonNull View itemView, FolderDeckViewAdapter adapter) {
         super(itemView, adapter);
     }
 
@@ -27,7 +27,7 @@ public class FolderDeckViewHolder extends DeckViewHolder {
         return super.onMenuMoreClick(item);
     }
 
-    public FolderDeckBaseViewAdapter getAdapter() {
-        return (FolderDeckBaseViewAdapter) super.getAdapter();
+    public FolderDeckViewAdapter getAdapter() {
+        return (FolderDeckViewAdapter) super.getAdapter();
     }
 }

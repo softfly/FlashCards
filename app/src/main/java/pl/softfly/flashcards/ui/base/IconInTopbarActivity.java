@@ -25,7 +25,7 @@ public abstract class IconInTopbarActivity extends BaseActivity {
     protected CharSequence menuIconWithText(@NonNull Drawable r, String title) {
         r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
         r.setColorFilter(
-                MaterialColors.getColor(findViewById(android.R.id.content), R.attr.colorIcons),
+                MaterialColors.getColor(findViewById(android.R.id.content), R.attr.colorIcon),
                 PorterDuff.Mode.MULTIPLY
         );
         SpannableString sb = new SpannableString("    " + title);

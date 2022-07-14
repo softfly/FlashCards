@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import pl.softfly.flashcards.ui.main.MainActivity;
-import pl.softfly.flashcards.ui.deck.folder.FolderDeckBaseViewAdapter;
+import pl.softfly.flashcards.ui.deck.folder.FolderDeckViewAdapter;
 import pl.softfly.flashcards.ui.deck.folder.ListFoldersDecksFragment;
 
 /**
@@ -32,8 +32,8 @@ public class ExceptionListFoldersDecksFragment extends ListFoldersDecksFragment 
     }
 
     @Override
-    protected FolderDeckBaseViewAdapter onCreateAdapter() {
-        return new ExceptionFolderDeckBaseViewAdapter((MainActivity) getActivity());
+    protected FolderDeckViewAdapter onCreateAdapter() {
+        return new ExceptionFolderDeckViewAdapter((MainActivity) getActivity());
     }
 
     /* -----------------------------------------------------------------------------------------

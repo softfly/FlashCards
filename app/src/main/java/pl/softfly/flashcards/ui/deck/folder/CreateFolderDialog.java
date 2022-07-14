@@ -13,15 +13,15 @@ import java.io.File;
 
 import pl.softfly.flashcards.R;
 import pl.softfly.flashcards.ui.base.BaseDialogFragment;
-import pl.softfly.flashcards.ui.deck.standard.DeckBaseViewAdapter;
+import pl.softfly.flashcards.ui.deck.standard.DeckViewAdapter;
 
 public class CreateFolderDialog extends BaseDialogFragment {
 
     private final File currentFolder;
 
-    private final DeckBaseViewAdapter adapter;
+    private final DeckViewAdapter adapter;
 
-    public CreateFolderDialog(File currentFolder, DeckBaseViewAdapter adapter) {
+    public CreateFolderDialog(File currentFolder, DeckViewAdapter adapter) {
         this.adapter = adapter;
         this.currentFolder = currentFolder;
     }
